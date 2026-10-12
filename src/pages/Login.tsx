@@ -9,7 +9,7 @@ import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { useBodyClass } from '../hooks/useBodyClass';
-import { useStore } from '../store/useStore';
+import { useStore, Asset } from '../store/useStore';
 
 export default function Login() {
   useBodyClass('allow-cursor');
@@ -146,7 +146,7 @@ export default function Login() {
         // Ignore error
       }
 
-      let initialAssets: any[] = [];
+      const initialAssets: Asset[] = [];
 
       useStore.setState({ 
         isAuthenticated: true,

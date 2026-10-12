@@ -52,10 +52,10 @@ export function WaitlistForm() {
   const onSubmit = async (data: WaitlistFormData) => {
     setIsSubmitting(true);
     try {
-      const result = await api.post<any>('/app/waitlist', { email: data.email, name: null }, { skipAead: true });
+      const result = await api.post<{ position?: number; isNew?: boolean }>('/app/waitlist', { email: data.email, name: null }, { skipAead: true });
       const waitlistData = result.data ? result.data : result;
 
-      setPosition(waitlistData.position);
+      setPosition(waitlistData.position ?? null);
       setIsSuccess(true);
       triggerConfetti();
 
@@ -75,9 +75,10 @@ export function WaitlistForm() {
         });
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Waitlist error:', error);
-      toast.error(error.message || 'Something went wrong. Please try again.');
+      const msg = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }

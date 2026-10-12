@@ -99,7 +99,7 @@ export default function Assets() {
     }).length;
   };
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(assetSchema)
   });
 
@@ -189,7 +189,7 @@ export default function Assets() {
           date: new Date().toISOString().split('T')[0],
           tags: ['retirement', 'institutional', 'long-term'],
           notes: 'Institutional retirement fund. Managed via primary brokerage.'
-        } as any);
+        } as Omit<Asset, 'id'>);
         toast.success('Institutional template added');
       } else if (templateType === 'crypto') {
         await addAsset({
@@ -201,7 +201,7 @@ export default function Assets() {
           date: new Date().toISOString().split('T')[0],
           tags: ['btc', 'cold'],
           notes: 'Seed phrase stored in safe. Emergency access granted to Sarah.'
-        } as any);
+        } as Omit<Asset, 'id'>);
         toast.success('Crypto Wallet template added');
       }
       fetchAssets();

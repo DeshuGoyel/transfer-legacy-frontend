@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useStore } from '../store/useStore';
+import { useStore, Asset } from '../store/useStore';
 import {
   Building2, Mail, TrendingUp, Bitcoin, Cloud, Briefcase,
   Lock, Plus, Users, KeyRound, ChevronRight, Shield,
@@ -64,7 +64,7 @@ function StatusPill({ status }: { status?: string }) {
 }
 
 /* ── Vault row ────────────────────────────────────────────── */
-function VaultRow({ asset, onClick }: { asset: any; onClick: () => void }) {
+function VaultRow({ asset, onClick }: { asset: Asset; onClick: () => void }) {
   const Icon = assetIcon(asset.type);
   return (
     <button
@@ -240,7 +240,7 @@ export default function Dashboard() {
                 <EmptyVault onAdd={() => navigate('/assets')} />
               ) : (
                 <div>
-                  {assets.slice(0, 8).map((asset: any) => (
+                  {assets.slice(0, 8).map((asset: Asset) => (
                     <VaultRow
                       key={asset.id}
                       asset={asset}

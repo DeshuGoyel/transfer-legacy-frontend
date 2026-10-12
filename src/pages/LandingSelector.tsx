@@ -4,13 +4,13 @@ import LandingPage from './LandingPage';
 import { useStore } from '../store/useStore';
 
 export default function LandingSelector() {
-  const { branding, setBranding } = useStore();
+  const { setBranding } = useStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadBranding() {
       try {
-        const res = await api.get<any>('/app/branding', { skipAead: true });
+        const res = await api.get<{ waitlist_enabled?: boolean }>('/app/branding', { skipAead: true });
         const data = res.data ? res.data : res;
         if (data && typeof data.waitlist_enabled === 'boolean') {
           setBranding({ waitlist_enabled: data.waitlist_enabled });

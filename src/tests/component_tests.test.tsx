@@ -82,6 +82,6 @@ describe('WaitlistForm Component Tests', () => {
   it('should_render_email_input_field_and_submit_button_initially', () => {
     render(<WaitlistForm />);
     expect(screen.getByPlaceholderText('Search resources...') || screen.getByRole('textbox')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /join/i || /secure/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /join|secure/i })).toBeInTheDocument();
   });
 });

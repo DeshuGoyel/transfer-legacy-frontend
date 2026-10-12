@@ -11,7 +11,7 @@ if (!global.crypto) {
   Object.defineProperty(global, 'crypto', {
     value: {
       subtle: {
-        digest: async (algorithm: string, data: Uint8Array) => {
+        digest: async (_algorithm: string, _data: Uint8Array) => {
           return new Uint8Array(32).buffer; // 256-bit empty buffer for hashing Mock
         }
       },

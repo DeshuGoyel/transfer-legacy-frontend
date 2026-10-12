@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useStore } from '../store/useStore';
 import { useCheckinStore } from '../store/useCheckinStore';
 import { User, Shield, Bell, Palette, AlertTriangle, Activity, ChevronRight, HardDrive, Fingerprint, Globe, ShieldAlert } from 'lucide-react';
@@ -18,8 +18,21 @@ const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 15 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] as any },
+  transition: { delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
 });
+
+interface DeviceItem {
+  device_id: string;
+  label?: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
+interface ShareItem {
+  share_id: string;
+  grantee_id: string;
+  [key: string]: unknown;
+}
 
 export default function Settings() {
   const { user, heirs, guardians, shares, fetchShares, revokeShare } = useStore();
@@ -42,7 +55,7 @@ export default function Settings() {
   const [showMfaSetup, setShowMfaSetup] = useState(false);
 
   // Active Devices States
-  const [devices, setDevices] = useState<any[]>([]);
+  const [devices, setDevices] = useState<DeviceItem[]>([]);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
 
   // GDPR States
@@ -77,9 +90,10 @@ export default function Settings() {
       setMfaBackupCodes(res.backup_codes || []);
       setShowMfaSetup(true);
       toast.success('MFA enrollment handshake completed');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'Failed to initiate MFA enrollment');
+      const msg = err instanceof Error ? err.message : 'Failed to initiate MFA enrollment';
+      toast.error(msg);
     } finally {
       setIsMfaLoading(false);
     }
@@ -102,31 +116,21 @@ export default function Settings() {
       setIsMfaEnrolled(true);
       setShowMfaSetup(false);
       toast.success('MFA successfully enabled!');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'MFA verification failed');
+      const msg = err instanceof Error ? err.message : 'MFA verification failed';
+      toast.error(msg);
     } finally {
       setIsMfaLoading(false);
     }
   };
 
-  const registerCurrentDevice = async () => {
-    const userId = localStorage.getItem('tl_user_id');
-    if (!userId) return;
-    try {
-      await registerDevice(userId);
-      await fetchDevices();
-    } catch (err: any) {
-      console.error('Failed to auto-register current device:', err);
-    }
-  };
-
-  const fetchDevices = async () => {
+  const fetchDevices = useCallback(async () => {
     setIsLoadingDevices(true);
     try {
       const userId = localStorage.getItem('tl_user_id');
       if (!userId) return;
-      const res = await api.post<{ devices: any[] }>(
+      const res = await api.post<{ devices: DeviceItem[] }>(
         '/devices/',
         { user_id: userId },
         { skipAead: true }
@@ -135,17 +139,24 @@ export default function Settings() {
       setDevices(list);
       
       const currentDevId = localStorage.getItem('tl_device_id');
-      const hasCurrent = list.some((d: any) => d.device_id === currentDevId);
+      const hasCurrent = list.some((d: DeviceItem) => d.device_id === currentDevId);
       if (!hasCurrent) {
-        await registerCurrentDevice();
+        await registerDevice(userId);
+        const refetched = await api.post<{ devices: DeviceItem[] }>(
+          '/devices/',
+          { user_id: userId },
+          { skipAead: true }
+        );
+        setDevices(refetched.devices || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'Failed to list active devices');
+      const msg = err instanceof Error ? err.message : 'Failed to list active devices';
+      toast.error(msg);
     } finally {
       setIsLoadingDevices(false);
     }
-  };
+  }, []);
 
   const handleRevokeDevice = async (deviceId: string) => {
     const userId = localStorage.getItem('tl_user_id');
@@ -164,9 +175,10 @@ export default function Settings() {
       } else {
         await fetchDevices();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'Failed to revoke device');
+      const msg = err instanceof Error ? err.message : 'Failed to revoke device';
+      toast.error(msg);
     } finally {
       setIsLoadingDevices(false);
     }
@@ -222,9 +234,10 @@ export default function Settings() {
       URL.revokeObjectURL(url);
       
       toast.success('Archival export completed successfully.');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'Data export failed');
+      const msg = err instanceof Error ? err.message : 'Data export failed';
+      toast.error(msg);
     } finally {
       setIsExporting(false);
     }
@@ -248,15 +261,16 @@ export default function Settings() {
       
       toast.success('Vault decommissioned. All identity assets deleted.');
       useStore.getState().logout();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'Erase request failed');
+      const msg = err instanceof Error ? err.message : 'Erase request failed';
+      toast.error(msg);
     } finally {
       setIsErasing(false);
     }
   };
 
-  const loadShares = async () => {
+  const loadShares = useCallback(async () => {
     setIsLoadingShares(true);
     try {
       await fetchShares();
@@ -265,16 +279,17 @@ export default function Settings() {
     } finally {
       setIsLoadingShares(false);
     }
-  };
+  }, [fetchShares]);
 
   const handleRevokeShare = async (shareId: string) => {
     setIsLoadingShares(true);
     try {
       await revokeShare(shareId);
       toast.success('Access grant revoked successfully');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || 'Failed to revoke share');
+      const msg = err instanceof Error ? err.message : 'Failed to revoke share';
+      toast.error(msg);
     } finally {
       setIsLoadingShares(false);
     }
@@ -285,7 +300,7 @@ export default function Settings() {
       fetchDevices();
       loadShares();
     }
-  }, [activeTab]);
+  }, [activeTab, fetchDevices, loadShares]);
 
   const tabs = [
     { name: 'Profile', icon: User, desc: 'Personal Identity' },
@@ -596,7 +611,7 @@ export default function Settings() {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {shares.map((s: any) => {
+                          {shares.map((s: ShareItem) => {
                             const beneficiary = heirs.find(h => h.id === s.grantee_id) || guardians.find(g => g.id === s.grantee_id);
                             const beneficiaryName = beneficiary?.name || `Grantee (ID: ${s.grantee_id.substring(0, 8)}...)`;
                             const beneficiaryEmail = beneficiary?.email || 'External Protocol Node';

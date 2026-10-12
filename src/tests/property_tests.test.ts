@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { waitlistSchema } from '../lib/validations';
-import { useStore } from '../store/useStore';
+import { useStore, Asset } from '../store/useStore';
 
 // Simple modular mock Shamir-like secret sharing for property validation
 // In a real application, this would import from the cryptographic library.
@@ -133,12 +132,11 @@ describe('Property-Based Mathematical Invariant Tests', () => {
           })
         ),
         (newAssets) => {
-          const lastScore = 0;
           useStore.setState(initialState);
           
           for (const asset of newAssets) {
             const previousScore = useStore.getState().user.score;
-            useStore.getState().addAsset(asset as any);
+            useStore.getState().addAsset(asset as Omit<Asset, 'id'>);
             const currentScore = useStore.getState().user.score;
             expect(currentScore).toBeGreaterThanOrEqual(previousScore);
           }

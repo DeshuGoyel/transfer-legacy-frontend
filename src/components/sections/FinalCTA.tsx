@@ -15,10 +15,10 @@ export default function FinalCTA() {
   useEffect(() => {
     async function loadBranding() {
       try {
-        const res = await api.get<any>('/app/branding', { skipAead: true });
+        const res = await api.get<{ waitlist_enabled?: boolean }>('/app/branding', { skipAead: true });
         const data = res.data ? res.data : res;
         if (data && typeof data.waitlist_enabled === 'boolean') {
-          setBranding(data);
+          setBranding({ waitlist_enabled: data.waitlist_enabled });
         }
       } catch { /* defaults to waitlist_enabled: false */ }
     }
@@ -30,9 +30,9 @@ export default function FinalCTA() {
     if (!email) return;
     setIsSubmitting(true);
     try {
-      const result = await api.post<any>('/app/waitlist', { email, name: null }, { skipAead: true });
+      const result = await api.post<{ position?: number; isNew?: boolean }>('/app/waitlist', { email, name: null }, { skipAead: true });
       const waitlistData = result.data ? result.data : result;
-      setPosition(waitlistData.position);
+      setPosition(waitlistData.position ?? null);
       setIsSuccess(true);
 
       confetti({
@@ -47,8 +47,9 @@ export default function FinalCTA() {
       } else {
         toast.success("Welcome back! You're already registered.");
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to submit. Please try again.');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to submit. Please try again.';
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }

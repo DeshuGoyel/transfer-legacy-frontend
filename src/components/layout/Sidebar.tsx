@@ -46,7 +46,7 @@ const sections = [
 
 /* ── Sidebar ──────────────────────────────────────────────── */
 export default function Sidebar() {
-  const { isMobileSidebarOpen, toggleMobileSidebar, user, logout, isSidebarCollapsed, toggleNotifications, unreadCount } = useStore();
+  const { isMobileSidebarOpen, toggleMobileSidebar, user, logout, isSidebarCollapsed } = useStore();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -58,7 +58,7 @@ export default function Sidebar() {
     if (isMobileSidebarOpen) toggleMobileSidebar();
   };
 
-  const planLabel = (user as any).plan || 'Family';
+  const planLabel = (user as { plan?: string } | null)?.plan || 'Family';
 
   return (
     <>

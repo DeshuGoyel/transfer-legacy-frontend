@@ -87,6 +87,14 @@ interface User {
   jurisdiction?: string;
 }
 
+export interface ShareGrant {
+  share_id: string;
+  grantee_id: string;
+  item_id?: string;
+  owner_id?: string;
+  [key: string]: unknown;
+}
+
 interface AppState {
   user: User;
   assets: Asset[];
@@ -135,11 +143,11 @@ interface AppState {
   publishPolicy: (totpCode: string) => Promise<void>;
   recoveredAssets: Asset[];
   initiateClaim: (policyId: string) => Promise<string>;
-  fetchRecoveredEnvelopes: (claimId: string) => Promise<any[]>;
+  fetchRecoveredEnvelopes: (claimId: string) => Promise<Record<string, unknown>[]>;
   recoverOwnerVault: (ownerUserId: string, shares: { x: number; y: string }[]) => Promise<void>;
   branding: { waitlist_enabled: boolean };
   setBranding: (branding: { waitlist_enabled: boolean }) => void;
-  shares: any[];
+  shares: ShareGrant[];
   fetchShares: () => Promise<void>;
   revokeShare: (shareId: string) => Promise<void>;
 }
@@ -395,7 +403,7 @@ export const useStore = create<AppState>((set) => ({
             targetKyberPub = keysRes.kyber768_pubkey;
             isRegistered = true;
           }
-        } catch (err) {
+        } catch {
           console.warn(`Heir ${heir.email} is not registered yet, generating ephemeral wrapper...`);
         }
 
@@ -418,8 +426,8 @@ export const useStore = create<AppState>((set) => ({
         );
 
         // 2. PQ Shared Secret (Kyber-768/ML-KEM-768 mock encaps or real if registered)
-        let kyberCt: any = new Uint8Array();
-        let ssPq: any = new Uint8Array(32);
+        let kyberCt: Uint8Array = new Uint8Array();
+        let ssPq: Uint8Array = new Uint8Array(32);
         try {
           const kyberRes = sodium.crypto_kem_mlkem768_enc_deterministic(
             fromBase64Url(targetKyberPub),
@@ -549,7 +557,7 @@ export const useStore = create<AppState>((set) => ({
       const personId = localStorage.getItem('tl_person_id');
       if (!personId) throw new Error("Claimant person ID not found");
 
-      const response = await api.get<{ items: any[] }>(`/inheritance/envelopes?claim_id=${claimId}&claimant_person_id=${personId}`);
+      const response = await api.get<{ items: Record<string, unknown>[] }>(`/inheritance/envelopes?claim_id=${claimId}&claimant_person_id=${personId}`);
       return response.items || [];
     } catch (err) {
       console.error("Failed to fetch envelopes:", err);
@@ -571,7 +579,7 @@ export const useStore = create<AppState>((set) => ({
       const reconstructedMk = combineShares(parsedShares);
 
       // 2. Fetch owner's encrypted items
-      const response = await api.post<{ items: any[] }>('/vault/items/list', {
+      const response = await api.post<{ items: RawItem[] }>('/vault/items/list', {
         user_id: ownerUserId
       });
       const encryptedItems = response.items || [];
@@ -961,7 +969,7 @@ export const useStore = create<AppState>((set) => ({
     try {
       const userId = localStorage.getItem('tl_user_id');
       if (!userId) return;
-      const res = await api.post<{ shares: any[] }>('/vault/shares/list', { owner_id: userId });
+      const res = await api.post<{ shares: ShareGrant[] }>('/vault/shares/list', { owner_id: userId });
       set({ shares: res.shares || [] });
     } catch (err) {
       console.error('Failed to fetch shares:', err);
@@ -972,7 +980,7 @@ export const useStore = create<AppState>((set) => ({
       const userId = localStorage.getItem('tl_user_id');
       if (!userId) return;
       await api.post('/vault/shares/revoke', { owner_id: userId, share_id: shareId });
-      const res = await api.post<{ shares: any[] }>('/vault/shares/list', { owner_id: userId });
+      const res = await api.post<{ shares: ShareGrant[] }>('/vault/shares/list', { owner_id: userId });
       set({ shares: res.shares || [] });
     } catch (err) {
       console.error('Failed to revoke share:', err);

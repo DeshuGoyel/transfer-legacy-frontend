@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, ArrowLeft, Clock, AlertTriangle, ShieldCheck, RefreshCw } from 'lucide-react';
+import { ClipboardList, ArrowLeft, Clock, AlertTriangle, ShieldCheck, RefreshCw } from 'lucide-react';
 import { opsApi } from '../../../lib/opsApi';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
@@ -19,7 +19,7 @@ interface ReviewSummary {
 }
 
 interface ReviewDetail extends ReviewSummary {
-  notes?: any;
+  notes?: string | Record<string, unknown>;
 }
 
 export default function ReviewsManager() {
