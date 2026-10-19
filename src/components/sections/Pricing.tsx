@@ -1,39 +1,19 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-
-const plans = [
-  {
-    name: 'Personal',
-    monthlyPrice: 19,
-    yearlyPrice: 12,
-    desc: 'Secure your individual digital wealth.',
-    features: ['10 protected assets', '3 active guardians', '1 primary heir', 'Standard encryption key'],
-    cta: 'Protect My Legacy',
-    highlighted: false,
-  },
-  {
-    name: 'Family',
-    monthlyPrice: 49,
-    yearlyPrice: 29,
-    desc: 'Full protection for your heirs and estates.',
-    features: ['Unlimited vault assets', '10 active guardians', '5 assigned heirs', 'AI Legacy Planner check-in', 'Premium support'],
-    cta: 'Secure My Family',
-    highlighted: true,
-  },
-  {
-    name: 'Advisor',
-    monthlyPrice: 149,
-    yearlyPrice: 89,
-    desc: 'For attorneys, executors, and planners.',
-    features: ['Unlimited assets & heirs', 'Unlimited guardians', 'White-labeled customer portal', 'Multi-client management', 'Dedicated support'],
-    cta: 'Contact Sales',
-    highlighted: false,
-  },
-];
+import { getStoredPlans, Plan } from '../../services/paymentService';
+import PaymentModal from '../payment/PaymentModal';
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const storedPlans = getStoredPlans().filter(p => p.active);
+
+  const handleSelectPlan = (plan: Plan) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
 
   return (
     <section id="pricing" className="py-24 bg-page border-y border-base relative overflow-hidden">
@@ -83,11 +63,11 @@ export default function Pricing() {
 
         {/* 3 Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {plans.map((plan, i) => {
+          {storedPlans.map((plan, i) => {
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
             return (
               <motion.div
-                key={plan.name}
+                key={plan.id || plan.name}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -119,7 +99,7 @@ export default function Pricing() {
                     {plan.name}
                   </h3>
                   <p className="text-secondary text-[12px] font-light mb-6">
-                    {plan.desc}
+                    {plan.description}
                   </p>
 
                   {/* Price */}
@@ -141,6 +121,7 @@ export default function Pricing() {
 
                 {/* Button */}
                 <button
+                  onClick={() => handleSelectPlan(plan)}
                   className={`w-full py-2.5 rounded-[6px] text-[13px] font-semibold transition-all cursor-pointer ${
                     plan.highlighted 
                       ? 'text-white hover:opacity-90' 
@@ -150,7 +131,7 @@ export default function Pricing() {
                     background: plan.highlighted ? 'var(--color-brand-primary)' : undefined,
                   }}
                 >
-                  {plan.cta}
+                  Select {plan.name} Plan
                 </button>
 
               </motion.div>
@@ -161,6 +142,18 @@ export default function Pricing() {
         <p className="text-center text-[11px] text-secondary/40 mt-8 font-medium tracking-wide">
           All plans include client-side encryption. Price is locked at founding member rate forever.
         </p>
+
+        {selectedPlan && (
+          <PaymentModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedPlan(null);
+            }}
+            plan={selectedPlan}
+            billingCycle={yearly ? 'yearly' : 'monthly'}
+          />
+        )}
 
       </div>
     </section>

@@ -20,31 +20,31 @@ export default function LandingPage() {
   return (
     <div className="bg-page text-primary min-h-screen font-sans selection:bg-brand-primary/30 overflow-x-hidden relative">
       <main>
-        {/* 1. Hero — YC-grade layout */}
+        {/* 1. Hero - YC-grade layout */}
         <Hero />
         
         {/* 2. Logo / trust bar */}
         <SocialProof />
         
-        {/* 3. Problem — big Cormorant stat + 4-card grid */}
+        {/* 3. Problem - big Cormorant stat + 4-card grid */}
         <Problem />
         
-        {/* 4. Feature 1, 2, 3 — alternating rows */}
+        {/* 4. Feature 1, 2, 3 - alternating rows */}
         <Features />
         
-        {/* 5. Security — inverted theme drama */}
+        {/* 5. Security - inverted theme drama */}
         <Security />
 
-        {/* 6. Pricing — monthly/yearly toggle */}
+        {/* 6. Pricing - monthly/yearly toggle */}
         <Pricing />
 
-        {/* 7. Testimonials — 3 minimal cards */}
+        {/* 7. Testimonials - 3 minimal cards */}
         <Testimonials />
 
-        {/* 8. FAQ — accordion */}
+        {/* 8. FAQ - accordion */}
         <FAQ />
 
-        {/* 9. Final CTA — headline + Waitlist */}
+        {/* 9. Final CTA - headline + Waitlist */}
         <FinalCTA />
       </main>
 

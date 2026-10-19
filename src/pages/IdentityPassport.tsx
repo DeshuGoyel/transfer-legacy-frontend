@@ -8,7 +8,7 @@ import { Activity, ShieldCheck, Share2, Download, Edit3, X, QrCode, Sparkles, Fi
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-hot-toast';
 
-// CSS holographic flip card — replaces broken Three.js canvas
+// CSS holographic flip card - replaces broken Three.js canvas
 function HolographicCard({ isFlipped }: { isFlipped: boolean }) {
   return (
     <div style={{ perspective: '1200px' }} className="w-full h-48">

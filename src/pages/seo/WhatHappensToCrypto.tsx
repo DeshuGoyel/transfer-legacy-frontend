@@ -53,7 +53,7 @@ const WhatHappensToCrypto = () => {
             </h2>
             <div className="prose prose-invert max-w-none text-secondary">
               <p className="text-lg leading-relaxed mb-6">
-                In technical terms, crypto without keys is <span className="text-primary font-bold">Burned</span>. It remains visible on the blockchain, but no one—not even the best hackers or government agencies—can move it. This is the brutal reality of decentralization.
+                In technical terms, crypto without keys is <span className="text-primary font-bold">Burned</span>. It remains visible on the blockchain, but no one - not even the best hackers or government agencies - can move it. This is the brutal reality of decentralization.
               </p>
               <p className="text-lg leading-relaxed">
                 If you have $100,000 in Bitcoin and you die without a protocol, you have effectively made a <span className="italic text-brand-primary font-bold">Donation to the Network</span>, increasing the value of everyone else's Bitcoin while leaving your family with nothing.

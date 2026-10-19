@@ -51,7 +51,7 @@ const PassBitcoinToFamily = () => {
             </h2>
             <div className="prose prose-invert max-w-none text-secondary">
               <p className="text-lg leading-relaxed mb-6">
-                Most Bitcoin maximalists use <span className="text-primary font-bold">Cold Storage</span> (Ledger, Trezor, BitBox). While this is the gold standard for security, it is a nightmare for inheritance. If your family doesn't know where the device is—or the PIN to unlock it—they have zero options.
+                Most Bitcoin maximalists use <span className="text-primary font-bold">Cold Storage</span> (Ledger, Trezor, BitBox). While this is the gold standard for security, it is a nightmare for inheritance. If your family doesn't know where the device is - or the PIN to unlock it - they have zero options.
               </p>
               <p className="text-lg leading-relaxed">
                 Traditional executors are not trained in <span className="italic text-brand-primary font-bold">UTXO Management</span> or <span className="italic text-brand-primary font-bold">Hardware Wallet Recovery</span>. You need a technical protocol that guides them through the process safely.

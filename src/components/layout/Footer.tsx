@@ -12,14 +12,10 @@ export default function Footer({ variant = 'app' }: { variant?: 'app' | 'marketi
           <div className="grid grid-cols-1 md:grid-cols-5 gap-12 pb-12 border-b border-border-base">
             {/* Col 1: Brand & Security Badges */}
             <div className="md:col-span-2 space-y-6">
-              <Link to="/" className="flex items-center gap-2.5 group">
-                <div
-                  className="w-7 h-7 rounded-full relative flex items-center justify-center"
-                  style={{
-                    background: 'conic-gradient(from 220deg, var(--color-brand-primary), var(--color-brand-primary-hover), var(--color-brand-gold), var(--color-brand-primary))'
-                  }}
-                >
-                  <div className="w-[11px] h-[11px] rounded-full bg-page transition-colors duration-400" />
+              <Link to="/" className="flex items-center gap-3 group">
+                <div className="w-8 h-8 overflow-hidden flex items-center justify-center shrink-0">
+                  <img src="/logo-dark.png" alt="Transfer Legacy" className="w-full h-full object-contain dark:block hidden" />
+                  <img src="/logo-light.jpeg" alt="Transfer Legacy" className="w-full h-full object-contain dark:hidden block" />
                 </div>
                 <span className="font-display font-medium text-[1.18rem] text-primary transition-opacity group-hover:opacity-75">
                   Transfer Legacy
@@ -81,7 +77,7 @@ export default function Footer({ variant = 'app' }: { variant?: 'app' | 'marketi
                   <Link to="/contact" className="text-secondary hover:text-primary transition-colors">Contact</Link>
                 </li>
                 <li>
-                  <span className="text-secondary/40">Careers — hiring</span>
+                  <span className="text-secondary/40">Careers - hiring</span>
                 </li>
               </ul>
             </div>

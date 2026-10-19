@@ -79,7 +79,7 @@ export default function CryptoDeathGuide() {
             <strong>Cryptocurrency does not care about the legal system.</strong>
           </p>
           <p>
-            If you hold your digital wealth in a self-custodial wallet—whether it's a Ledger, Trezor, MetaMask, or Trust Wallet—the blockchain enforces one absolute rule: <em>Not your keys, not your coins.</em>
+            If you hold your digital wealth in a self-custodial wallet - whether it's a Ledger, Trezor, MetaMask, or Trust Wallet - the blockchain enforces one absolute rule: <em>Not your keys, not your coins.</em>
           </p>
 
           <div className="bg-surface/50 border border-border rounded-2xl p-8 my-10">
@@ -123,7 +123,7 @@ export default function CryptoDeathGuide() {
           <ul>
             <li><strong>Zero-Knowledge Architecture:</strong> Your seed phrases and passwords are encrypted locally. No one at Transfer Legacy can read them.</li>
             <li><strong>Fragmented Guardian Protocol:</strong> You don't trust just one person. You split the "unlock key" among several trusted guardians (e.g., your spouse, best friend, and attorney).</li>
-            <li><strong>Dead Man's Switch:</strong> The vault is only unlocked when a verified event occurs—either through a timed check-in failure or verification by your guardians.</li>
+            <li><strong>Dead Man's Switch:</strong> The vault is only unlocked when a verified event occurs - either through a timed check-in failure or verification by your guardians.</li>
             <li><strong>AI Heir Guidance:</strong> Your family receives plain-English, step-by-step instructions on how to access the funds, shielding them from the technical complexity of the blockchain.</li>
           </ul>
 

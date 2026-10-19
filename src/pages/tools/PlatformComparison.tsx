@@ -82,7 +82,7 @@ export default function PlatformComparison() {
         <div className="mt-32 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
            <motion.div {...fadeUp(0.5)} className="space-y-8">
               <h2 className="text-4xl font-display font-bold">The Transfer Legacy <span className="text-brand-primary italic">Advantage</span></h2>
-              <p className="text-muted font-medium leading-relaxed">We didn't just build a better vault—we built a new cryptographic standard for generational wealth. Our protocol is the only solution that combines institutional compliance with absolute self-sovereignty.</p>
+              <p className="text-muted font-medium leading-relaxed">We didn't just build a better vault - we built a new cryptographic standard for generational wealth. Our protocol is the only solution that combines institutional compliance with absolute self-sovereignty.</p>
               <Button variant="primary" className="h-14 px-12 text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-brand-primary/20">
                  Switch to Protocol <ArrowRight size={16} className="ml-2" />
               </Button>

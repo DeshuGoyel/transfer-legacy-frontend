@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
             <ShieldCheck size={24} />
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold italic tracking-tighter mb-4">PRIVACY PROTOCOL.</h1>
-          <p className="text-xl text-muted font-medium tracking-tight">Version 2.1 — Effective May 2026</p>
+          <p className="text-xl text-muted font-medium tracking-tight">Version 2.1 - Effective May 2026</p>
         </div>
       </section>
 
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
 
         <h2>1. Our Privacy Philosophy</h2>
         <p>
-          At Transfer Legacy, privacy is not a setting—it is the architecture. Our platform is built on the principle of <strong>Zero-Knowledge</strong>. This means we have mathematically engineered our systems so that we cannot access your sensitive data even if we were legally compelled to do so.
+          At Transfer Legacy, privacy is not a setting - it is the architecture. Our platform is built on the principle of <strong>Zero-Knowledge</strong>. This means we have mathematically engineered our systems so that we cannot access your sensitive data even if we were legally compelled to do so.
         </p>
 
         <h2>2. Data Collection</h2>

@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react';
 const faqs = [
   {
     q: "Can Transfer Legacy see my private key or vault data?",
-    a: "No. We utilize a strict client-side zero-knowledge architecture. Your passwords, documents, and private keys are encrypted directly on your local device using XChaCha20-Poly1305 before uploading. We store only scrambled ciphertext — we physically cannot decrypt your data."
+    a: "No. We utilize a strict client-side zero-knowledge architecture. Your passwords, documents, and private keys are encrypted directly on your local device using XChaCha20-Poly1305 before uploading. We store only scrambled ciphertext - we physically cannot decrypt your data."
   },
   {
     q: "How does the Dead Man's Switch actually work?",

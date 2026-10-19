@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, ShieldCheck, Activity, Settings2 } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Heart, Settings2 } from 'lucide-react';
 import { useCheckinStore } from '../../store/useCheckinStore';
 import Button from '../ui/Button';
 import { trackEvent, EVENTS } from '../seo/Analytics';
+import toast from 'react-hot-toast';
 
 export default function ProofOfLifeCard() {
   const { checkinSettings, completeCheckin } = useCheckinStore();
+  const [isSyncing, setIsSyncing] = useState(false);
   
   const last = checkinSettings.lastCheckinAt ? new Date(checkinSettings.lastCheckinAt) : new Date(Date.now() - 86400000);
   const nextDue = new Date(last);
@@ -20,6 +23,26 @@ export default function ProofOfLifeCard() {
   const isUrgent = daysUntilNext <= 2;
   const isOverdue = daysUntilNext < 0;
 
+  const handleHeartbeatSync = () => {
+    setIsSyncing(true);
+    completeCheckin('tap');
+    const updatedStreak = (checkinSettings.currentStreak || 0) + 1;
+    toast.success(`Heartbeat confirmed. Streak updated to ${updatedStreak} days!`, {
+      icon: '❤️',
+      style: {
+        background: '#0E1015',
+        color: '#E9E6DF',
+        border: '1px solid rgba(244, 63, 94, 0.3)'
+      }
+    });
+    trackEvent(EVENTS.HEARTBEAT_SYNC, {
+      frequency: checkinSettings.frequency,
+      status: isOverdue ? 'overdue' : isUrgent ? 'urgent' : 'nominal',
+      streak: updatedStreak
+    });
+    setTimeout(() => setIsSyncing(false), 900);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -30,13 +53,13 @@ export default function ProofOfLifeCard() {
         'border-base/60 hover:border-brand-primary/40'
       }`}
     >
-      {/* Heartbeat Pulse Background */}
-      <div className="absolute top-0 right-0 p-8 opacity-10">
+      {/* Heartbeat Pulse Background with Beating Heart */}
+      <div className="absolute top-0 right-0 p-8 opacity-15 pointer-events-none">
         <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ scale: [1, 1.25, 1], rotate: [0, 2, -2, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <Activity size={120} className={isOverdue ? 'text-red-500' : isUrgent ? 'text-brand-gold' : 'text-brand-primary'} />
+          <Heart size={110} className={isOverdue ? 'text-red-500 fill-red-500/20' : isUrgent ? 'text-brand-gold fill-brand-gold/20' : 'text-rose-500 fill-rose-500/20'} />
         </motion.div>
       </div>
 
@@ -53,7 +76,7 @@ export default function ProofOfLifeCard() {
             )}
           </div>
           <p className="text-secondary text-[11px] font-medium tracking-wide flex items-center gap-1.5 uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-ping" />
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
             Heartbeat Monitoring Active
           </p>
         </div>
@@ -95,18 +118,27 @@ export default function ProofOfLifeCard() {
         </div>
       </div>
 
+      {/* Heartbeat Action Button with Animated Heart Icon and Ripple */}
       <Button 
-        className="w-full h-14 relative group overflow-hidden shadow-xl shadow-brand-primary/10" 
+        className="w-full h-14 relative group overflow-hidden shadow-xl shadow-rose-500/10 flex items-center justify-center gap-3 border border-rose-500/20" 
         variant={isOverdue || isUrgent ? 'primary' : 'secondary'}
-        onClick={() => {
-          completeCheckin('tap');
-          trackEvent(EVENTS.HEARTBEAT_SYNC, {
-            frequency: checkinSettings.frequency,
-            status: isOverdue ? 'overdue' : isUrgent ? 'urgent' : 'nominal'
-          });
-        }}
+        onClick={handleHeartbeatSync}
+        disabled={isSyncing}
       >
-        <span className="relative z-10 font-bold uppercase tracking-widest text-[11px]">Initiate Heartbeat Sync</span>
+        <motion.div
+          animate={isSyncing ? { scale: [1, 1.4, 0.9, 1.3, 1], rotate: [0, 15, -15, 0] } : { scale: [1, 1.2, 1] }}
+          transition={{ duration: isSyncing ? 0.6 : 1.4, repeat: isSyncing ? 1 : Infinity, ease: "easeInOut" }}
+          className="relative flex items-center justify-center"
+        >
+          <Heart 
+            size={18} 
+            className="fill-rose-500 text-rose-500 filter drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]" 
+          />
+          <span className="absolute inset-0 rounded-full bg-rose-500/30 animate-ping -z-10" />
+        </motion.div>
+        <span className="relative z-10 font-bold uppercase tracking-widest text-[11px] text-white">
+          {isSyncing ? 'Heartbeat Pulsing...' : 'Initiate Heartbeat Sync'}
+        </span>
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
       </Button>
 

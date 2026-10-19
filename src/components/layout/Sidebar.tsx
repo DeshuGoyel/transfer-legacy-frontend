@@ -23,7 +23,6 @@ const sections = [
     items: [
       { icon: LayoutDashboard, label: 'Overview',     path: '/dashboard' },
       { icon: Package,         label: 'Accounts',     path: '/assets' },
-      { icon: History,         label: 'Activity',     path: '/activity' },
     ],
   },
   {

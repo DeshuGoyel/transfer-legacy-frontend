@@ -33,7 +33,7 @@ export default function HowItWorksSection() {
           </div>
           <h3 className="font-display text-xl text-white font-medium mb-4">Guardian System</h3>
           <p className="text-sm text-blueprint-muted2 leading-relaxed">
-            Designate 1–5 trusted guardians — your spouse, lawyer, adult child. They hold conditional access that activates only when needed. No technical knowledge required.
+            Designate 1 to 5 trusted guardians - your spouse, lawyer, adult child. They hold conditional access that activates only when needed. No technical knowledge required.
           </p>
         </div>
         
@@ -45,7 +45,7 @@ export default function HowItWorksSection() {
           </div>
           <h3 className="font-display text-xl text-white font-medium mb-4">Transfer Guide</h3>
           <p className="text-sm text-blueprint-muted2 leading-relaxed">
-            Step-by-step heir experience. Your family accesses everything in under 10 minutes — even if they've never heard of a seed phrase, a password manager, or a 2FA code.
+            Step-by-step heir experience. Your family accesses everything in under 10 minutes - even if they've never heard of a seed phrase, a password manager, or a 2FA code.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function HowItWorksSection() {
           </div>
           <h3 className="font-display text-xl text-white font-medium mb-4">Legacy Organiser</h3>
           <p className="text-sm text-blueprint-muted2 leading-relaxed">
-            Living digital inventory — bank accounts, investments, subscriptions, domain names, online businesses, insurance policies. Updated by you, ready for your family.
+            Living digital inventory - bank accounts, investments, subscriptions, domain names, online businesses, insurance policies. Updated by you, ready for your family.
           </p>
         </div>
       </div>

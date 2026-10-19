@@ -166,7 +166,7 @@ export default function Hero() {
           <h1
             className="font-display font-light leading-[1.05] tracking-tight mb-5 text-primary text-[clamp(2.5rem,5vw,4.5rem)]"
           >
-            Your family gets<br />everything you built —<br />
+            Your family gets<br />everything you built,<br />
             <span className="font-script text-[1.06em] text-brand-primary font-semibold inline-block -rotate-[3deg] px-1 translate-y-1">automatically</span>.
           </h1>
 
@@ -174,7 +174,7 @@ export default function Hero() {
           <p
             className="text-secondary leading-relaxed mb-8 text-[15px] font-light max-w-[440px] tracking-wide"
           >
-            Bank accounts, Gmail, Zerodha, iCloud, crypto — protected in one encrypted vault and passed on the moment your family needs it. No lawyers. No technical steps.
+            Bank accounts, Gmail, Zerodha, iCloud, crypto - protected in one encrypted vault and passed on the moment your family needs it. No lawyers. No technical steps.
           </p>
 
           {/* Action area */}

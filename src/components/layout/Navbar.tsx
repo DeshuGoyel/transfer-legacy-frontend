@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
-import { Bell, Menu, X } from 'lucide-react';
+import { Bell, Menu, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import ThemeToggle from './ThemeToggle';
 import { LogoMark } from '../ui/Logo';
+import toast from 'react-hot-toast';
+import { useCheckinStore } from '../../store/useCheckinStore';
 
 const navLinks = [
   { label: 'How It Works', href: '#how' },
@@ -51,7 +53,27 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
     toggleMobileSidebar,
     isSidebarCollapsed,
     toggleSidebar,
+    performCheckIn,
   } = useStore();
+
+  const checkinSettings = useCheckinStore((state) => state.checkinSettings);
+  const completeCheckin = useCheckinStore((state) => state.completeCheckin);
+  const [isSyncingHeartbeat, setIsSyncingHeartbeat] = useState(false);
+
+  const handleHeartbeatSync = async () => {
+    if (isSyncingHeartbeat) return;
+    setIsSyncingHeartbeat(true);
+    try {
+      await performCheckIn('Header Pulse');
+      completeCheckin('tap');
+      toast.success('Heartbeat synchronized. Vault secured!');
+    } catch (err) {
+      console.error('Failed to sync heartbeat:', err);
+      toast.error('Heartbeat sync failed');
+    } finally {
+      setIsSyncingHeartbeat(false);
+    }
+  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -319,7 +341,25 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           </div>
         </div>
 
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1.5 ml-auto">
+          {/* Heartbeat Pulse Indicator & Manual Sync */}
+          <button
+            onClick={handleHeartbeatSync}
+            disabled={isSyncingHeartbeat}
+            className="relative p-2 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)] text-rose-500 hover:text-rose-400 group flex items-center justify-center"
+            aria-label="Heartbeat Pulse"
+            title={`Heartbeat Active (Streak: ${checkinSettings?.currentStreak ?? 1}) - Click to sync`}
+          >
+            <Heart 
+              size={17} 
+              className={cn(
+                "fill-rose-500/20 text-rose-500 transition-transform group-hover:scale-110",
+                isSyncingHeartbeat ? "animate-spin" : "animate-pulse"
+              )} 
+            />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping opacity-75" />
+          </button>
+
           <button
             onClick={toggleNotifications}
             className="relative p-2 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)]"

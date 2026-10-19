@@ -49,7 +49,7 @@ export default function ZeroKnowledge() {
            </motion.div>
            <motion.div {...fadeUp(0.4)} className="space-y-8">
               <h2 className="text-4xl font-display font-bold">Privacy as a <span className="text-brand-primary italic">Right</span></h2>
-              <p className="text-muted font-medium leading-relaxed">In an era of surveillance, we provide a sanctuary for your digital life. Your data remains yours—unseen, untouched, and uncompromised.</p>
+              <p className="text-muted font-medium leading-relaxed">In an era of surveillance, we provide a sanctuary for your digital life. Your data remains yours - unseen, untouched, and uncompromised.</p>
               <div className="p-8 rounded-3xl bg-surface/20 border border-base">
                  <div className="flex items-center gap-4 mb-4">
                     <Zap size={20} className="text-brand-gold" />

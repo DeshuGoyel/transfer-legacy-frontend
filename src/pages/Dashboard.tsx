@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProofOfLifeCard from '../components/dashboard/ProofOfLifeCard';
-import ActivityFeed from '../components/dashboard/ActivityFeed';
 
 /* ── Asset type → icon mapping ─────────────────────────────── */
 const typeIconMap: Record<string, React.ElementType> = {
@@ -139,7 +138,7 @@ function EmptyVault({ onAdd }: { onAdd: () => void }) {
         Your vault is empty
       </p>
       <p className="text-[13px] mb-6 text-secondary/60">
-        Add your first account — bank, Gmail, Zerodha, crypto — and it'll be protected here.
+        Add your first account - bank, Gmail, Zerodha, crypto - and it'll be protected here.
       </p>
       <button
         onClick={onAdd}
@@ -196,7 +195,7 @@ export default function Dashboard() {
           <StatPill label="Accounts" value={assets.length} sub="in vault" />
           <StatPill
             label="Protected value"
-            value={totalValue > 0 ? `$${(totalValue / 1000).toFixed(0)}k` : '—'}
+            value={totalValue > 0 ? `$${(totalValue / 1000).toFixed(0)}k` : '-'}
             sub={totalValue > 0 ? 'estimated value' : 'add your accounts'}
           />
           <StatPill
@@ -214,7 +213,7 @@ export default function Dashboard() {
         {/* ── Main 2-column grid ───────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
 
-          {/* LEFT — vault list */}
+          {/* LEFT - vault list */}
           <div>
             {/* Vault card */}
             <div
@@ -282,7 +281,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* RIGHT — status panel */}
+          {/* RIGHT - status panel */}
           <div className="space-y-4">
 
             {/* Legacy Score */}
@@ -317,25 +316,6 @@ export default function Dashboard() {
             {/* Proof of Life */}
             <ProofOfLifeCard />
 
-            {/* Audit log */}
-            <div
-              className="rounded-[10px] overflow-hidden bg-surface border border-base"
-            >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-base">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-secondary/60">
-                  Audit Log
-                </p>
-                <button
-                  onClick={() => navigate('/activity')}
-                  className="flex items-center gap-1 text-[11px] font-semibold transition-opacity hover:opacity-85 cursor-pointer text-brand-primary"
-                >
-                  All <ChevronRight size={11} />
-                </button>
-              </div>
-              <div className="p-2">
-                <ActivityFeed />
-              </div>
-            </div>
           </div>
         </div>
 

@@ -21,7 +21,7 @@ export default function LegacyAnalytics() {
 
   // ── Data Preparation ──────────────────────────────────────────
 
-  // Asset Distribution — with guaranteed fallback
+  // Asset Distribution - with fallback data
   const assetDataRaw = assets.reduce((acc, a) => {
     const type = a.type || 'Other';
     acc[type] = (acc[type] || 0) + (a.value || 1000);
@@ -38,7 +38,7 @@ export default function LegacyAnalytics() {
         { name: 'Other',       value: 90000  },
       ];
 
-  // Heir Allocation — with guaranteed fallback
+  // Heir Allocation - with fallback data
   const heirData = heirs.length > 0
     ? heirs.map(h => ({
         name: h.name,
@@ -52,7 +52,7 @@ export default function LegacyAnalytics() {
         { name: 'Foundation DAO', allocated: 10, verified: 100 },
       ];
 
-  // Succession Confidence Radar — safe divide-by-zero guards
+  // Succession Confidence Radar - safe divide-by-zero guards
   const assetScore  = Math.min((assets.length    / 8)   * 100, 100) || 82;
   const heirScore   = heirs.length > 0
     ? (heirs.filter(h => h.status === 'Verified').length / heirs.length) * 100

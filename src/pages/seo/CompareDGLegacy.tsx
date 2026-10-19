@@ -57,7 +57,7 @@ const CompareDGLegacy = () => {
           </h1>
           
           <p className="text-xl text-secondary mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
-            In the institutional world, security isn't just a feature—it's the foundation. See how Transfer Legacy's sovereign protocol compares to DGLegacy's storage-first approach.
+            In the institutional world, security isn't just a feature - it's the foundation. See how Transfer Legacy's sovereign protocol compares to DGLegacy's storage-first approach.
           </p>
         </div>
 

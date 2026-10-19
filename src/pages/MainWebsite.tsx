@@ -99,10 +99,10 @@ import DigitalAssetLawUSA from './seo/regions/DigitalAssetLawUSA';
 import CryptoInheritanceUK from './seo/regions/CryptoInheritanceUK';
 import CryptoInheritanceUAE from './seo/regions/CryptoInheritanceUAE';
 
-// Routes that are public/pre-login — no sidebar, navbar, or footer
+// Routes that are public/pre-login - no sidebar, navbar, or footer
 const PUBLIC_ROUTES = new Set(['/', '/login', '/onboarding', '/contact', '/contact-us', '/forgot-password', '/reset-password']);
 
-// Dashboard/app routes — use normal system cursor
+// Dashboard/app routes - use normal system cursor
 const APP_ROUTE_PREFIXES = ['/dashboard', '/assets', '/allocations', '/guardians', '/heirs', '/ai-planner', '/trust', '/settings', '/checkin', '/check-in', '/capsules', '/obituary', '/passport', '/identity', '/developer', '/activity', '/analytics', '/reports'];
 
 function AppLayout() {
@@ -113,7 +113,7 @@ function AppLayout() {
   const isOpsPage = location.pathname.startsWith('/ops');
   const showLandingNavbar = !isAppPage && !isOpsPage && location.pathname !== '/login' && location.pathname !== '/onboarding';
 
-  // Sidebar is always 240px — collapsed changes offset to 0
+  // Sidebar is always 240px - collapsed changes offset to 0
   const offsetClass = (isAppPage && !isSidebarCollapsed) ? 'lg:pl-[240px]' : '';
 
   return (
@@ -122,7 +122,7 @@ function AppLayout() {
       {isAppPage && <Sidebar />}
       {showLandingNavbar && <Navbar variant="marketing" />}
 
-      {/* Page content — offset for sidebar */}
+      {/* Page content - offset for sidebar */}
       <main className={cn("flex-grow", offsetClass)}>
         <Routes>
           <Route path="/"            element={<LandingSelector />} />
@@ -228,7 +228,7 @@ function AppLayout() {
         </Routes>
       </main>
 
-      {/* Footer — also offset to prevent Sidebar overlap */}
+      {/* Footer - also offset to prevent Sidebar overlap */}
       <div className={cn("transition-all duration-300", offsetClass)}>
         {!isPublicPage && !isOpsPage && !isAppPage && <Footer />}
       </div>
@@ -240,7 +240,7 @@ function AppLayout() {
 
 function AppCursor() {
   const location = useLocation();
-  // Only show custom cursor on the landing page — everywhere else uses the normal system cursor
+  // Only show custom cursor on the landing page - everywhere else uses the normal system cursor
   const isLandingOnly = location.pathname === '/';
 
   useEffect(() => {

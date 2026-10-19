@@ -52,7 +52,7 @@ export function WaitlistForm() {
   const onSubmit = async (data: WaitlistFormData) => {
     setIsSubmitting(true);
     try {
-      const result = await api.post<{ position?: number; isNew?: boolean }>('/app/waitlist', { email: data.email, name: null }, { skipAead: true });
+      const result = await api.post<{ position?: number; isNew?: boolean }>('/api/waitlist', { email: data.email, name: null }, { skipAead: true });
       const waitlistData = result.data ? result.data : result;
 
       setPosition(waitlistData.position ?? null);

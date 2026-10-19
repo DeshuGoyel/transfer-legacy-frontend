@@ -66,7 +66,7 @@ const DigitalWillPillar = () => {
             </h2>
             <div className="prose prose-invert max-w-none text-secondary">
               <p className="text-lg leading-relaxed mb-6">
-                A <span className="text-primary font-bold">Digital Will</span> is not just a document—it's a technical protocol. While a traditional will gives your heirs the <span className="italic">legal right</span> to your property, a Digital Will provides them with the <span className="italic">technical means</span> to access it.
+                A <span className="text-primary font-bold">Digital Will</span> is not just a document - it's a technical protocol. While a traditional will gives your heirs the <span className="italic">legal right</span> to your property, a Digital Will provides them with the <span className="italic">technical means</span> to access it.
               </p>
               <p className="text-lg leading-relaxed">
                 In the US, UK, and India, digital assets are recognized as property, but the "Stored Communications Act" and exchange "Terms of Service" often block executors from accessing accounts even with a death certificate.

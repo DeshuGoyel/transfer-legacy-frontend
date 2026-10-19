@@ -35,7 +35,7 @@ export default function ForgotPassword() {
       console.error('Password reset request error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Connection error occurred';
       setError(errorMessage);
-      toast.error('Failed to request reset link');
+      toast.error(errorMessage || 'Failed to request reset link');
     } finally {
       setIsLoading(false);
     }

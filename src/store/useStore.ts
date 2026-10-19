@@ -123,6 +123,7 @@ interface AppState {
   toggleTheme: () => void;
   toggleNotifications: () => void;
   markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
   performCheckIn: (method: string) => void | Promise<void>;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
@@ -145,6 +146,8 @@ interface AppState {
   initiateClaim: (policyId: string) => Promise<string>;
   fetchRecoveredEnvelopes: (claimId: string) => Promise<Record<string, unknown>[]>;
   recoverOwnerVault: (ownerUserId: string, shares: { x: number; y: string }[]) => Promise<void>;
+  architectureMode: 'direct' | 'quorum';
+  setArchitectureMode: (mode: 'direct' | 'quorum') => void;
   branding: { waitlist_enabled: boolean };
   setBranding: (branding: { waitlist_enabled: boolean }) => void;
   shares: ShareGrant[];
@@ -152,15 +155,21 @@ interface AppState {
   revokeShare: (shareId: string) => Promise<void>;
 }
 
-const calculateNewScore = (state: Pick<AppState, 'guardians' | 'assets' | 'heirs'>) => {
+const calculateNewScore = (state: Pick<AppState, 'guardians' | 'assets' | 'heirs'> & { architectureMode?: 'direct' | 'quorum' }) => {
   let score = 0;
   
-  // 1. Guardians (40%) - Institutional Threshold is 2 confirmed guardians
+  // 1. Guardians (40%) - Institutional Threshold is 2 confirmed guardians (or 1 in Direct Succession mode)
   const confirmedGuardians = state.guardians.filter((g: Guardian) => g.status === 'Confirmed').length;
-  if (confirmedGuardians >= 2) {
-    score += 40;
+  if (state.architectureMode === 'direct') {
+    if (confirmedGuardians >= 1) {
+      score += 40;
+    }
   } else {
-    score += confirmedGuardians * 20;
+    if (confirmedGuardians >= 2) {
+      score += 40;
+    } else {
+      score += confirmedGuardians * 20;
+    }
   }
 
   // 2. Assets Coverage (40%) - Requires instructions and assigned beneficiaries
@@ -246,20 +255,35 @@ async function decryptItem(item: RawItem, masterKey: Uint8Array | null): Promise
   return baseAsset;
 }
 const getInitialState = () => {
-  const isAuth = !!localStorage.getItem('tl_session_token');
+  let architectureMode: 'direct' | 'quorum' = 'quorum';
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const savedMode = localStorage.getItem('tl_architecture_mode');
+      if (savedMode === 'direct' || savedMode === 'quorum') {
+        architectureMode = savedMode;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse tl_architecture_mode from localStorage', e);
+  }
+
+  const isAuth = typeof localStorage !== 'undefined' ? !!localStorage.getItem('tl_session_token') : false;
   if (!isAuth) {
     return {
       assets: [] as Asset[],
       guardians: [] as Guardian[],
       heirs: [] as Heir[],
+      architectureMode,
     };
   }
 
   let guardians: Guardian[] = [];
   try {
-    const savedGuardians = localStorage.getItem('tl_guardians');
-    if (savedGuardians) {
-      guardians = JSON.parse(savedGuardians);
+    if (typeof localStorage !== 'undefined') {
+      const savedGuardians = localStorage.getItem('tl_guardians');
+      if (savedGuardians) {
+        guardians = JSON.parse(savedGuardians);
+      }
     }
   } catch (e) {
     console.error('Failed to parse tl_guardians from localStorage', e);
@@ -267,9 +291,11 @@ const getInitialState = () => {
 
   let heirs: Heir[] = [];
   try {
-    const savedHeirs = localStorage.getItem('tl_heirs');
-    if (savedHeirs) {
-      heirs = JSON.parse(savedHeirs);
+    if (typeof localStorage !== 'undefined') {
+      const savedHeirs = localStorage.getItem('tl_heirs');
+      if (savedHeirs) {
+        heirs = JSON.parse(savedHeirs);
+      }
     }
   } catch (e) {
     console.error('Failed to parse tl_heirs from localStorage', e);
@@ -279,12 +305,13 @@ const getInitialState = () => {
     assets: [] as Asset[],
     guardians,
     heirs,
+    architectureMode,
   };
 };
 
 const getInitialUser = (state: ReturnType<typeof getInitialState>) => {
-  const name = localStorage.getItem('tl_user_name') || "Secured User";
-  const email = localStorage.getItem('tl_user_email') || "";
+  const name = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_name') || "Secured User") : "Secured User";
+  const email = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_email') || "") : "";
   return {
     name,
     email,
@@ -318,7 +345,7 @@ export const useStore = create<AppState>((set) => ({
   isNotificationOpen: false,
   isSidebarCollapsed: false,
   isMobileSidebarOpen: false,
-  isAuthenticated: !!localStorage.getItem('tl_session_token'),
+  isAuthenticated: typeof localStorage !== 'undefined' ? !!localStorage.getItem('tl_session_token') : false,
   masterKey: null,
   setMasterKey: (key) => set({ masterKey: key }),
   userKeys: null,
@@ -752,21 +779,8 @@ export const useStore = create<AppState>((set) => ({
         return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
       });
     } catch (err) {
-      console.error('Failed to add asset:', err);
-      if (import.meta.env.DEV) {
-        set((state) => {
-          const newAsset = {
-            ...asset,
-            id: Date.now().toString(),
-            status: 'Protected',
-            date: new Date().toISOString().split('T')[0]
-          };
-          const updated = [...state.assets, newAsset];
-          localStorage.setItem('tl_assets', JSON.stringify(updated));
-          const newState = { ...state, assets: updated };
-          return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
-        });
-      }
+      console.error('Failed to add asset to secure vault:', err);
+      throw err;
     }
   },
   updateAsset: async (id, data) => {
@@ -826,15 +840,8 @@ export const useStore = create<AppState>((set) => ({
         return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
       });
     } catch (err) {
-      console.error('Failed to update asset:', err);
-      if (import.meta.env.DEV) {
-        set((state) => {
-          const updated = state.assets.map(a => a.id === id ? { ...a, ...data } : a);
-          localStorage.setItem('tl_assets', JSON.stringify(updated));
-          const newState = { ...state, assets: updated };
-          return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
-        });
-      }
+      console.error('Failed to update asset in vault:', err);
+      throw err;
     }
   },
   deleteAsset: async (id) => {
@@ -854,15 +861,8 @@ export const useStore = create<AppState>((set) => ({
         return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
       });
     } catch (err) {
-      console.error('Failed to delete asset:', err);
-      if (import.meta.env.DEV) {
-        set((state) => {
-          const updated = state.assets.filter(a => a.id !== id);
-          localStorage.setItem('tl_assets', JSON.stringify(updated));
-          const newState = { ...state, assets: updated };
-          return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
-        });
-      }
+      console.error('Failed to delete asset from vault:', err);
+      throw err;
     }
   },
   addGuardian: (guardian) => set((state) => {
@@ -878,11 +878,25 @@ export const useStore = create<AppState>((set) => ({
     return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
   }),
   removeGuardian: (id) => set((state) => {
+    const target = state.guardians.find(g => g.id === id);
+    if (state.architectureMode === 'quorum' && target?.status === 'Confirmed') {
+      const remainingConfirmed = state.guardians.filter(g => g.status === 'Confirmed' && g.id !== id).length;
+      if (remainingConfirmed < 2) {
+        console.warn('Safety Guard: Confirmed guardian count is below institutional quorum threshold (minimum 2 required)');
+      }
+    }
     const updated = state.guardians.filter(g => g.id !== id);
     localStorage.setItem('tl_guardians', JSON.stringify(updated));
     const newState = { ...state, guardians: updated };
     return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
   }),
+  setArchitectureMode: (mode) => {
+    localStorage.setItem('tl_architecture_mode', mode);
+    set((state) => {
+      const newState = { ...state, architectureMode: mode };
+      return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
+    });
+  },
   addHeir: (heir) => set((state) => {
     const updated = [...state.heirs, { ...heir, id: Date.now().toString(), status: 'Not Notified', progress: 0 }];
     localStorage.setItem('tl_heirs', JSON.stringify(updated));
@@ -899,6 +913,9 @@ export const useStore = create<AppState>((set) => ({
   toggleNotifications: () => set((state) => ({ isNotificationOpen: !state.isNotificationOpen })),
   markNotificationAsRead: (id) => set((state) => ({
     notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
+  })),
+  markAllNotificationsAsRead: () => set((state) => ({
+    notifications: state.notifications.map(n => ({ ...n, read: true }))
   })),
   performCheckIn: async (method) => {
     try {

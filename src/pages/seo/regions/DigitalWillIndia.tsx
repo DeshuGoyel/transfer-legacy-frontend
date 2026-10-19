@@ -14,7 +14,7 @@ const DigitalWillIndia = () => {
         "name": "What is a Digital Will in India?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A Digital Will in India is a legal document that specifically outlines how your digital assets—such as social media accounts, emails, and cryptocurrency—should be handled after death, according to the Indian Succession Act."
+          "text": "A Digital Will in India is a legal document that specifically outlines how your digital assets - such as social media accounts, emails, and cryptocurrency - should be handled after death, according to the Indian Succession Act."
         }
       }
     ]

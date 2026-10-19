@@ -36,7 +36,7 @@ const authTag = cipher.getAuthTag();
     id: 3,
     title: "03 / Shamir's Secret Sharing",
     heading: "Distributed Trust",
-    description: "Your vault key is cryptographically split across multiple guardians. No single guardian can access your vault alone — only a quorum together.",
+    description: "Your vault key is cryptographically split across multiple guardians. No single guardian can access your vault alone - only a quorum together.",
     filename: "shamir.ts",
     code: `import { split, combine } from 'shamirs-secret-sharing';
 

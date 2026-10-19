@@ -33,7 +33,7 @@ export default function InheritanceLogic() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
            <motion.div {...fadeUp(0.3)} className="space-y-8">
               <h2 className="text-4xl font-display font-bold">Smart Contract <span className="text-brand-primary italic">Governance</span></h2>
-              <p className="text-muted font-medium leading-relaxed">Our logic engine allows you to program exactly how and when your assets are released. No more ambiguity—just mathematical certainty.</p>
+              <p className="text-muted font-medium leading-relaxed">Our logic engine allows you to program exactly how and when your assets are released. No more ambiguity - just mathematical certainty.</p>
               <div className="space-y-4">
                  {[
                    "Time-locked distribution phases",

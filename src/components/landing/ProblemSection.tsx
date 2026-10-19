@@ -11,7 +11,7 @@ export default function ProblemSection() {
           The estate planning industry was built for a world that no longer exists.
         </h2>
         <p className="font-sans text-xl text-blueprint-muted2 leading-relaxed">
-          This isn't just a crypto problem. Every person who dies leaves behind bank accounts, passwords, photos, subscriptions, online businesses — with no plan. Their family spends months fighting to access what was built. Most of it is lost.
+          This isn't just a crypto problem. Every person who dies leaves behind bank accounts, passwords, photos, subscriptions, online businesses - with no plan. Their family spends months fighting to access what was built. Most of it is lost.
         </p>
       </div>
     </section>

@@ -74,7 +74,7 @@ const SeedPhraseInheritance = () => {
               <Landmark className="w-10 h-10 text-brand-primary mb-6" />
               <h3 className="text-xl font-display font-bold mb-4 text-primary">Multi-Sig Guard</h3>
               <p className="text-secondary text-sm leading-relaxed mb-6">
-                Appoint multiple <span className="text-primary font-bold">Guardians</span> who must reach a consensus before keys are released. They never see the keys—only the authorization to release them.
+                Appoint multiple <span className="text-primary font-bold">Guardians</span> who must reach a consensus before keys are released. They never see the keys - only the authorization to release them.
               </p>
               <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-brand-primary p-0">
                 Learn about Quorum Release

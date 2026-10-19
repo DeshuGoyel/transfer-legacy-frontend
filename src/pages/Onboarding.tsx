@@ -96,8 +96,15 @@ export default function Onboarding() {
 
   const nextStep = async () => {
     if (step === 1) {
-      if (!fullName || !email || !password) {
+      if (!fullName.trim() || !email.trim() || !password) {
         toast.error('All account fields are required');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        toast.error('Please enter a valid email address');
+        setError('Please enter a valid email address');
         return;
       }
 
@@ -594,7 +601,7 @@ export default function Onboarding() {
                 </div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-primary mb-2">Step 4 of 5</p>
                 <h2 className="text-3xl font-display font-bold text-primary tracking-tight mb-2">Assign a Guardian</h2>
-                <p className="text-muted text-sm font-medium mb-8">Guardians verify succession events. They never see your encrypted data — only approve the release.</p>
+                <p className="text-muted text-sm font-medium mb-8">Guardians verify succession events. They never see your encrypted data - only approve the release.</p>
                 <Input
                   label="Guardian Email"
                   placeholder="guardian@institution.com"

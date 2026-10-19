@@ -46,7 +46,7 @@ export default function CryptoInheritance() {
         "name": "Can Transfer Legacy steal my crypto?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Absolutely not. We use strict zero-knowledge encryption. Your data is encrypted locally on your device before it ever reaches our servers. We do not have the decryption keys—only your designated heirs and guardians do."
+          "text": "Absolutely not. We use strict zero-knowledge encryption. Your data is encrypted locally on your device before it ever reaches our servers. We do not have the decryption keys - only your designated heirs and guardians do."
         }
       }
     ]
@@ -100,7 +100,7 @@ export default function CryptoInheritance() {
           <p className="mb-0">In 2021, a crypto investor tragically passed away in an accident. He held over $4 million in Bitcoin on a hardware wallet. His widow knew the wallet existed but didn't have the 24-word seed phrase. Despite hiring cybersecurity experts, the funds remain locked on the blockchain forever. His family lost everything.</p>
         </div>
         <p>
-          This is not an isolated incident. Chainalysis estimates that up to 20% of all Bitcoin ever mined—worth over $189 billion—is lost forever. A massive portion of this is due to sudden death without a <strong>crypto inheritance</strong> plan.
+          This is not an isolated incident. Chainalysis estimates that up to 20% of all Bitcoin ever mined - worth over $189 billion - is lost forever. A massive portion of this is due to sudden death without a <strong>crypto inheritance</strong> plan.
         </p>
 
         <h2>Why Traditional Wills Fail Digital Assets</h2>

@@ -49,7 +49,7 @@ const CryptoInheritanceGuide = () => {
           </h1>
           
           <p className="text-xl text-secondary mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
-            Paper documents are powerless against encrypted blockchains. Learn why $140 Billion in Bitcoin is already lost forever—and how to protect your family from the same fate.
+            Paper documents are powerless against encrypted blockchains. Learn why $140 Billion in Bitcoin is already lost forever - and how to protect your family from the same fate.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -70,7 +70,7 @@ const CryptoInheritanceGuide = () => {
                 Most investors focus on market volatility, but the <span className="text-primary font-bold">Succession Risk</span> is far more dangerous. If you hold crypto in a non-custodial wallet (Ledger, Trezor, MetaMask), you are the <span className="italic">only</span> person in the world who can access those funds.
               </p>
               <p className="text-lg leading-relaxed">
-                If something happens to you tomorrow, your family doesn't just lose you—they lose the entire financial heritage you've built. Traditional wills are public records; including seed phrases in a paper will is a catastrophic security failure.
+                If something happens to you tomorrow, your family doesn't just lose you - they lose the entire financial heritage you've built. Traditional wills are public records; including seed phrases in a paper will is a catastrophic security failure.
               </p>
             </div>
           </section>

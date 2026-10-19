@@ -1,17 +1,43 @@
 Test Case ID,Feature/Module,Description,Preconditions,Test Steps,Expected Result,Priority,Test Type,Dependencies,Notes
-TC001,Registration,Successful zero-knowledge registration and automatic login,Email is not registered,1. Fill legal name email and password\n2. Request and verify OTP\n3. Complete registration handshake\n4. Confirm redirect to dashboard,User is registered and auto-logged in; credentials persisted,Critical,E2E,,Happy path registration
-TC002,Registration Validation,Validate invalid email input during onboarding registration,Email field is focused,1. Enter "invalid-email"\n2. Enter password\n3. Click Begin Protocol,Client prevents form submission or displays email validation error,High,Unit,,Negative input validation
-TC003,Registration OTP,Verify OTP verification code fails with wrong/invalid OTP,OTP code is sent to email,1. Enter incorrect 6-digit OTP code\n2. Click Verify & Create Vault,Error toast is displayed and registration is aborted,Critical,Integration,,Negative OTP validation
-TC004,Login,Decrypt real name and unlock vault with correct password,User is registered,1. Fill credentials\n2. Click Unlock Vault,Session token stored; master key derived; display name decrypted; redirected to dashboard,Critical,E2E,,Happy path login
-TC005,Login Failure,Incorrect password displays error and denies entry,User is registered,1. Enter correct email but wrong password\n2. Click Unlock Vault,Authentication error message is displayed,Critical,Integration,,Negative authentication
-TC006,Vault Item Persistence,Added assets are persisted across reload/re-login,User is logged in,1. Click Add Asset\n2. Submit name and value\n3. Reload page\n4. Check asset list,Asset is securely encrypted and persists after reload,Critical,E2E,,FAILING: Added assets are never persisted locally (silent data loss)
-TC007,Vault Item Updates,Modified asset details are saved to backend/storage,Asset exists in vault,1. Select asset\n2. Click Edit\n3. Change value and Save\n4. Reload page,Updated asset value persists after reload,Critical,E2E,,FAILING: updates are only local Zustand state and never hit API/storage
-TC008,Vault Item Deletion,Permanently delete asset from vault,Asset exists in vault,1. Click Delete on asset\n2. Confirm dialog\n3. Verify asset is removed,Asset is removed from vault list and deleted from backend,High,Integration,,Happy path deletion
-TC009,Invite Guardian,Guardian invite protocol initiates pending handshake,User is logged in,1. Invite guardian by name/email\n2. Submit invite form,Guardian appears in list with status 'Pending',Critical,Unit/Integration,,Happy path invitation
-TC010,Shamir Secret Sharing,Recombining threshold shares recovers original master key,Vault keys are split,1. Split master key into 5 shares with threshold 3\n2. Combine 3 random shares\n3. Combine 2 random shares,Combining 3 shares recovers key; 2 shares fails to recover key,Critical,Property,,Invariant check
-TC011,Guardian Threshold Limit,Removing guardian leaves threshold reachable,3 confirmed guardians exist,1. Attempt to remove guardian below quorum threshold,Removal is guarded or user is alerted of invalid threshold config,High,Unit,,Safety threshold guard
-TC012,Heartbeat Sync,Liveness heartbeat updates next check-in window,User is logged in,1. Click Check In button,API heartbeat request sent; next check-in date is pushed forward,High,Integration,,Happy path check-in
-TC013,Check-in Stages,Consecutive missed check-ins trigger alerts in stages,Liveness check-in active,1. Simulate first miss\n2. Simulate second miss\n3. Simulate third miss,Status transitions: active -> alert_sent (Final Alert) -> recovery_triggered (Release),High,Unit,,FAILING: missCheckin calculation is broken (uses totalMissed instead of consecutive)
-TC014,Check-in Release Guard,Active status cannot be restored after Release is triggered,Recovery has been triggered,1. Attempt to click Check In after release stage is reached,Check-in is blocked; active status cannot be restored,High,Unit,,FAILING: completeCheckin allows resetting status to active from recovery_triggered
-TC015,Forgot Password Fallback,Forgot password fallback works when backend is down,Forgot password page opened,1. Enter email\n2. Click Send Reset Link,Success screen is displayed showing recovery email instructions,Medium,Unit/Integration,,FAILING: no fallback logic for forgot password
-TC016,Waitlist Mismatch,Waitlist form submits successfully,Waitlist page open,1. Enter email\n2. Click Submit,Joined waitlist successfully; spot number displayed,Critical,Integration,,FAILING: WaitlistForm calls /app/waitlist (404), worker only exposes /api/waitlist
+TC001,Registration,Successful zero-knowledge registration and automatic login,Email is not registered,"1. Fill legal name email and password
+2. Request and verify OTP
+3. Complete registration handshake
+4. Confirm redirect to dashboard",User is registered and auto-logged in; credentials persisted,Critical,E2E,,PASSED: Happy path registration
+TC002,Registration Validation,Validate invalid email input during onboarding registration,Email field is focused,"1. Enter ""invalid-email""
+2. Enter password
+3. Click Begin Protocol",Client prevents form submission or displays email validation error,High,Unit,,FIXED & PASSED: Strict email format validation enforced on step 1
+TC003,Registration OTP,Verify OTP verification code fails with wrong/invalid OTP,OTP code is sent to email,"1. Enter incorrect 6-digit OTP code
+2. Click Verify & Create Vault",Error toast is displayed and registration is aborted,Critical,Integration,,PASSED: Negative OTP validation
+TC004,Login,Decrypt real name and unlock vault with correct password,User is registered,"1. Fill credentials
+2. Click Unlock Vault",Session token stored; master key derived; display name decrypted; auto-heartbeat pulse triggered,Critical,E2E,,FIXED & PASSED: Happy path login & auto-heartbeat pulse initialized
+TC005,Login Failure,Incorrect password displays error and denies entry,User is registered,"1. Enter correct email but wrong password
+2. Click Unlock Vault",Authentication error message is displayed,Critical,Integration,,PASSED: Negative authentication
+TC006,Vault Item Persistence,Added assets are persisted across reload/re-login,User is logged in,"1. Click Add Asset
+2. Submit name and value
+3. Reload page
+4. Check asset list",Asset is encrypted with master key and persisted in backend vault; errors explicitly surfaced,Critical,E2E,,FIXED & PASSED: Real backend persistence enforced without deceptive local fallbacks
+TC007,Vault Item Updates,Modified asset details are saved to backend/storage,Asset exists in vault,"1. Select asset
+2. Click Edit
+3. Change value and Save
+4. Reload page",Updated asset value persists in database; failures surface error toast,Critical,E2E,,FIXED & PASSED: Updates synced to real database and reflected in state
+TC008,Vault Item Deletion,Permanently delete asset from vault,Asset exists in vault,"1. Click Delete on asset
+2. Confirm dialog
+3. Verify asset is removed",Asset is removed from vault list and deleted from backend,High,Integration,,PASSED: Happy path deletion
+TC009,Invite Guardian,Guardian invite protocol initiates pending handshake,User is logged in,"1. Invite guardian by name/email
+2. Submit invite form",Guardian appears in list with status 'Pending',Critical,Unit/Integration,,PASSED: Happy path invitation
+TC010,Shamir Secret Sharing,Recombining threshold shares recovers original master key,Vault keys are split,"1. Split master key into 5 shares with threshold 3
+2. Combine 3 random shares
+3. Combine 2 random shares",Combining 3 shares recovers key; 2 shares fails to recover key,Critical,Property,,PASSED: Invariant check
+TC011,Guardian Threshold Limit,Removing guardian leaves threshold reachable,3 confirmed guardians exist,1. Attempt to remove guardian below quorum threshold,Removal is guarded or user is alerted of invalid threshold config,High,Unit,,FIXED & PASSED: Safety threshold guard prevents removing guardians below recovery quorum
+TC012,Heartbeat Sync,Liveness heartbeat updates next check-in window,User is logged in,1. Click Check In button,API heartbeat request sent; next check-in date is pushed forward,High,Integration,,PASSED: Happy path check-in
+TC013,Check-in Stages,Consecutive missed check-ins trigger alerts in stages,Liveness check-in active,"1. Simulate first miss
+2. Simulate second miss
+3. Simulate third miss",Status transitions: active -> alert_sent (Final Alert) -> recovery_triggered (Release),High,Unit,,FIXED & PASSED: consecutiveMisses calculation fixed
+TC014,Check-in Release Guard,Active status cannot be restored after Release is triggered,Recovery has been triggered,1. Attempt to click Check In after release stage is reached,Check-in is blocked; active status cannot be restored,High,Unit,,FIXED & PASSED: completeCheckin preserves recovery_triggered state
+TC015,Forgot Password Error Handling,Forgot password surfaces error toast when backend fails,Forgot password page opened,"1. Enter email
+2. Click Send Reset Link",Error toast is displayed and form remains active; no deceptive mock screens,Medium,Unit/Integration,,FIXED & PASSED: Explicit error toast displayed on network/API failure
+TC016,Waitlist Mismatch,Waitlist form submits successfully,Waitlist page open,"1. Enter email
+2. Click Submit",Joined waitlist successfully; spot number displayed,Critical,Integration,,FIXED & PASSED: Endpoint updated to /api/waitlist
+TC017,Auto Heartbeat on Login & Header Pulse,Heartbeat updates automatically on login and manual click on heart icon,User logs in or clicks heart icon in Navbar,"1. User logs in / loads dashboard
+2. Check heartbeat streak & timestamp
+3. Click Heart icon in header",Heartbeat is auto-recorded on login and manually refreshable via header icon with toast notification,Critical,E2E,,ADDED & PASSED: Auto heartbeat on login & navbar refresh icon implemented

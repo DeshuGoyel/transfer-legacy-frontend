@@ -168,6 +168,9 @@ export default function Login() {
         }
       });
       useStore.getState().calculateScore();
+      useStore.getState().fetchAssets().catch((err) => console.warn('Initial asset fetch on login:', err));
+      useStore.getState().performCheckIn('Web Login').catch((err) => console.warn('Auto heartbeat pulse on login:', err));
+      useCheckinStore.getState().completeCheckin('tap');
 
       toast.success('Successfully authenticated!');
       navigate('/dashboard');
