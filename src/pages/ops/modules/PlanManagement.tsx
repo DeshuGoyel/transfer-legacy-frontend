@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, 
   Plus, 
@@ -9,13 +9,17 @@ import {
   ShieldCheck, 
   DollarSign, 
   X, 
-  Layers
+  Layers,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { getStoredPlans, saveStoredPlans, Plan } from '../../../services/paymentService';
+import { fetchPlans, Plan } from '../../../services/paymentService';
+import { opsApi } from '../../../lib/opsApi';
 import toast from 'react-hot-toast';
 
 export default function PlanManagement() {
-  const [plans, setPlans] = useState<Plan[]>(getStoredPlans);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -29,6 +33,24 @@ export default function PlanManagement() {
   const [formMaxAssets, setFormMaxAssets] = useState(25);
   const [formHighlighted, setFormHighlighted] = useState(false);
   const [formActive, setFormActive] = useState(true);
+
+  const loadPlans = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchPlans();
+      setPlans(data);
+    } catch (err: any) {
+      console.error('Failed to load plans:', err);
+      toast.error(err.message || 'Failed to load plans from database');
+      setPlans([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
 
   const handleOpenAdd = () => {
     setEditingPlan(null);
@@ -58,7 +80,7 @@ export default function PlanManagement() {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) {
       toast.error('Plan name is required');
@@ -70,64 +92,64 @@ export default function PlanManagement() {
       .map((f) => f.trim())
       .filter(Boolean);
 
-    let updated: Plan[];
+    try {
+      if (editingPlan) {
+        await opsApi.put(`/ops/plans/${editingPlan.id}`, {
+          name: formName.trim(),
+          monthly_price: Number(formMonthlyPrice),
+          yearly_price: Number(formYearlyPrice),
+          description: formDescription.trim(),
+          features: featureList,
+          max_guardians: Number(formMaxGuardians),
+          max_assets: Number(formMaxAssets),
+          highlighted: formHighlighted,
+          active: formActive,
+        });
+        toast.success(`Plan "${formName}" updated successfully in database`);
+      } else {
+        const generatedId = `plan_${formName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}`;
+        await opsApi.post('/ops/plans', {
+          id: generatedId,
+          name: formName.trim(),
+          monthly_price: Number(formMonthlyPrice),
+          yearly_price: Number(formYearlyPrice),
+          description: formDescription.trim(),
+          features: featureList,
+          max_guardians: Number(formMaxGuardians),
+          max_assets: Number(formMaxAssets),
+          highlighted: formHighlighted,
+          active: formActive,
+        });
+        toast.success(`New plan tier "${formName}" created in database`);
+      }
 
-    if (editingPlan) {
-      updated = plans.map((p) =>
-        p.id === editingPlan.id
-          ? {
-              ...p,
-              name: formName.trim(),
-              monthlyPrice: Number(formMonthlyPrice),
-              yearlyPrice: Number(formYearlyPrice),
-              description: formDescription.trim(),
-              features: featureList,
-              maxGuardians: Number(formMaxGuardians),
-              maxAssets: Number(formMaxAssets),
-              highlighted: formHighlighted,
-              active: formActive,
-            }
-          : p
-      );
-      toast.success(`Plan "${formName}" updated successfully`);
-    } else {
-      const newPlan: Plan = {
-        id: `plan_${Date.now()}`,
-        name: formName.trim(),
-        monthlyPrice: Number(formMonthlyPrice),
-        yearlyPrice: Number(formYearlyPrice),
-        description: formDescription.trim(),
-        features: featureList,
-        maxGuardians: Number(formMaxGuardians),
-        maxAssets: Number(formMaxAssets),
-        highlighted: formHighlighted,
-        active: formActive,
-      };
-      updated = [...plans, newPlan];
-      toast.success(`New plan tier "${formName}" created`);
+      await loadPlans();
+      setIsModalOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save plan to database');
     }
-
-    setPlans(updated);
-    saveStoredPlans(updated);
-    setIsModalOpen(false);
   };
 
-  const handleDeletePlan = (id: string, name: string) => {
+  const handleDeletePlan = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete the plan "${name}"?`)) {
-      const updated = plans.filter((p) => p.id !== id);
-      setPlans(updated);
-      saveStoredPlans(updated);
-      toast.success(`Plan "${name}" removed`);
+      try {
+        await opsApi.delete(`/ops/plans/${id}`);
+        toast.success(`Plan "${name}" removed from database`);
+        await loadPlans();
+      } catch (err: any) {
+        toast.error(err.message || 'Failed to delete plan from database');
+      }
     }
   };
 
-  const handleToggleActive = (id: string) => {
-    const updated = plans.map((p) =>
-      p.id === id ? { ...p, active: !p.active } : p
-    );
-    setPlans(updated);
-    saveStoredPlans(updated);
-    toast.success('Plan availability toggled');
+  const handleToggleActive = async (id: string, currentActive: boolean) => {
+    try {
+      await opsApi.put(`/ops/plans/${id}`, { active: !currentActive });
+      toast.success('Plan availability toggled in database');
+      await loadPlans();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to toggle plan status');
+    }
   };
 
   return (
@@ -149,17 +171,37 @@ export default function PlanManagement() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAdd}
-          className="px-5 py-2.5 rounded-xl bg-brand-primary hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-primary/20 flex items-center gap-2 self-start md:self-auto transition-all"
-        >
-          <Plus size={16} /> Create Plan Tier
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={loadPlans}
+            disabled={isLoading}
+            className="p-2.5 rounded-xl bg-[#0E1015] border border-[rgba(255,255,255,0.08)] hover:text-white text-[#9B97A3] transition-all disabled:opacity-50"
+            title="Refresh database plans"
+          >
+            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+          <button
+            onClick={handleOpenAdd}
+            className="px-5 py-2.5 rounded-xl bg-brand-primary hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-primary/20 flex items-center gap-2 self-start md:self-auto transition-all"
+          >
+            <Plus size={16} /> Create Plan Tier
+          </button>
+        </div>
       </div>
 
       {/* Plan Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan) => (
+      {isLoading ? (
+        <div className="py-16 text-center text-[#9B97A3] bg-[#0E1015] rounded-2xl border border-white/5">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-brand-primary" />
+          <span>Loading subscription plans from database...</span>
+        </div>
+      ) : plans.length === 0 ? (
+        <div className="py-16 text-center text-[#9B97A3] bg-[#0E1015] rounded-2xl border border-white/5">
+          <span>No subscription plans configured in database. Click "Create Plan Tier" to add one.</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {plans.map((plan) => (
           <div
             key={plan.id}
             className={`p-6 rounded-2xl bg-[#0E1015] border transition-all flex flex-col justify-between relative overflow-hidden ${
@@ -225,7 +267,7 @@ export default function PlanManagement() {
             {/* Actions */}
             <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-2">
               <button
-                onClick={() => handleToggleActive(plan.id)}
+                onClick={() => handleToggleActive(plan.id, plan.active)}
                 className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border transition-colors ${
                   plan.active
                     ? 'text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10'
@@ -255,6 +297,7 @@ export default function PlanManagement() {
           </div>
         ))}
       </div>
+    )}
 
       {/* Plan Edit / Create Modal */}
       {isModalOpen && (

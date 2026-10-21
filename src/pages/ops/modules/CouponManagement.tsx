@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Tag, 
   Plus, 
@@ -8,13 +8,17 @@ import {
   Clock, 
   Percent, 
   X, 
-  AlertCircle
+  AlertCircle,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { getStoredCoupons, saveStoredCoupons, Coupon } from '../../../services/paymentService';
+import { fetchCoupons, Coupon } from '../../../services/paymentService';
+import { opsApi } from '../../../lib/opsApi';
 import toast from 'react-hot-toast';
 
 export default function CouponManagement() {
-  const [coupons, setCoupons] = useState<Coupon[]>(getStoredCoupons);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Form State
@@ -24,7 +28,25 @@ export default function CouponManagement() {
   const [expiresAt, setExpiresAt] = useState('2027-12-31');
   const [description, setDescription] = useState('');
 
-  const handleCreateCoupon = (e: React.FormEvent) => {
+  const loadCoupons = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchCoupons();
+      setCoupons(data);
+    } catch (err: any) {
+      console.error('Failed to load coupons:', err);
+      toast.error(err.message || 'Failed to load coupons from database');
+      setCoupons([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCoupons();
+  }, []);
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim()) {
       toast.error('Coupon code is required');
@@ -37,42 +59,45 @@ export default function CouponManagement() {
       return;
     }
 
-    const newCoupon: Coupon = {
-      id: `c_${Date.now()}`,
-      code: trimmedCode,
-      discountPercent: Number(discountPercent),
-      maxUses: Number(maxUses),
-      currentUses: 0,
-      expiresAt,
-      active: true,
-      description: description.trim() || undefined,
-    };
+    try {
+      await opsApi.post('/ops/coupons', {
+        code: trimmedCode,
+        discount_percent: Number(discountPercent),
+        max_uses: Number(maxUses),
+        expires_at: new Date(`${expiresAt}T23:59:59Z`).toISOString(),
+        description: description.trim() || undefined,
+      });
 
-    const updated = [newCoupon, ...coupons];
-    setCoupons(updated);
-    saveStoredCoupons(updated);
-    toast.success(`Coupon ${trimmedCode} created successfully!`);
-    setIsModalOpen(false);
-    setCode('');
-    setDescription('');
-  };
-
-  const handleDeleteCoupon = (id: string, couponCode: string) => {
-    if (confirm(`Are you sure you want to delete coupon "${couponCode}"?`)) {
-      const updated = coupons.filter((c) => c.id !== id);
-      setCoupons(updated);
-      saveStoredCoupons(updated);
-      toast.success(`Coupon ${couponCode} deleted`);
+      toast.success(`Coupon ${trimmedCode} created in database!`);
+      await loadCoupons();
+      setIsModalOpen(false);
+      setCode('');
+      setDescription('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to create coupon in database');
     }
   };
 
-  const handleToggleActive = (id: string) => {
-    const updated = coupons.map((c) =>
-      c.id === id ? { ...c, active: !c.active } : c
-    );
-    setCoupons(updated);
-    saveStoredCoupons(updated);
-    toast.success('Coupon status updated');
+  const handleDeleteCoupon = async (id: string, couponCode: string) => {
+    if (confirm(`Are you sure you want to delete coupon "${couponCode}"?`)) {
+      try {
+        await opsApi.delete(`/ops/coupons/${id}`);
+        toast.success(`Coupon ${couponCode} deleted from database`);
+        await loadCoupons();
+      } catch (err: any) {
+        toast.error(err.message || 'Failed to delete coupon');
+      }
+    }
+  };
+
+  const handleToggleActive = async (id: string) => {
+    try {
+      await opsApi.post(`/ops/coupons/${id}/toggle`);
+      toast.success('Coupon status updated in database');
+      await loadCoupons();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to toggle coupon status');
+    }
   };
 
   const handleCopyCode = (couponCode: string) => {
@@ -99,12 +124,22 @@ export default function CouponManagement() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-5 py-2.5 rounded-xl bg-brand-primary hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-primary/20 flex items-center gap-2 self-start md:self-auto transition-all"
-        >
-          <Plus size={16} /> New Coupon Code
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={loadCoupons}
+            disabled={isLoading}
+            className="p-2.5 rounded-xl bg-[#0E1015] border border-[rgba(255,255,255,0.08)] hover:text-white text-[#9B97A3] transition-all disabled:opacity-50"
+            title="Refresh database coupons"
+          >
+            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-5 py-2.5 rounded-xl bg-brand-primary hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-primary/20 flex items-center gap-2 self-start md:self-auto transition-all"
+          >
+            <Plus size={16} /> New Coupon Code
+          </button>
+        </div>
       </div>
 
       {/* Coupons Table */}
@@ -122,7 +157,14 @@ export default function CouponManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[rgba(255,255,255,0.05)] text-xs">
-              {coupons.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-[#9B97A3]">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-primary" />
+                    <span>Loading promotional coupons from database...</span>
+                  </td>
+                </tr>
+              ) : coupons.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-[#9B97A3]">
                     No promotional coupons found. Click "New Coupon Code" to launch a campaign.

@@ -10,6 +10,7 @@ import Button from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { useBodyClass } from '../hooks/useBodyClass';
 import { useStore, Asset } from '../store/useStore';
+import { useCheckinStore } from '../store/useCheckinStore';
 
 export default function Login() {
   useBodyClass('allow-cursor');
@@ -168,8 +169,8 @@ export default function Login() {
         }
       });
       useStore.getState().calculateScore();
-      useStore.getState().fetchAssets().catch((err) => console.warn('Initial asset fetch on login:', err));
-      useStore.getState().performCheckIn('Web Login').catch((err) => console.warn('Auto heartbeat pulse on login:', err));
+      useStore.getState().fetchAssets().catch((err: unknown) => console.warn('Initial asset fetch on login:', err));
+      useStore.getState().performCheckIn('Web Login').catch((err: unknown) => console.warn('Auto heartbeat pulse on login:', err));
       useCheckinStore.getState().completeCheckin('tap');
 
       toast.success('Successfully authenticated!');

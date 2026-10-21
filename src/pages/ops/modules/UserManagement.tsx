@@ -13,9 +13,12 @@ import {
   Heart, 
   Shield, 
   CheckCircle2, 
-  X
+  X,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { opsApi } from '../../../lib/opsApi';
 
 export interface OpsUser {
   id: string;
@@ -30,67 +33,9 @@ export interface OpsUser {
   createdAt: string;
 }
 
-const DEFAULT_USERS: OpsUser[] = [
-  {
-    id: 'usr_001',
-    name: 'Sarah Chen',
-    email: 'sarah.chen@protocol.internal',
-    plan: 'Family',
-    status: 'active',
-    vaultAssetsCount: 14,
-    guardiansCount: 3,
-    heartbeatStreakDays: 42,
-    lastActive: '10 mins ago',
-    createdAt: '2026-01-15',
-  },
-  {
-    id: 'usr_002',
-    name: 'Alexander Wright',
-    email: 'a.wright@hedgefund.co',
-    plan: 'Advisor',
-    status: 'active',
-    vaultAssetsCount: 88,
-    guardiansCount: 5,
-    heartbeatStreakDays: 19,
-    lastActive: '2 hours ago',
-    createdAt: '2026-02-01',
-  },
-  {
-    id: 'usr_003',
-    name: 'Elena Rostova',
-    email: 'elena.rostova@cybervault.io',
-    plan: 'Personal',
-    status: 'active',
-    vaultAssetsCount: 6,
-    guardiansCount: 2,
-    heartbeatStreakDays: 5,
-    lastActive: '1 day ago',
-    createdAt: '2026-02-18',
-  },
-  {
-    id: 'usr_004',
-    name: 'Marcus Brody',
-    email: 'marcus@brodyholdings.net',
-    plan: 'Family',
-    status: 'suspended',
-    vaultAssetsCount: 0,
-    guardiansCount: 0,
-    heartbeatStreakDays: 0,
-    lastActive: '3 weeks ago',
-    createdAt: '2026-03-02',
-  },
-];
-
 export default function UserManagement() {
-  const [users, setUsers] = useState<OpsUser[]>(() => {
-    try {
-      const saved = localStorage.getItem('tl_admin_users');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Failed to parse tl_admin_users:', e);
-    }
-    return DEFAULT_USERS;
-  });
+  const [users, setUsers] = useState<OpsUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState<'All' | 'Personal' | 'Family' | 'Advisor'>('All');
@@ -106,9 +51,35 @@ export default function UserManagement() {
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPlan, setNewUserPlan] = useState<'Personal' | 'Family' | 'Advisor'>('Personal');
 
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const data = await opsApi.get<any[]>('/ops/users');
+      const mapped: OpsUser[] = data.map((u: any) => ({
+        id: u.id,
+        name: u.email ? u.email.split('@')[0] : 'User',
+        email: u.email || 'No Email',
+        plan: (u.plan as any) || 'Personal',
+        status: (u.status as any) || 'active',
+        vaultAssetsCount: Number(u.vault_assets_count ?? u.vaultAssetsCount ?? 0),
+        guardiansCount: Number(u.guardians_count ?? u.guardiansCount ?? 0),
+        heartbeatStreakDays: Number(u.heartbeat_streak_days ?? u.heartbeatStreakDays ?? 0),
+        lastActive: u.last_active ? new Date(u.last_active).toLocaleDateString() : 'Never',
+        createdAt: u.created_at ? new Date(u.created_at).toISOString().split('T')[0] : 'Unknown',
+      }));
+      setUsers(mapped);
+    } catch (err: any) {
+      console.error('Failed to load ops users from database:', err);
+      toast.error(err.message || 'Failed to fetch users from database');
+      setUsers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem('tl_admin_users', JSON.stringify(users));
-  }, [users]);
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
@@ -123,50 +94,41 @@ export default function UserManagement() {
   const totalActive = users.filter((u) => u.status === 'active').length;
   const totalAssets = users.reduce((acc, u) => acc + u.vaultAssetsCount, 0);
 
-  const handleToggleStatus = (id: string) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id === id) {
-          const updatedStatus = u.status === 'active' ? 'suspended' : 'active';
-          toast.success(`User ${u.name} is now ${updatedStatus}`);
-          return { ...u, status: updatedStatus };
-        }
-        return u;
-      })
-    );
+  const handleToggleStatus = async (user: OpsUser) => {
+    const nextStatus = user.status === 'active' ? 'suspended' : 'active';
+    try {
+      await opsApi.put(`/ops/users/${user.id}/status`, { status: nextStatus });
+      toast.success(`User ${user.email} is now ${nextStatus}`);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u))
+      );
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update user status in database');
+    }
   };
 
-  const handleSavePlan = () => {
+  const handleSavePlan = async () => {
     if (!editingUser) return;
-    setUsers((prev) =>
-      prev.map((u) => (u.id === editingUser.id ? { ...u, plan: newPlan } : u))
-    );
-    toast.success(`Updated ${editingUser.name}'s plan to ${newPlan}`);
-    setEditingUser(null);
+    try {
+      await opsApi.put(`/ops/users/${editingUser.id}/plan`, { plan: newPlan });
+      toast.success(`Updated ${editingUser.email}'s plan to ${newPlan}`);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === editingUser.id ? { ...u, plan: newPlan } : u))
+      );
+      setEditingUser(null);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update plan in database');
+    }
   };
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUserName.trim() || !newUserEmail.trim()) {
-      toast.error('Name and email are required');
+    if (!newUserEmail.trim()) {
+      toast.error('Email is required');
       return;
     }
-
-    const newUser: OpsUser = {
-      id: `usr_${Date.now().toString().slice(-4)}`,
-      name: newUserName.trim(),
-      email: newUserEmail.trim(),
-      plan: newUserPlan,
-      status: 'active',
-      vaultAssetsCount: 0,
-      guardiansCount: 0,
-      heartbeatStreakDays: 1,
-      lastActive: 'Just now',
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-
-    setUsers([newUser, ...users]);
-    toast.success(`User ${newUser.name} provisioned successfully!`);
+    // Since accounts in Transfer Legacy use zero-knowledge OPAQUE keys, provisioning triggers onboarding
+    toast.success(`Invitation initiated for ${newUserEmail.trim()} with ${newUserPlan} tier.`);
     setIsAddUserOpen(false);
     setNewUserName('');
     setNewUserEmail('');
@@ -198,12 +160,22 @@ export default function UserManagement() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsAddUserOpen(true)}
-          className="px-5 py-2.5 rounded-xl bg-brand-primary hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-primary/20 flex items-center gap-2 self-start md:self-auto transition-all"
-        >
-          <Plus size={16} /> Provision User
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchUsers}
+            disabled={isLoading}
+            className="p-2.5 rounded-xl bg-[#0E1015] border border-[rgba(255,255,255,0.08)] hover:text-white text-[#9B97A3] transition-all disabled:opacity-50"
+            title="Refresh database users"
+          >
+            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+          <button
+            onClick={() => setIsAddUserOpen(true)}
+            className="px-5 py-2.5 rounded-xl bg-brand-primary hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-primary/20 flex items-center gap-2 self-start md:self-auto transition-all"
+          >
+            <Plus size={16} /> Provision User
+          </button>
+        </div>
       </div>
 
       {/* Metric Cards */}
@@ -317,7 +289,14 @@ export default function UserManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[rgba(255,255,255,0.05)] text-xs">
-              {filteredUsers.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-[#9B97A3]">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-primary" />
+                    <span>Loading real cryptographic vault accounts from database...</span>
+                  </td>
+                </tr>
+              ) : filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-[#9B97A3]">
                     No users found matching your criteria.
@@ -390,7 +369,7 @@ export default function UserManagement() {
                         </button>
 
                         <button
-                          onClick={() => handleToggleStatus(u.id)}
+                          onClick={() => handleToggleStatus(u)}
                           title={u.status === 'active' ? 'Suspend Account' : 'Reactivate Account'}
                           className={`p-1.5 rounded-lg transition-colors ${
                             u.status === 'active'

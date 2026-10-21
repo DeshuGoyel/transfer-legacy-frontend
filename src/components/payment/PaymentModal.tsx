@@ -38,13 +38,13 @@ export default function PaymentModal({
 
   const currentPayable = appliedCoupon ? appliedCoupon.payableAmount : basePrice;
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       toast.error('Please enter a coupon code');
       return;
     }
 
-    const result = validateCoupon(couponCode, basePrice);
+    const result = await validateCoupon(couponCode, basePrice);
     if (!result.valid) {
       toast.error(result.error || 'Invalid coupon code');
       setAppliedCoupon(null);

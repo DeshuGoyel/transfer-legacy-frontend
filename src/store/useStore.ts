@@ -111,9 +111,9 @@ interface AppState {
   isMobileSidebarOpen: boolean;
   
   fetchAssets: () => Promise<void>;
-  addAsset: (asset: Omit<Asset, 'id'>) => void | Promise<void>;
-  updateAsset: (id: string, data: Partial<Asset>) => void | Promise<void>;
-  deleteAsset: (id: string) => void | Promise<void>;
+  addAsset: (asset: Omit<Asset, 'id'>) => Promise<void>;
+  updateAsset: (id: string, data: Partial<Asset>) => Promise<void>;
+  deleteAsset: (id: string) => Promise<void>;
   addGuardian: (guardian: Omit<Guardian, 'id' | 'status'>) => void;
   confirmGuardian: (id: string) => void;
   removeGuardian: (id: string) => void;
@@ -124,7 +124,7 @@ interface AppState {
   toggleNotifications: () => void;
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
-  performCheckIn: (method: string) => void | Promise<void>;
+  performCheckIn: (method: string) => Promise<void>;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
   addAllocation: (allocation: Omit<Allocation, 'id'>) => void;

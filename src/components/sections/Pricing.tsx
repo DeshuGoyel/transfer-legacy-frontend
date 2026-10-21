@@ -1,14 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
-import { getStoredPlans, Plan } from '../../services/paymentService';
+import { Check, Loader2 } from 'lucide-react';
+import { fetchPlans, Plan } from '../../services/paymentService';
 import PaymentModal from '../payment/PaymentModal';
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const storedPlans = getStoredPlans().filter(p => p.active);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchPlans()
+      .then(fetchedPlans => {
+        if (isMounted) {
+          setPlans(fetchedPlans.filter(p => p.active));
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load plans:', err);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSelectPlan = (plan: Plan) => {
     setSelectedPlan(plan);
@@ -61,10 +81,16 @@ export default function Pricing() {
           </div>
         </div>
 
-        {/* 3 Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {storedPlans.map((plan, i) => {
-            const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
+        {/* Cards or Loader */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-secondary">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-primary mb-3" />
+            <p className="text-[13px] font-mono">Loading active membership tiers...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+            {plans.map((plan, i) => {
+              const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
             return (
               <motion.div
                 key={plan.id || plan.name}
@@ -138,6 +164,7 @@ export default function Pricing() {
             );
           })}
         </div>
+        )}
 
         <p className="text-center text-[11px] text-secondary/40 mt-8 font-medium tracking-wide">
           All plans include client-side encryption. Price is locked at founding member rate forever.

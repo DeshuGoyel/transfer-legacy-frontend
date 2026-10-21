@@ -15,7 +15,7 @@ export default function FinalCTA() {
   useEffect(() => {
     async function loadBranding() {
       try {
-        const res = await api.get<{ waitlist_enabled?: boolean }>('/app/branding', { skipAead: true });
+        const res = await api.get<{ data?: { waitlist_enabled?: boolean }; waitlist_enabled?: boolean }>('/app/branding', { skipAead: true });
         const data = res.data ? res.data : res;
         if (data && typeof data.waitlist_enabled === 'boolean') {
           setBranding({ waitlist_enabled: data.waitlist_enabled });
@@ -30,7 +30,7 @@ export default function FinalCTA() {
     if (!email) return;
     setIsSubmitting(true);
     try {
-      const result = await api.post<{ position?: number; isNew?: boolean }>('/app/waitlist', { email, name: null }, { skipAead: true });
+      const result = await api.post<{ data?: { position?: number; isNew?: boolean }; position?: number; isNew?: boolean }>('/app/waitlist', { email, name: null }, { skipAead: true });
       const waitlistData = result.data ? result.data : result;
       setPosition(waitlistData.position ?? null);
       setIsSuccess(true);

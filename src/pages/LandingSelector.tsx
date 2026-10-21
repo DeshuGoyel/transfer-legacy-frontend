@@ -10,7 +10,7 @@ export default function LandingSelector() {
   useEffect(() => {
     async function loadBranding() {
       try {
-        const res = await api.get<{ waitlist_enabled?: boolean }>('/app/branding', { skipAead: true });
+        const res = await api.get<{ data?: { waitlist_enabled?: boolean }; waitlist_enabled?: boolean }>('/app/branding', { skipAead: true });
         const data = res.data ? res.data : res;
         if (data && typeof data.waitlist_enabled === 'boolean') {
           setBranding({ waitlist_enabled: data.waitlist_enabled });

@@ -8,7 +8,9 @@ import {
   ShieldCheck, 
   Calendar, 
   Settings as SettingsIcon,
-  Check
+  Check,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { opsApi } from '../../../lib/opsApi';
 import { useOpsStore } from '../../../store/useOpsStore';
@@ -66,6 +68,7 @@ export default function AdminMgmt() {
     password: '',
     role_id: '',
   });
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   const [roleForm, setRoleForm] = useState({
     name: '',
@@ -372,14 +375,25 @@ export default function AdminMgmt() {
             required
             className="bg-slate-950 border-slate-800"
           />
-          <Input
-            label="Initial Password"
-            type="password"
-            value={newAdmin.password}
-            onChange={(e) => setNewAdmin(prev => ({ ...prev, password: e.target.value }))}
-            required
-            className="bg-slate-950 border-slate-800"
-          />
+          <div className="relative">
+            <Input
+              label="Initial Password"
+              type={showAdminPassword ? 'text' : 'password'}
+              value={newAdmin.password}
+              onChange={(e) => setNewAdmin(prev => ({ ...prev, password: e.target.value }))}
+              required
+              className="bg-slate-950 border-slate-800 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowAdminPassword(v => !v)}
+              className="absolute right-3.5 bottom-3 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+              tabIndex={-1}
+              aria-label={showAdminPassword ? 'Hide password' : 'Show password'}
+            >
+              {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-muted font-sans">Assign Role</label>
             <select
