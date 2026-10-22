@@ -49,7 +49,21 @@ export interface PaymentResult {
 }
 
 export const fetchPlans = async (): Promise<Plan[]> => {
-  const raw = await opsApi.get<any[]>('/plans');
+  let raw: any[];
+  try {
+    raw = await opsApi.get<any[]>('/plans');
+  } catch (err: any) {
+    if (err?.status === 404 || err?.message?.includes('404')) {
+      try {
+        raw = await opsApi.get<any[]>('/app/plans');
+      } catch {
+        raw = await opsApi.get<any[]>('/ops/plans');
+      }
+    } else {
+      throw err;
+    }
+  }
+
   return raw.map((p) => ({
     id: p.id,
     name: p.name,
@@ -90,13 +104,34 @@ export const validateCoupon = async (
   message?: string;
 }> => {
   try {
-    const res = await opsApi.post<{
+    let res: {
       valid: boolean;
       discount_percent: number;
       discount_amount: number;
       final_amount: number;
       message: string;
-    }>('/coupons/validate', { code: code.trim(), amount });
+    };
+    try {
+      res = await opsApi.post<{
+        valid: boolean;
+        discount_percent: number;
+        discount_amount: number;
+        final_amount: number;
+        message: string;
+      }>('/coupons/validate', { code: code.trim(), amount });
+    } catch (err: any) {
+      if (err?.status === 404 || err?.message?.includes('404')) {
+        res = await opsApi.post<{
+          valid: boolean;
+          discount_percent: number;
+          discount_amount: number;
+          final_amount: number;
+          message: string;
+        }>('/app/coupons/validate', { code: code.trim(), amount });
+      } else {
+        throw err;
+      }
+    }
 
     if (!res.valid) {
       return { valid: false, error: res.message || 'Invalid coupon code' };
