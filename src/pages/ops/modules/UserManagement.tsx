@@ -40,6 +40,7 @@ export default function UserManagement() {
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState<'All' | 'Personal' | 'Family' | 'Advisor'>('All');
   const [statusFilter, setStatusFilter] = useState<'All' | 'active' | 'suspended'>('All');
+  const [hideTestAccounts, setHideTestAccounts] = useState(true);
 
   // Edit Plan Modal
   const [editingUser, setEditingUser] = useState<OpsUser | null>(null);
@@ -81,7 +82,26 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
+  const isTestAccount = (email: string) => {
+    const e = email.toLowerCase();
+    return (
+      e.endsWith('@example.com') ||
+      e.startsWith('test_') ||
+      e.startsWith('test-') ||
+      e.startsWith('claim-test-') ||
+      e.startsWith('vault-test-') ||
+      e.startsWith('policy-test-') ||
+      e.startsWith('func_test_') ||
+      e.startsWith('vault-test')
+    );
+  };
+
+  const testAccountsCount = users.filter((u) => isTestAccount(u.email)).length;
+
   const filteredUsers = users.filter((u) => {
+    if (hideTestAccounts && isTestAccount(u.email)) {
+      return false;
+    }
     const matchesSearch =
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -270,6 +290,21 @@ export default function UserManagement() {
               </button>
             ))}
           </div>
+
+          {/* Test Accounts Filter Toggle */}
+          {testAccountsCount > 0 && (
+            <button
+              onClick={() => setHideTestAccounts(!hideTestAccounts)}
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border transition-all ${
+                hideTestAccounts
+                  ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                  : 'bg-[#08090C] text-[#9B97A3] border-[rgba(255,255,255,0.08)] hover:text-white'
+              }`}
+            >
+              <ShieldAlert size={12} />
+              <span>{hideTestAccounts ? `Hide Tests (${testAccountsCount})` : `Show All (${users.length})`}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -350,7 +385,7 @@ export default function UserManagement() {
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                       }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]' : 'bg-rose-400'}`} />
                         {u.status}
                       </span>
                     </td>
