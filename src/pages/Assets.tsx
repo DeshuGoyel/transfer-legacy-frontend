@@ -211,11 +211,11 @@ export default function Assets() {
   };
 
   return (
-    <div className="min-h-screen bg-page text-primary flex flex-col lg:flex-row h-[calc(100vh-56px)] overflow-hidden" style={{ background: 'var(--color-bg-page)' }}>
+    <div className="min-h-screen bg-page text-primary flex flex-col lg:flex-row h-[calc(100vh-56px)] overflow-hidden">
       
       {/* ── COLUMN 1: Sectors (Leftmost) ── */}
-      <aside className="w-full lg:w-[180px] shrink-0 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] bg-[#0C0C12]/40 p-3 flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto scrollbar-none shrink-0">
-        <p className="hidden lg:block px-3 py-2 text-[10px] font-semibold tracking-[0.14em] uppercase" style={{ color: '#5C596A' }}>
+      <aside className="w-full lg:w-[190px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-surface/50 p-3 flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto scrollbar-none shrink-0">
+        <p className="hidden lg:block px-3 py-2 text-[10px] font-semibold tracking-[0.14em] uppercase text-muted">
           Sectors
         </p>
         {tabs.map(tab => {
@@ -232,10 +232,9 @@ export default function Assets() {
               className={cn(
                 "flex items-center justify-between px-3 py-2 rounded-[6px] text-[12px] font-medium transition-all w-auto lg:w-full whitespace-nowrap lg:whitespace-normal shrink-0",
                 isActive 
-                  ? "bg-brand-primary-dim border border-brand-primary/18" 
-                  : "hover:bg-[rgba(255,255,255,0.025)] border border-transparent"
+                  ? "bg-brand-primary/10 text-brand-primary font-semibold border border-brand-primary/25 shadow-sm" 
+                  : "text-secondary hover:text-primary hover:bg-surface/80 border border-transparent"
               )}
-              style={isActive ? { color: 'var(--color-brand-primary)' } : { color: '#9B97A3' }}
             >
               <span>{tab}</span>
               {count > 0 && (
@@ -243,8 +242,8 @@ export default function Assets() {
                   className={cn(
                     "hidden lg:inline-block text-[9px] px-1.5 py-0.5 rounded-[4px] font-mono leading-none ml-2 border",
                     isActive 
-                      ? "border-brand-primary/25 bg-brand-primary-dim text-brand-primary" 
-                      : "border-border-base bg-[#12131A] text-[#5C596A]"
+                      ? "border-brand-primary/25 bg-brand-primary/10 text-brand-primary font-bold" 
+                      : "border-border bg-page text-muted"
                   )}
                 >
                   {count}
@@ -256,43 +255,43 @@ export default function Assets() {
       </aside>
 
       {/* ── COLUMN 2: Vault Item List (Center) ── */}
-      <section className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] bg-[#090A0F] flex flex-col h-[380px] lg:h-full shrink-0">
+      <section className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-surface/30 flex flex-col h-[380px] lg:h-full shrink-0">
         {/* Search and Action area */}
-        <div className="p-4 border-b border-[rgba(255,255,255,0.06)] flex flex-col gap-3 shrink-0">
+        <div className="p-4 border-b border-border flex flex-col gap-3 shrink-0">
           <div className="relative flex items-center">
-            <Search className="absolute left-3 w-4 h-4" style={{ color: '#5C596A' }} />
+            <Search className="absolute left-3 w-4 h-4 text-muted" />
             <input
               type="text"
               placeholder="Search vault items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#12131A] border border-border-base rounded-[8px] pl-9 pr-4 py-2 text-[13px] text-white focus:border-brand-primary/60 placeholder:text-[#5C596A] outline-none transition-colors"
+              className="w-full bg-surface border border-border rounded-[8px] pl-9 pr-4 py-2 text-[13px] text-primary focus:border-brand-primary/60 placeholder:text-muted outline-none transition-colors shadow-inner"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={handleStartAdd}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85 shadow-sm"
               style={{ background: 'var(--color-brand-primary)' }}
             >
               <Plus size={14} /> New Record
             </button>
             <div className="relative group">
               <button
-                className="h-9 px-3 rounded-[6px] text-[12px] font-medium border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.03)] text-[#9B97A3] flex items-center justify-center"
+                className="h-9 px-3 rounded-[6px] text-[12px] font-medium border border-border hover:bg-surface text-secondary hover:text-primary flex items-center justify-center transition-colors"
               >
                 Template
               </button>
-              <div className="absolute right-0 top-full mt-1 w-44 bg-[#12131A] border border-[rgba(255,255,255,0.08)] rounded-[8px] shadow-2xl p-1.5 hidden group-hover:block z-50">
+              <div className="absolute right-0 top-full mt-1 w-44 bg-surface border border-border rounded-[8px] shadow-2xl p-1.5 hidden group-hover:block z-50">
                 <button
                   onClick={() => handleAddTemplate('crypto')}
-                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-[#9B97A3] hover:text-white hover:bg-[rgba(255,255,255,0.03)] flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-secondary hover:text-primary hover:bg-page flex items-center gap-2 transition-colors"
                 >
                   <Wallet size={12} className="text-brand-primary" /> Crypto Wallet
                 </button>
                 <button
                   onClick={() => handleAddTemplate('retirement')}
-                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-[#9B97A3] hover:text-white hover:bg-[rgba(255,255,255,0.03)] flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-secondary hover:text-primary hover:bg-page flex items-center gap-2 transition-colors"
                 >
                   <Briefcase size={12} className="text-brand-primary" /> Retirement Account
                 </button>
@@ -305,9 +304,9 @@ export default function Assets() {
         <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
           {filteredAssets.length === 0 ? (
             <div className="text-center py-12 px-4">
-              <Lock size={20} className="mx-auto mb-2 text-[#5C596A]" strokeWidth={1.5} />
-              <p className="text-[13px] font-medium text-[#E9E6DF]">No records found</p>
-              <p className="text-[11px] text-[#5C596A] mt-0.5">Adjust filter or add a new record.</p>
+              <Lock size={20} className="mx-auto mb-2 text-muted" strokeWidth={1.5} />
+              <p className="text-[13px] font-medium text-primary">No records found</p>
+              <p className="text-[11px] text-muted mt-0.5">Adjust filter or add a new record.</p>
             </div>
           ) : (
             filteredAssets.map(asset => {
@@ -320,8 +319,8 @@ export default function Assets() {
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-[6px] text-left transition-colors relative group",
                     isSelected 
-                      ? "bg-[rgba(255,255,255,0.04)]" 
-                      : "hover:bg-[rgba(255,255,255,0.015)]"
+                      ? "bg-surface shadow-sm border border-border" 
+                      : "hover:bg-surface/50 border border-transparent"
                   )}
                 >
                   {/* Left orange/gold accent bar */}
@@ -335,25 +334,25 @@ export default function Assets() {
                     className={cn(
                       "w-7 h-7 rounded-[6px] flex items-center justify-center shrink-0 border transition-colors",
                       isSelected
-                        ? "border-brand-primary/30 bg-brand-primary-dim"
-                        : "border-[rgba(255,255,255,0.05)] bg-[#12131A] group-hover:border-[rgba(255,255,255,0.12)]"
+                        ? "border-brand-primary/30 bg-brand-primary/10 text-brand-primary"
+                        : "border-border bg-page text-muted group-hover:border-brand-primary/30"
                     )}
                   >
-                    <Icon size={13} style={isSelected ? { color: 'var(--color-brand-primary)' } : { color: '#9B97A3' }} />
+                    <Icon size={13} className={isSelected ? "text-brand-primary" : "text-muted group-hover:text-primary"} />
                   </div>
                   {/* Title & info */}
                   <div className="flex-grow min-w-0">
-                    <p className="text-[13px] font-medium text-[#E9E6DF] truncate leading-tight">
+                    <p className="text-[13px] font-medium text-primary truncate leading-tight">
                       {asset.name || 'Unnamed Record'}
                     </p>
-                    <p className="text-[11px] text-[#5C596A] truncate leading-tight mt-0.5">
+                    <p className="text-[11px] text-muted truncate leading-tight mt-0.5">
                       {asset.type || 'Asset'}
                     </p>
                   </div>
                   {/* Right side status / value */}
                   <div className="text-right shrink-0">
                     {asset.value && asset.value > 0 ? (
-                      <p className="text-[11px] font-semibold text-[#9B97A3]">
+                      <p className="text-[11px] font-semibold text-secondary">
                         ${(asset.value / 1000).toFixed(0)}k
                       </p>
                     ) : null}
@@ -369,7 +368,7 @@ export default function Assets() {
       </section>
 
       {/* ── COLUMN 3: Vault Item Detail Panel / Form Editor (Rightmost) ── */}
-      <section className="flex-1 bg-[#07080B] overflow-y-auto flex flex-col h-full">
+      <section className="flex-1 bg-page overflow-y-auto flex flex-col h-full">
         {isAdding || isEditing ? (
           /* ── INLINE FORM EDITOR ── */
           <div className="max-w-[600px] p-6 lg:p-8 space-y-6">
@@ -377,22 +376,22 @@ export default function Assets() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-primary mb-1">
                 Vault Security Editor
               </p>
-              <h2 className="font-display font-light text-[24px] text-white tracking-tight leading-tight">
+              <h2 className="font-display font-light text-[24px] text-primary tracking-tight leading-tight">
                 {isAdding ? 'Initiate Succession Protocol' : `Edit: ${selectedAsset?.name}`}
               </h2>
-              <p className="text-[12px] text-[#5C596A] mt-1">
+              <p className="text-[12px] text-muted mt-1">
                 Archived information is client-side encrypted before sending to the server.
               </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#5C596A]">
+                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
                   Sector Designation
                 </label>
                 <select
                   {...register('type')}
-                  className="w-full bg-[#12131A] border border-border-base rounded-[8px] px-3.5 py-2.5 text-[13px] text-white focus:border-brand-primary/40 outline-none"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
                 >
                   <option value="Crypto">Cryptocurrency / Web3 Wallet</option>
                   <option value="NFT">Digital Collectible (NFT)</option>
@@ -407,14 +406,14 @@ export default function Assets() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#5C596A]">
+                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
                   Designation / Name
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. BTC Cold Vault"
                   {...register('name')}
-                  className="w-full bg-[#12131A] border border-border-base rounded-[8px] px-3.5 py-2.5 text-[13px] text-white focus:border-brand-primary/40 outline-none placeholder:text-[#5C596A]"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted"
                 />
                 {errors.name?.message && (
                   <p className="text-red-400 text-[11px]">{errors.name.message as string}</p>
@@ -422,33 +421,33 @@ export default function Assets() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#5C596A]">
+                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
                   Market Valuation (USD)
                 </label>
                 <input
                   type="number"
                   placeholder="0.00"
                   {...register('value', { valueAsNumber: true })}
-                  className="w-full bg-[#12131A] border border-border-base rounded-[8px] px-3.5 py-2.5 text-[13px] text-white focus:border-brand-primary/40 outline-none placeholder:text-[#5C596A]"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#5C596A]">
+                <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
                   Decryption Mandate & Instructions
                 </label>
                 <textarea
                   placeholder="Provide precise recovery or key distribution instructions..."
                   rows={5}
                   {...register('notes')}
-                  className="w-full bg-[#12131A] border border-border-base rounded-[8px] px-3.5 py-3 text-[13px] text-white focus:border-brand-primary/40 outline-none placeholder:text-[#5C596A] leading-relaxed resize-none"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-3 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted leading-relaxed resize-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex gap-3">
+              <div className="pt-4 border-t border-border flex gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold text-white transition-opacity hover:opacity-85"
+                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold text-white transition-opacity hover:opacity-85 shadow-sm"
                   style={{ background: 'var(--color-brand-primary)' }}
                 >
                   Secure Information
@@ -456,7 +455,7 @@ export default function Assets() {
                 <button
                   type="button"
                   onClick={handleCancelForm}
-                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.03)] text-[#9B97A3] transition-colors"
+                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold border border-border hover:bg-surface text-secondary hover:text-primary transition-colors"
                 >
                   Cancel
                 </button>
@@ -467,21 +466,21 @@ export default function Assets() {
           /* ── VAULT DETAIL PANEL ── */
           <div className="flex-1 flex flex-col">
             {/* Header Actions */}
-            <div className="px-6 lg:px-8 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between shrink-0 bg-[#0C0D13]/40">
-              <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wider text-[#5C596A]">
+            <div className="px-6 lg:px-8 py-4 border-b border-border flex items-center justify-between shrink-0 bg-surface/50">
+              <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wider text-muted">
                 <Shield size={12} className="text-brand-primary" />
                 <span>Zero-Knowledge Locked</span>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => handleStartEdit(selectedAsset)}
-                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.03)] text-[#9B97A3] flex items-center gap-1.5 transition-colors"
+                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-border hover:bg-surface text-secondary hover:text-primary flex items-center gap-1.5 transition-colors"
                 >
                   <Edit2 size={11} /> Edit
                 </button>
                 <button
                   onClick={() => handleDelete(selectedAsset.id)}
-                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-[rgba(255,255,255,0.07)] hover:border-[rgba(239,68,68,0.15)] hover:bg-[rgba(239,68,68,0.05)] text-[#9B97A3] hover:text-red-400 flex items-center gap-1.5 transition-colors"
+                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-border hover:border-red-500/40 hover:bg-red-500/10 text-secondary hover:text-red-500 flex items-center gap-1.5 transition-colors"
                 >
                   <Trash2 size={11} /> Delete
                 </button>
@@ -498,34 +497,32 @@ export default function Assets() {
                     {selectedAsset.type} Protocol Record
                   </p>
                 </div>
-                <h1 className="font-display font-light text-[32px] text-white tracking-tight leading-none">
+                <h1 className="font-display font-light text-[32px] text-primary tracking-tight leading-none">
                   {selectedAsset.name}
                 </h1>
-                <p className="text-[11px] mt-2" style={{ color: '#5C596A' }}>
+                <p className="text-[11px] mt-2 text-muted">
                   Vault Item ID: <span className="font-mono">{selectedAsset.id}</span> • Secured on {selectedAsset.date || 'unknown'}
                 </p>
               </div>
 
               {/* Valuation pill */}
               <div 
-                className="p-5 rounded-[8px] flex items-center justify-between"
-                style={{ background: 'var(--color-bg-surface)', border: '1px solid rgba(255,255,255,0.07)' }}
+                className="p-5 rounded-[8px] flex items-center justify-between bg-surface border border-border shadow-sm"
               >
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#5C596A' }}>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
                     Asset Valuation
                   </p>
-                  <p className="text-[28px] font-display font-light leading-none mt-1.5 text-white">
+                  <p className="text-[28px] font-display font-light leading-none mt-1.5 text-primary">
                     ${selectedAsset.value?.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#5C596A]">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted">
                     Protection Scope
                   </p>
                   <span 
-                    className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.10em] px-2 py-0.5 rounded-[4px] mt-1.5"
-                    style={{ background: 'rgba(34,197,94,0.08)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.12)' }}
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.10em] px-2 py-0.5 rounded-[4px] mt-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                   >
                     <Check size={10} /> Active Shield
                   </span>
@@ -534,21 +531,21 @@ export default function Assets() {
 
               {/* SECTION: Cryptographic Parameters */}
               <div className="space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-[rgba(255,255,255,0.06)] pb-2" style={{ color: '#5C596A' }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-border pb-2 text-muted">
                   Cryptographic Parameters
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-1">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5C596A]">Encryption Level</p>
-                    <p className="text-[13px] font-medium text-white mt-0.5 flex items-center gap-1.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Encryption Level</p>
+                    <p className="text-[13px] font-medium text-primary mt-0.5 flex items-center gap-1.5">
                       <Shield size={12} className="text-brand-primary" />
                       {selectedAsset.encryptionLevel || 'Quantum-Resistant'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5C596A]">Zero-Knowledge Status</p>
-                    <p className="text-[13px] font-medium text-white mt-0.5 flex items-center gap-1.5">
-                      <Check size={12} style={{ color: '#22C55E' }} /> Key Sealed
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Zero-Knowledge Status</p>
+                    <p className="text-[13px] font-medium text-primary mt-0.5 flex items-center gap-1.5">
+                      <Check size={12} className="text-emerald-500" /> Key Sealed
                     </p>
                   </div>
                 </div>
@@ -556,26 +553,26 @@ export default function Assets() {
 
               {/* SECTION: Succession Mandate */}
               <div className="space-y-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-[rgba(255,255,255,0.06)] pb-2" style={{ color: '#5C596A' }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-border pb-2 text-muted">
                   Succession Mandate
                 </p>
-                <div className="bg-[#0C0D13]/60 border border-[rgba(255,255,255,0.05)] rounded-[8px] p-4 space-y-3">
+                <div className="bg-surface border border-border rounded-[8px] p-4 space-y-3 shadow-sm">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5C596A]">Decryption Instructions</p>
-                    <p className="text-[13px] text-[#9B97A3] leading-relaxed mt-1 whitespace-pre-wrap">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Decryption Instructions</p>
+                    <p className="text-[13px] text-secondary leading-relaxed mt-1 whitespace-pre-wrap">
                       {selectedAsset.instructions || selectedAsset.notes || 'No succession instructions provided. Click edit to specify instructions.'}
                     </p>
                   </div>
-                  <div className="pt-3 border-t border-[rgba(255,255,255,0.05)] flex flex-wrap gap-4 text-[12px] text-[#9B97A3]">
+                  <div className="pt-3 border-t border-border flex flex-wrap gap-4 text-[12px] text-secondary">
                     <div>
-                      <span className="text-[#5C596A]">Assigned Heir: </span>
-                      <span className="font-semibold text-white">
+                      <span className="text-muted">Assigned Heir: </span>
+                      <span className="font-semibold text-primary">
                         {heirs.find(h => h.id === selectedAsset.beneficiaryId)?.name || 'Emily Asha (Daughter)'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[#5C596A]">Guardian Quorum: </span>
-                      <span className="font-semibold text-white">
+                      <span className="text-muted">Guardian Quorum: </span>
+                      <span className="font-semibold text-primary">
                         {guardians.filter(g => g.status === 'Confirmed').length >= 2 ? '2-of-3 Confirmed' : '1-of-2 Confirmed'}
                       </span>
                     </div>
@@ -586,18 +583,18 @@ export default function Assets() {
               {/* SECTION: Archival Projection */}
               {(selectedAsset.growthRate || selectedAsset.type === 'Retirement' || selectedAsset.type === 'Crypto') && (
                 <div className="space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-[rgba(255,255,255,0.06)] pb-2" style={{ color: '#5C596A' }}>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-border pb-2 text-muted">
                     Archival Financial Projection
                   </p>
-                  <div className="flex items-center justify-between p-4 bg-brand-primary-dim border border-brand-primary/10 rounded-[8px]">
+                  <div className="flex items-center justify-between p-4 bg-brand-primary/10 border border-brand-primary/20 rounded-[8px]">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5C596A]">Est. Value (10 Years)</p>
-                      <p className="text-[20px] font-display font-light text-white leading-none mt-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Est. Value (10 Years)</p>
+                      <p className="text-[20px] font-display font-light text-primary leading-none mt-1">
                         ${calculateProjection(selectedAsset.value || 0, selectedAsset.growthRate || 0.07, 10).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5C596A]">Archival APY</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Archival APY</p>
                       <p className="text-[14px] font-medium text-brand-primary mt-1">
                         +7.0% compounded
                       </p>
@@ -611,17 +608,17 @@ export default function Assets() {
           /* ── EMPTY STATE ── */
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div
-              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 bg-brand-primary-dim border border-brand-primary/15"
+              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 bg-brand-primary/10 border border-brand-primary/20"
             >
               <Lock size={22} className="text-brand-primary" strokeWidth={1.5} />
             </div>
-            <h3 className="text-[16px] font-medium text-[#E9E6DF]">No Selected Item</h3>
-            <p className="text-[12px] text-[#5C596A] mt-1 max-w-xs leading-normal">
+            <h3 className="text-[16px] font-medium text-primary">No Selected Item</h3>
+            <p className="text-[12px] text-muted mt-1 max-w-xs leading-normal">
               Select a vault item in the list or secure a new account.
             </p>
             <button
               onClick={handleStartAdd}
-              className="mt-5 inline-flex items-center gap-1.5 h-9 px-4 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85 cursor-pointer"
+              className="mt-5 inline-flex items-center gap-1.5 h-9 px-4 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85 cursor-pointer shadow-sm"
               style={{ background: 'var(--color-brand-primary)' }}
             >
               <Plus size={14} /> Secure first account
