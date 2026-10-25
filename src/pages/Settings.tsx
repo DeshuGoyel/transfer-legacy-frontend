@@ -25,12 +25,20 @@ interface DeviceItem {
   device_id: string;
   label?: string;
   name?: string;
+  device_meta?: {
+    browser?: string;
+    location?: string;
+    [key: string]: unknown;
+  };
+  last_seen_at?: string;
+  created_at?: string;
   [key: string]: unknown;
 }
 
 interface ShareItem {
   share_id: string;
   grantee_id: string;
+  created_at?: string;
   [key: string]: unknown;
 }
 
@@ -581,7 +589,7 @@ export default function Settings() {
                                       {isCurrent && <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-3 py-1 rounded-full">Current Node</span>}
                                     </p>
                                     <p className="text-[10px] font-bold text-secondary mt-1 uppercase tracking-widest">
-                                      {location} · Last seen {new Date(s.last_seen_at || s.created_at).toLocaleString()}
+                                      {location} · Last seen {s.last_seen_at || s.created_at ? new Date(s.last_seen_at || s.created_at!).toLocaleString() : 'Recently'}
                                     </p>
                                   </div>
                                 </div>
@@ -630,7 +638,7 @@ export default function Settings() {
                                       {beneficiaryEmail} · Share ID: {s.share_id.substring(0, 8)}...
                                     </p>
                                     <p className="text-[9px] text-muted mt-0.5">
-                                      Granted at: {new Date(s.created_at).toLocaleString()}
+                                      Granted at: {s.created_at ? new Date(s.created_at).toLocaleString() : 'Recently'}
                                     </p>
                                   </div>
                                 </div>

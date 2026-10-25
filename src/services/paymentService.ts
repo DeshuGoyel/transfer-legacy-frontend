@@ -48,8 +48,65 @@ export interface PaymentResult {
   gateway: 'Zorvik Tech Payment Gateway';
 }
 
+export const DEFAULT_PLANS: Plan[] = [
+  {
+    id: 'plan_free',
+    name: 'Always Free',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    description: 'Essential sovereign legacy protection for every individual.',
+    features: [
+      'Up to 5 Encrypted Assets',
+      '1 Trusted Guardian',
+      'Proof of Life Heartbeat Verification',
+      'Zero-Knowledge Client-Side Encryption',
+      'Community & Knowledge Base Support',
+    ],
+    maxGuardians: 1,
+    maxAssets: 5,
+    highlighted: false,
+    active: true,
+  },
+  {
+    id: 'plan_personal',
+    name: 'Personal',
+    monthlyPrice: 9,
+    yearlyPrice: 7,
+    description: 'Comprehensive digital inheritance for solo crypto & digital asset holders.',
+    features: [
+      'Up to 25 Encrypted Assets',
+      'Up to 3 Guardians & Quorum Release',
+      'Automated Proof of Life SMS/Email Pings',
+      'Decentralized Sharding Protocol',
+      'Priority Protocol Support',
+    ],
+    maxGuardians: 3,
+    maxAssets: 25,
+    highlighted: false,
+    active: true,
+  },
+  {
+    id: 'plan_family',
+    name: 'Family',
+    monthlyPrice: 19,
+    yearlyPrice: 12,
+    description: 'Institutional-grade multi-generational vault protection for your family.',
+    features: [
+      'Unlimited Encrypted Assets',
+      'Up to 10 Guardians & Heirs',
+      'Automated Dead Man\'s Switch Engine',
+      'Multi-Party Quorum Threshold Handover',
+      'Dedicated Legacy Concierge',
+    ],
+    maxGuardians: 10,
+    maxAssets: 999,
+    highlighted: true,
+    active: true,
+  },
+];
+
 export const fetchPlans = async (): Promise<Plan[]> => {
-  let raw: any[];
+  let raw: any[] = [];
   try {
     raw = await opsApi.get<any[]>('/plans');
   } catch (err: any) {
@@ -57,25 +114,39 @@ export const fetchPlans = async (): Promise<Plan[]> => {
       try {
         raw = await opsApi.get<any[]>('/app/plans');
       } catch {
-        raw = await opsApi.get<any[]>('/ops/plans');
+        try {
+          raw = await opsApi.get<any[]>('/ops/plans');
+        } catch {
+          return DEFAULT_PLANS;
+        }
       }
     } else {
-      throw err;
+      return DEFAULT_PLANS;
     }
   }
 
-  return raw.map((p) => ({
+  if (!raw || raw.length === 0) {
+    return DEFAULT_PLANS;
+  }
+
+  const mapped = raw.map((p) => ({
     id: p.id,
     name: p.name,
-    monthlyPrice: p.monthly_price ?? p.monthlyPrice,
-    yearlyPrice: p.yearly_price ?? p.yearlyPrice,
-    description: p.description,
+    monthlyPrice: p.monthly_price ?? p.monthlyPrice ?? 0,
+    yearlyPrice: p.yearly_price ?? p.yearlyPrice ?? 0,
+    description: p.description || '',
     features: Array.isArray(p.features) ? p.features : [],
     maxGuardians: p.max_guardians ?? p.maxGuardians ?? 3,
     maxAssets: p.max_assets ?? p.maxAssets ?? 10,
     highlighted: Boolean(p.highlighted),
-    active: Boolean(p.active),
+    active: p.active !== undefined ? Boolean(p.active) : true,
   }));
+
+  const hasFree = mapped.some(p => p.name.toLowerCase().includes('free') || p.monthlyPrice === 0);
+  if (!hasFree) {
+    return [DEFAULT_PLANS[0], ...mapped];
+  }
+  return mapped;
 };
 
 export const fetchCoupons = async (): Promise<Coupon[]> => {

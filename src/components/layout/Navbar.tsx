@@ -285,7 +285,7 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           <Link to="/" className="flex items-center gap-2.5 group">
             <LogoMark size={22} />
             <span
-              className="font-display text-[13px] font-medium tracking-wide text-[#E9E6DF] transition-opacity group-hover:opacity-75"
+              className="font-display text-[13px] font-medium tracking-wide text-primary transition-opacity group-hover:opacity-75"
               style={{ letterSpacing: '-0.01em' }}
             >
               Transfer Legacy
@@ -293,13 +293,13 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           </Link>
 
           {/* Home etc. Links in Title Bar */}
-          <div className="hidden lg:flex items-center gap-6 ml-8 border-l border-[rgba(255,255,255,0.08)] pl-8">
+          <div className="hidden lg:flex items-center gap-6 ml-8 border-l border-border pl-8">
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
                 cn(
-                  "text-[12px] font-medium transition-colors hover:text-white",
-                  isActive ? "text-brand-primary" : "text-[#9B97A3]"
+                  "text-[12px] font-medium transition-colors hover:text-primary",
+                  isActive ? "text-brand-primary" : "text-secondary"
                 )
               }
             >
@@ -309,8 +309,8 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
               to="/assets"
               className={({ isActive }) =>
                 cn(
-                  "text-[12px] font-medium transition-colors hover:text-white",
-                  isActive ? "text-brand-primary" : "text-[#9B97A3]"
+                  "text-[12px] font-medium transition-colors hover:text-primary",
+                  isActive ? "text-brand-primary" : "text-secondary"
                 )
               }
             >
@@ -320,8 +320,8 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
               to="/guardians"
               className={({ isActive }) =>
                 cn(
-                  "text-[12px] font-medium transition-colors hover:text-white",
-                  isActive ? "text-brand-primary" : "text-[#9B97A3]"
+                  "text-[12px] font-medium transition-colors hover:text-primary",
+                  isActive ? "text-brand-primary" : "text-secondary"
                 )
               }
             >
@@ -331,8 +331,8 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
               to="/settings"
               className={({ isActive }) =>
                 cn(
-                  "text-[12px] font-medium transition-colors hover:text-white",
-                  isActive ? "text-brand-primary" : "text-[#9B97A3]"
+                  "text-[12px] font-medium transition-colors hover:text-primary",
+                  isActive ? "text-brand-primary" : "text-secondary"
                 )
               }
             >
@@ -346,7 +346,7 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           <button
             onClick={handleHeartbeatSync}
             disabled={isSyncingHeartbeat}
-            className="relative p-2 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)] text-rose-500 hover:text-rose-400 group flex items-center justify-center"
+            className="relative p-2 rounded-md transition-colors hover:bg-surface/50 text-rose-500 hover:text-rose-400 group flex items-center justify-center"
             aria-label="Heartbeat Pulse"
             title={`Heartbeat Active (Streak: ${checkinSettings?.currentStreak ?? 1}) - Click to sync`}
           >
@@ -362,8 +362,7 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
 
           <button
             onClick={toggleNotifications}
-            className="relative p-2 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)]"
-            style={{ color: '#9B97A3' }}
+            className="relative p-2 rounded-md transition-colors hover:bg-surface/50 text-secondary hover:text-primary"
             aria-label="Notifications"
           >
             <Bell size={17} strokeWidth={1.75} />
@@ -378,15 +377,14 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
 
           <Link
             to="/settings"
-            className="ml-1 flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-[8px] border border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.13)] transition-colors"
-            style={{ background: 'var(--color-bg-surface)' }}
+            className="ml-1 flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-[8px] border border-border hover:border-brand-primary/40 transition-colors bg-surface"
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-brand-primary"
             >
-              {user.name.charAt(0).toUpperCase()}
+              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
-            <span className="hidden sm:inline text-[12px] font-medium" style={{ color: '#E9E6DF' }}>
+            <span className="hidden sm:inline text-[12px] font-medium text-primary">
               {user.name.split(' ')[0]}
             </span>
           </Link>

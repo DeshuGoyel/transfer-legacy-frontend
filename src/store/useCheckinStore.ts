@@ -59,11 +59,46 @@ export const useCheckinStore = create<CheckinState>()(
         set((state) => {
           // Guard: active status cannot be restored once recovery has already been triggered (Release)
           const isReleaseTriggered = state.checkinSettings.status === 'recovery_triggered';
+          const lastDateStr = state.checkinSettings.lastCheckinAt;
+          
+          let updatedStreak = state.checkinSettings.currentStreak || 0;
+          
+          if (!lastDateStr) {
+            // First checkin ever
+            updatedStreak = Math.max(1, updatedStreak || 1);
+          } else {
+            const lastDate = new Date(lastDateStr);
+            const currentDate = new Date(now);
+            
+            // Check if same calendar day
+            const isSameDay = 
+              lastDate.getFullYear() === currentDate.getFullYear() &&
+              lastDate.getMonth() === currentDate.getMonth() &&
+              lastDate.getDate() === currentDate.getDate();
+
+            if (isSameDay) {
+              // Same day: preserve current streak (ensure at least 1)
+              updatedStreak = Math.max(1, updatedStreak);
+            } else {
+              // Calculate difference in hours
+              const diffMs = currentDate.getTime() - lastDate.getTime();
+              const diffHours = diffMs / (1000 * 60 * 60);
+              
+              // Consecutive day check (allowing up to 48 hours for daily streak grace period)
+              if (diffHours <= 48) {
+                updatedStreak = updatedStreak + 1;
+              } else {
+                // Streak broken due to inactivity
+                updatedStreak = 1;
+              }
+            }
+          }
+
           return {
             checkins: [newCheckin, ...state.checkins],
             checkinSettings: {
               ...state.checkinSettings,
-              currentStreak: state.checkinSettings.currentStreak + 1,
+              currentStreak: updatedStreak,
               consecutiveMisses: 0,
               lastCheckinAt: now,
               status: isReleaseTriggered ? 'recovery_triggered' : 'active'

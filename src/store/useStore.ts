@@ -312,12 +312,14 @@ const getInitialState = () => {
 const getInitialUser = (state: ReturnType<typeof getInitialState>) => {
   const name = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_name') || "Secured User") : "Secured User";
   const email = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_email') || "") : "";
+  const savedPlan = typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null;
+  const plan = savedPlan || "Always Free";
   return {
     name,
     email,
     avatar: null,
     score: calculateNewScore(state),
-    plan: "Family",
+    plan,
     nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     checkInHistory: [
       { date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), method: 'App Tap' }
@@ -671,7 +673,7 @@ export const useStore = create<AppState>((set) => ({
           email: "",
           avatar: null,
           score: 0,
-          plan: "Family",
+          plan: (typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null) || "Always Free",
           nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           checkInHistory: []
         }
@@ -706,7 +708,7 @@ export const useStore = create<AppState>((set) => ({
           email: "",
           avatar: null,
           score: 0,
-          plan: "Family",
+          plan: (typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null) || "Always Free",
           nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           checkInHistory: []
         }

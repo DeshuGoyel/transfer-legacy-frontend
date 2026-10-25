@@ -248,7 +248,7 @@ export default function Onboarding() {
             email: email,
             avatar: null,
             score: 0,
-            plan: "Family",
+            plan: localStorage.getItem('tl_user_plan') || "Always Free",
             nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             checkInHistory: []
           }

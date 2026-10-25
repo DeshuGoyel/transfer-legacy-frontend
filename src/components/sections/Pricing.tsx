@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
 import { fetchPlans, Plan } from '../../services/paymentService';
 import PaymentModal from '../payment/PaymentModal';
+import { useStore } from '../../store/useStore';
+import toast from 'react-hot-toast';
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(true);
@@ -31,6 +33,12 @@ export default function Pricing() {
   }, []);
 
   const handleSelectPlan = (plan: Plan) => {
+    if (plan.monthlyPrice === 0 && plan.yearlyPrice === 0) {
+      localStorage.setItem('tl_user_plan', plan.name);
+      useStore.setState(state => ({ user: { ...state.user, plan: plan.name } }));
+      toast.success(`${plan.name} plan activated on your vault!`);
+      return;
+    }
     setSelectedPlan(plan);
     setIsModalOpen(true);
   };

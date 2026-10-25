@@ -12,7 +12,7 @@ const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 15 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  transition: { delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
 });
 
 export default function CheckInCenter() {
@@ -87,7 +87,7 @@ export default function CheckInCenter() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-             <Badge variant={isAlertMode ? 'secondary' : 'default'} className="px-4 py-1.5 text-[10px] uppercase tracking-widest font-bold">
+             <Badge variant={isAlertMode ? 'error' : 'default'} className="px-4 py-1.5 text-[10px] uppercase tracking-widest font-bold">
                {isAlertMode ? 'Protocol Violated' : 'Operational Sync'}
              </Badge>
           </div>
@@ -232,7 +232,7 @@ export default function CheckInCenter() {
                       {['weekly', 'biweekly', 'monthly'].map(f => (
                         <button 
                           key={f}
-                          onClick={() => updateSettings({ frequency: f as unknown })}
+                          onClick={() => updateSettings({ frequency: f })}
                           className={`px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${
                             checkinSettings.frequency === f 
                               ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/40 shadow-[0_0_15px_rgba(79,92,255,0.1)]' 
@@ -245,8 +245,8 @@ export default function CheckInCenter() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-obsidian-600 block mb-4">
-                      Alert Quorum After: {checkinSettings.alertGuardiansAfterMisses} Misses
+                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-2">
+                      Alert Guardians After: {checkinSettings.alertGuardiansAfterMisses} Misses
                     </label>
                     <input 
                       type="range" 
@@ -256,6 +256,33 @@ export default function CheckInCenter() {
                       onChange={(e) => updateSettings({ alertGuardiansAfterMisses: parseInt(e.target.value) })}
                       className="w-full h-1.5 bg-surface/80 rounded-full appearance-none cursor-pointer accent-brand-primary"
                     />
+                  </div>
+
+                  <div className="pt-2 border-t border-base/40">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">
+                        Succession Handover to Heirs:
+                      </label>
+                      <span className="text-xs font-bold text-brand-primary">
+                        {checkinSettings.consecutiveMissesAllowed} Missed Checks
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-muted mb-3 leading-relaxed">
+                      If your heartbeat is silent for this many consecutive periods, the Dead Man's Switch triggers cryptographic succession to transfer the vault to your heirs.
+                    </p>
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="6" 
+                      value={checkinSettings.consecutiveMissesAllowed} 
+                      onChange={(e) => updateSettings({ consecutiveMissesAllowed: parseInt(e.target.value) || 1 })}
+                      className="w-full h-1.5 bg-surface/80 rounded-full appearance-none cursor-pointer accent-brand-primary"
+                    />
+                    <div className="flex justify-between text-[9px] font-mono text-muted mt-1">
+                      <span>1 cycle (Immediate)</span>
+                      <span>3 cycles (Standard)</span>
+                      <span>6 cycles (Extended)</span>
+                    </div>
                   </div>
                 </div>
               ) : (
