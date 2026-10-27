@@ -167,9 +167,13 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 px-2 py-2 rounded-[8px] hover:bg-surface/60 transition-colors group">
             {/* Avatar */}
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold text-white bg-brand-primary"
+              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold text-white bg-brand-primary overflow-hidden"
             >
-              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                user.name ? user.name.charAt(0).toUpperCase() : 'U'
+              )}
             </div>
 
             <div className="flex-1 min-w-0">

@@ -31,7 +31,7 @@ interface SuccessEnvelope<T> {
   requestId: string;
 }
 
-async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+export async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, headers: customHeaders, skipAead = false, body, ...rest } = options;
 
   let url = `${API_BASE_URL}${endpoint}`;

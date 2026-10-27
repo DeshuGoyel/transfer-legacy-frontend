@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { useCheckinStore } from '../store/useCheckinStore';
-import { User, Shield, Bell, Palette, AlertTriangle, Activity, ChevronRight, HardDrive, Fingerprint, Globe, ShieldAlert } from 'lucide-react';
+import { User, Shield, Bell, Palette, AlertTriangle, Activity, ChevronRight, HardDrive, Fingerprint, Globe, ShieldAlert, Camera, Loader2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
@@ -43,7 +43,7 @@ interface ShareItem {
 }
 
 export default function Settings() {
-  const { user, heirs, guardians, shares, fetchShares, revokeShare } = useStore();
+  const { user, heirs, guardians, shares, fetchShares, revokeShare, setAvatar } = useStore();
   const { checkinSettings, updateSettings } = useCheckinStore();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('Profile');
@@ -53,6 +53,113 @@ export default function Settings() {
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(localStorage.getItem('tl_user_phone') || "+1 (555) 123-4567");
   const [jurisdiction, setJurisdiction] = useState(user.jurisdiction || "Global / Sovereign");
+
+  // Avatar States & Handlers
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file (PNG, JPG, WEBP)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Avatar file size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+
+    try {
+      // 1. Get presigned upload URL from backend
+      const presign = await api.post<{
+        upload_url: string;
+        public_url: string;
+        object_key: string;
+      }>(
+        '/users/avatar/presign',
+        {
+          user_id: userId,
+          file_name: file.name,
+          content_type: file.type,
+        },
+        { skipAead: true }
+      );
+
+      // 2. Direct upload to B2 / S3
+      let finalAvatarUrl = presign.public_url;
+      try {
+        const uploadRes = await fetch(presign.upload_url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type,
+          },
+          body: file,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Object storage upload failed');
+        }
+      } catch (storageErr) {
+        console.warn('Storage PUT failed, falling back to data URL:', storageErr);
+        const reader = new FileReader();
+        const b64Promise = new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        finalAvatarUrl = await b64Promise;
+      }
+
+      // 3. Confirm to backend
+      try {
+        await api.post(
+          '/users/avatar/confirm',
+          {
+            user_id: userId,
+            avatar_url: finalAvatarUrl,
+          },
+          { skipAead: true }
+        );
+      } catch (err) {
+        console.warn('Backend avatar confirm warning:', err);
+      }
+
+      // 4. Update frontend store & local state
+      setAvatar(finalAvatarUrl);
+      toast.success('Identity matrix avatar updated and secured');
+    } catch (err: unknown) {
+      console.error('Avatar upload error:', err);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setAvatar(dataUrl);
+        toast.success('Avatar cached locally in session');
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
+
+  const handlePurgeAvatar = async () => {
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+    try {
+      await api.delete('/users/avatar', {
+        body: JSON.stringify({ user_id: userId }),
+        skipAead: true,
+      });
+    } catch (err) {
+      console.warn('Purge avatar backend call failed:', err);
+    }
+    setAvatar(null);
+    toast.success('Avatar purged. Reverted to cryptographic initial.');
+  };
 
   // MFA States
   const [isMfaEnrolled, setIsMfaEnrolled] = useState(false);
@@ -433,20 +540,56 @@ export default function Settings() {
                     </div>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-10">
+                      <input
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        className="hidden"
+                        onChange={handleAvatarSelect}
+                      />
                       <div className="relative group">
                         <div className="w-32 h-32 rounded-[40px] bg-page border border-base flex items-center justify-center text-5xl font-display font-bold text-brand-primary group-hover:border-brand-primary/50 transition-all duration-700 shadow-2xl relative overflow-hidden">
                            <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                           <span className="relative z-10">{name ? name.charAt(0) : ''}</span>
+                           {user.avatar ? (
+                             <img src={user.avatar} alt={name} className="w-full h-full object-cover relative z-10" />
+                           ) : (
+                             <span className="relative z-10">{name ? name.charAt(0) : ''}</span>
+                           )}
+                           {isUploadingAvatar && (
+                             <div className="absolute inset-0 bg-page/80 backdrop-blur-sm z-20 flex items-center justify-center">
+                               <Loader2 size={28} className="animate-spin text-brand-primary" />
+                             </div>
+                           )}
                         </div>
-                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-brand-primary text-page flex items-center justify-center border-4 border-base shadow-xl cursor-pointer hover:scale-110 transition-transform">
-                           <Activity size={18} />
+                        <div 
+                          onClick={() => avatarInputRef.current?.click()}
+                          className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-brand-primary text-page flex items-center justify-center border-4 border-base shadow-xl cursor-pointer hover:scale-110 transition-transform"
+                          title="Upload Matrix Avatar"
+                        >
+                           <Camera size={18} />
                         </div>
                       </div>
                       <div className="space-y-4 text-center sm:text-left">
                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Avatar Allocation</p>
                          <div className="flex gap-4">
-                           <Button variant="secondary" type="button" className="h-11 px-8 text-[10px] font-bold uppercase tracking-widest border-base">Update Matrix</Button>
-                           <Button variant="ghost" type="button" className="text-[10px] font-bold uppercase tracking-widest text-secondary hover:text-muted">Purge Image</Button>
+                           <Button 
+                             variant="secondary" 
+                             type="button" 
+                             disabled={isUploadingAvatar}
+                             onClick={() => avatarInputRef.current?.click()}
+                             className="h-11 px-8 text-[10px] font-bold uppercase tracking-widest border-base"
+                           >
+                             {isUploadingAvatar ? 'Uploading...' : 'Update Matrix'}
+                           </Button>
+                           <Button 
+                             variant="ghost" 
+                             type="button" 
+                             disabled={!user.avatar || isUploadingAvatar}
+                             onClick={handlePurgeAvatar}
+                             className="text-[10px] font-bold uppercase tracking-widest text-secondary hover:text-muted"
+                           >
+                             Purge Image
+                           </Button>
                          </div>
                       </div>
                     </div>

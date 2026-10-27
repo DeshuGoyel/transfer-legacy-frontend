@@ -153,6 +153,7 @@ interface AppState {
   shares: ShareGrant[];
   fetchShares: () => Promise<void>;
   revokeShare: (shareId: string) => Promise<void>;
+  setAvatar: (avatar: string | null) => void;
 }
 
 const calculateNewScore = (state: Pick<AppState, 'guardians' | 'assets' | 'heirs'> & { architectureMode?: 'direct' | 'quorum' }) => {
@@ -313,11 +314,12 @@ const getInitialUser = (state: ReturnType<typeof getInitialState>) => {
   const name = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_name') || "Secured User") : "Secured User";
   const email = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_email') || "") : "";
   const savedPlan = typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null;
+  const savedAvatar = typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_avatar') : null;
   const plan = savedPlan || "Always Free";
   return {
     name,
     email,
-    avatar: null,
+    avatar: savedAvatar || null,
     score: calculateNewScore(state),
     plan,
     nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -352,6 +354,16 @@ export const useStore = create<AppState>((set) => ({
   setMasterKey: (key) => set({ masterKey: key }),
   userKeys: null,
   setUserKeys: (keys) => set({ userKeys: keys }),
+  setAvatar: (avatar) => {
+    if (typeof localStorage !== 'undefined') {
+      if (avatar) {
+        localStorage.setItem('tl_user_avatar', avatar);
+      } else {
+        localStorage.removeItem('tl_user_avatar');
+      }
+    }
+    set((state) => ({ user: { ...state.user, avatar } }));
+  },
   activePolicyId: null,
   recoveredAssets: [] as Asset[],
   fetchActivePolicy: async () => {
