@@ -251,7 +251,7 @@ export default function AIPlanner() {
       if (payload && payload.reply) {
         if (payload.model_used) {
           setModelIndicator(
-            payload.model_used.includes('gemini') ? 'Gemini 2.0 Flash' : 'Transfer Legacy Engine'
+            payload.model_used.includes('gemini') ? 'Gemini 2.5 Flash' : 'Transfer Legacy Engine'
           );
         }
         setMessages((prev) => [
