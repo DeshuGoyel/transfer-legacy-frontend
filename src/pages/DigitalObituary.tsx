@@ -104,7 +104,7 @@ export default function DigitalObituary() {
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-primary/50 to-transparent" />
             <BookOpen size={56} className="mx-auto text-brand-primary mb-8 opacity-80" />
-            <p className="text-xl text-obsidian-100 leading-relaxed font-display font-bold mb-8 italic">
+            <p className="text-xl text-primary leading-relaxed font-display font-bold mb-8 italic">
               "This space is sovereign. Your words are cryptographically sealed until protocol activation. 
               The most profound inheritance you leave is your voice."
             </p>
@@ -261,7 +261,7 @@ export default function DigitalObituary() {
                       <div className="flex-1 relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary/5 to-transparent blur opacity-0 group-hover:opacity-100 transition duration-500" />
                         <textarea 
-                          className="relative w-full h-full min-h-[350px] bg-page border border-base rounded-[32px] p-8 text-lg text-obsidian-100 font-medium placeholder-obsidian-800 resize-none focus:outline-none focus:border-brand-primary/40 transition-all leading-relaxed"
+                          className="relative w-full h-full min-h-[350px] bg-page border border-base rounded-[32px] p-8 text-lg text-primary font-medium placeholder:text-muted resize-none focus:outline-none focus:border-brand-primary/40 transition-all leading-relaxed"
                           placeholder="Initialize protocol message here...&#10;&#10;Consider sharing:&#10;• Personal values and final guidance.&#10;• Distribution intent beyond legal dry text.&#10;• Final words of continuity."
                           value={newEntry.content || ''}
                           onChange={(e) => setNewEntry({...newEntry, content: e.target.value})}

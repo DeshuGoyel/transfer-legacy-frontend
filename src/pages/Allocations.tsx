@@ -110,7 +110,7 @@ export default function Allocations() {
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-hide">
               {assets.length === 0 ? (
                 <div className="p-10 text-center border border-dashed border-base rounded-2xl bg-surface/20">
-                  <p className="text-xs text-obsidian-600 font-bold uppercase tracking-widest leading-relaxed">No assets detected in primary vault.</p>
+                  <p className="text-xs text-muted font-bold uppercase tracking-widest leading-relaxed">No assets detected in primary vault.</p>
                 </div>
               ) : (
                 assets.map(asset => (
@@ -123,7 +123,7 @@ export default function Allocations() {
                         : 'bg-surface/50 border-base text-primary0 hover:border-base hover:bg-surface'
                     }`}
                   >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${selectedAssetId === asset.id ? 'bg-brand-primary text-obsidian-950' : 'bg-surface/80 text-primary0 border border-base'}`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${selectedAssetId === asset.id ? 'bg-brand-primary text-white shadow-md' : 'bg-surface/80 text-secondary border border-base'}`}>
                       {asset.type === 'Crypto' ? <Wallet size={18} /> :
                        asset.type === 'Retirement' ? <Briefcase size={18} /> : <Box size={18} />}
                     </div>
@@ -205,10 +205,10 @@ export default function Allocations() {
                                       </div>
                                       <div>
                                         <span className="block font-bold text-sm text-primary tracking-tight">{details.name}</span>
-                                        <span className="block text-[9px] uppercase tracking-widest text-obsidian-600 font-bold mt-1">{a.type} ALLOCATION</span>
+                                        <span className="block text-[9px] uppercase tracking-widest text-muted font-bold mt-1">{a.type} ALLOCATION</span>
                                       </div>
                                     </div>
-                                    <button onClick={() => removeAllocation(a.id)} className="text-obsidian-700 hover:text-red-500 transition-colors p-2 hover:bg-red-500/5 rounded-lg">
+                                    <button onClick={() => removeAllocation(a.id)} className="text-muted hover:text-red-500 transition-colors p-2 hover:bg-red-500/10 rounded-lg">
                                       <Trash2 size={16} />
                                     </button>
                                   </div>
@@ -226,7 +226,7 @@ export default function Allocations() {
                                   </div>
                                   
                                   <div className="mt-4 flex justify-end">
-                                    <span className="text-[10px] font-bold text-obsidian-600 uppercase tracking-widest">Est. Value: <span className="text-obsidian-200">${valueAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></span>
+                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Est. Value: <span className="text-primary font-mono">${valueAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></span>
                                   </div>
                                 </motion.div>
                               );
@@ -240,7 +240,7 @@ export default function Allocations() {
                     <div className="flex flex-col items-center justify-center p-10 bg-page/30 rounded-3xl border border-base/50 h-full min-h-[400px]">
                        <div className="w-full h-72 relative">
                          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-                            <p className="text-[10px] font-bold text-obsidian-600 uppercase tracking-[0.2em] mb-1">Vault Sync</p>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-1">Vault Sync</p>
                             <p className="text-2xl font-bold tabular-nums tracking-tight text-primary">{100 - remainingPercent}%</p>
                          </div>
                          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
@@ -261,7 +261,7 @@ export default function Allocations() {
                               </Pie>
                               <Tooltip 
                                 formatter={(value: unknown) => [`${value}%`, 'Protocol Sync']}
-                                contentStyle={{ backgroundColor: 'rgb(10 10 12)', border: '1px solid rgb(39 39 42)', borderRadius: '16px', color: '#f8fafc', fontSize: '12px', fontWeight: 'bold' }}
+                                contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '16px', color: 'var(--color-text-primary)', fontSize: '12px', fontWeight: 'bold' }}
                                 itemStyle={{ color: '#818cf8' }}
                               />
                             </RePieChart>
@@ -293,13 +293,13 @@ export default function Allocations() {
          <div className="flex p-1 bg-page rounded-2xl border border-base mb-8 shadow-inner">
            <button 
              onClick={() => setModalTab('heir')}
-             className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${modalTab === 'heir' ? 'bg-brand-primary text-obsidian-950 shadow-lg' : 'text-primary0 hover:text-obsidian-200'}`}
+             className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${modalTab === 'heir' ? 'bg-brand-primary text-white shadow-lg' : 'text-secondary hover:text-primary'}`}
            >
              Heirs
            </button>
            <button 
              onClick={() => setModalTab('charity')}
-             className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${modalTab === 'charity' ? 'bg-brand-gold text-obsidian-950 shadow-lg' : 'text-primary0 hover:text-obsidian-200'}`}
+             className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${modalTab === 'charity' ? 'bg-brand-gold text-white shadow-lg' : 'text-secondary hover:text-primary'}`}
            >
              <HeartHandshake size={14} /> Charities
            </button>
@@ -307,7 +307,7 @@ export default function Allocations() {
 
          <div className="max-h-[400px] overflow-y-auto space-y-3 pr-2 scrollbar-hide">
            {modalTab === 'heir' ? (
-             heirs.length === 0 ? <p className="text-center text-obsidian-600 font-bold uppercase tracking-widest p-12 text-[10px] italic">No registered heirs detected.</p> :
+             heirs.length === 0 ? <p className="text-center text-muted font-bold uppercase tracking-widest p-12 text-[10px] italic">No registered heirs detected.</p> :
              heirs.map(heir => (
                <button 
                  key={heir.id}
@@ -316,9 +316,9 @@ export default function Allocations() {
                >
                  <div>
                    <p className="font-bold text-primary tracking-tight group-hover:text-brand-primary transition-colors">{heir.name}</p>
-                   <p className="text-[10px] font-mono text-obsidian-600 mt-1 uppercase tracking-widest">{heir.email}</p>
+                   <p className="text-[10px] font-mono text-muted mt-1 uppercase tracking-widest">{heir.email}</p>
                  </div>
-                 <ArrowRight size={18} className="text-obsidian-700 group-hover:text-brand-primary group-hover:translate-x-1 transition-all" />
+                 <ArrowRight size={18} className="text-muted group-hover:text-brand-primary group-hover:translate-x-1 transition-all" />
                </button>
              ))
            ) : (
@@ -333,7 +333,7 @@ export default function Allocations() {
                    <p className="text-[9px] text-brand-gold/60 font-bold uppercase tracking-widest mt-1 mb-2">{charity.category}</p>
                    <p className="text-xs text-primary0 italic line-clamp-1">{charity.description}</p>
                  </div>
-                 <Plus size={18} className="text-obsidian-700 group-hover:text-brand-gold transition-all flex-shrink-0" />
+                 <Plus size={18} className="text-muted group-hover:text-brand-gold transition-all flex-shrink-0" />
                </button>
              ))
            )}

@@ -284,7 +284,7 @@ export default function MemoryCapsules() {
                       <div className="space-y-6">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-primary0 uppercase tracking-[0.2em] ml-1">Archive Title</label>
-                          <input type="text" className="w-full bg-page border border-base rounded-xl px-4 py-4 text-obsidian-100 focus:outline-none focus:border-brand-primary/40 transition-all font-medium placeholder:text-obsidian-800" placeholder="e.g. Master Asset Allocation Intent" value={newCapsule.title || ''} onChange={(e) => setNewCapsule({...newCapsule, title: e.target.value})} />
+                          <input type="text" className="w-full bg-page border border-base rounded-xl px-4 py-4 text-primary focus:outline-none focus:border-brand-primary/40 transition-all font-medium placeholder:text-muted" placeholder="e.g. Master Asset Allocation Intent" value={newCapsule.title || ''} onChange={(e) => setNewCapsule({...newCapsule, title: e.target.value})} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">

@@ -153,11 +153,11 @@ export default function IdentityPassportPage() {
                   <div className="flex gap-8">
                     <div>
                       <p className="text-[9px] text-obsidian-600 font-bold uppercase tracking-[0.2em] mb-1.5">Issuance Date</p>
-                      <p className="text-xs font-bold text-obsidian-200 uppercase tracking-widest">{passport.dateOfBirth}</p>
+                      <p className="text-xs font-bold text-primary uppercase tracking-widest">{passport.dateOfBirth}</p>
                     </div>
                     <div>
                       <p className="text-[9px] text-obsidian-600 font-bold uppercase tracking-[0.2em] mb-1.5">Jurisdiction</p>
-                      <p className="text-xs font-bold text-obsidian-200 uppercase tracking-widest">{passport.country}</p>
+                      <p className="text-xs font-bold text-primary uppercase tracking-widest">{passport.country}</p>
                     </div>
                   </div>
                   <div className="flex gap-8">
@@ -187,7 +187,7 @@ export default function IdentityPassportPage() {
 
               <div className="mt-6 pt-4 border-t border-base">
                 <p className="text-[9px] text-obsidian-600 font-bold uppercase tracking-[0.2em] mb-1.5">Protocol Custodian</p>
-                <p className="text-[11px] font-bold text-obsidian-200 tracking-tight flex items-center gap-2">
+                <p className="text-[11px] font-bold text-primary tracking-tight flex items-center gap-2">
                   {passport.emergencyContact.name} <span className="text-obsidian-700 font-medium">({passport.emergencyContact.relation})</span>
                   <span className="w-1 h-1 rounded-full bg-surface/80" />
                   <span className="font-mono text-primary0">{passport.emergencyContact.phone}</span>
@@ -275,21 +275,21 @@ export default function IdentityPassportPage() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600 mb-2 block">Full Legal Identity</label>
-                    <input type="text" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.fullName} onChange={(e) => setEditForm({...editForm, fullName: e.target.value})} />
+                    <input type="text" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.fullName} onChange={(e) => setEditForm({...editForm, fullName: e.target.value})} />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600 mb-2 block">Birth Metrics</label>
-                    <input type="date" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.dateOfBirth} onChange={(e) => setEditForm({...editForm, dateOfBirth: e.target.value})} />
+                    <input type="date" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.dateOfBirth} onChange={(e) => setEditForm({...editForm, dateOfBirth: e.target.value})} />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600 mb-2 block">Blood Group</label>
-                    <select className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 outline-none font-medium" value={editForm.bloodGroup} onChange={(e) => setEditForm({...editForm, bloodGroup: e.target.value})}>
+                    <select className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 outline-none font-medium" value={editForm.bloodGroup} onChange={(e) => setEditForm({...editForm, bloodGroup: e.target.value})}>
                       {['A+','A-','B+','B-','O+','O-','AB+','AB-'].map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </div>
                   <div className="col-span-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600 mb-2 block">Sovereign Jurisdiction</label>
-                    <input type="text" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.country} onChange={(e) => setEditForm({...editForm, country: e.target.value})} />
+                    <input type="text" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.country} onChange={(e) => setEditForm({...editForm, country: e.target.value})} />
                   </div>
                 </div>
 
@@ -298,10 +298,10 @@ export default function IdentityPassportPage() {
                     <ShieldAlert size={14} className="text-red-500" /> Emergency Custodian
                   </h4>
                   <div className="space-y-4">
-                    <input type="text" placeholder="Legal Name" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.emergencyContact.name} onChange={(e) => setEditForm({...editForm, emergencyContact: {...editForm.emergencyContact, name: e.target.value}})} />
+                    <input type="text" placeholder="Legal Name" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.emergencyContact.name} onChange={(e) => setEditForm({...editForm, emergencyContact: {...editForm.emergencyContact, name: e.target.value}})} />
                     <div className="grid grid-cols-2 gap-4">
-                      <input type="text" placeholder="Global Phone" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.emergencyContact.phone} onChange={(e) => setEditForm({...editForm, emergencyContact: {...editForm.emergencyContact, phone: e.target.value}})} />
-                      <input type="text" placeholder="Relation" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-obsidian-100 focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.emergencyContact.relation} onChange={(e) => setEditForm({...editForm, emergencyContact: {...editForm.emergencyContact, relation: e.target.value}})} />
+                      <input type="text" placeholder="Global Phone" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.emergencyContact.phone} onChange={(e) => setEditForm({...editForm, emergencyContact: {...editForm.emergencyContact, phone: e.target.value}})} />
+                      <input type="text" placeholder="Relation" className="w-full bg-page border border-base rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-brand-primary/50 font-medium" value={editForm.emergencyContact.relation} onChange={(e) => setEditForm({...editForm, emergencyContact: {...editForm.emergencyContact, relation: e.target.value}})} />
                     </div>
                   </div>
                 </div>

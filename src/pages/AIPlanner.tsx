@@ -37,11 +37,24 @@ const FormattedAiContent = ({ text }: { text: string }) => {
   const lines = text.split('\n');
 
   return (
-    <div className="space-y-2 text-sm leading-relaxed text-obsidian-100">
+    <div className="space-y-2.5 text-sm leading-relaxed text-primary">
       {lines.map((line, idx) => {
         const trimmed = line.trim();
         if (!trimmed) {
           return <div key={idx} className="h-1" />;
+        }
+
+        // Note or backend connection warning
+        if (trimmed.startsWith('*Note:') || trimmed.startsWith('Note:')) {
+          return (
+            <div
+              key={idx}
+              className="p-3 my-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2.5"
+            >
+              <Info size={15} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+              <div className="font-medium leading-relaxed">{trimmed.replace(/^\*|\*$/g, '')}</div>
+            </div>
+          );
         }
 
         // Alert box
@@ -49,10 +62,10 @@ const FormattedAiContent = ({ text }: { text: string }) => {
           return (
             <div
               key={idx}
-              className="p-3 my-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2"
+              className="p-3 my-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2"
             >
-              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-400" />
-              <div>{trimmed.replace(/^>\s*/, '')}</div>
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+              <div className="font-medium leading-relaxed">{trimmed.replace(/^>\s*/, '')}</div>
             </div>
           );
         }
@@ -60,14 +73,14 @@ const FormattedAiContent = ({ text }: { text: string }) => {
         // Headings
         if (trimmed.startsWith('### ')) {
           return (
-            <h4 key={idx} className="text-base font-bold text-primary mt-3 mb-1 font-display">
+            <h4 key={idx} className="text-base font-bold text-primary mt-4 mb-2 font-display">
               {trimmed.replace('### ', '')}
             </h4>
           );
         }
         if (trimmed.startsWith('## ')) {
           return (
-            <h3 key={idx} className="text-lg font-bold text-primary mt-3 mb-1 font-display">
+            <h3 key={idx} className="text-lg font-bold text-primary mt-4 mb-2 font-display">
               {trimmed.replace('## ', '')}
             </h3>
           );
@@ -77,9 +90,9 @@ const FormattedAiContent = ({ text }: { text: string }) => {
         if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
           const bulletContent = trimmed.substring(2);
           return (
-            <div key={idx} className="flex items-start gap-2 ml-1">
+            <div key={idx} className="flex items-start gap-2.5 ml-1">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2 shrink-0" />
-              <div>{renderFormattedInline(bulletContent)}</div>
+              <div className="text-primary leading-relaxed">{renderFormattedInline(bulletContent)}</div>
             </div>
           );
         }
@@ -88,30 +101,37 @@ const FormattedAiContent = ({ text }: { text: string }) => {
         const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
         if (numMatch) {
           return (
-            <div key={idx} className="flex items-start gap-2 ml-1">
-              <span className="text-[11px] font-bold text-brand-primary min-w-[16px]">
+            <div key={idx} className="flex items-start gap-2.5 ml-1">
+              <span className="text-[11px] font-bold text-brand-primary min-w-[16px] mt-0.5">
                 {numMatch[1]}.
               </span>
-              <div>{renderFormattedInline(numMatch[2])}</div>
+              <div className="text-primary leading-relaxed">{renderFormattedInline(numMatch[2])}</div>
             </div>
           );
         }
 
-        return <p key={idx}>{renderFormattedInline(trimmed)}</p>;
+        return <p key={idx} className="text-primary leading-relaxed">{renderFormattedInline(trimmed)}</p>;
       })}
     </div>
   );
 };
 
 function renderFormattedInline(content: string) {
-  // Parse **bold** formatting
-  const parts = content.split(/(\*\*.*?\*\*)/g);
+  // Parse **bold** and *italic* formatting
+  const parts = content.split(/(\*\*.*?\*\*|\*.*?\*)/g);
   return parts.map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={index} className="text-white font-semibold">
+        <strong key={index} className="text-primary font-bold">
           {part.slice(2, -2)}
         </strong>
+      );
+    }
+    if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+      return (
+        <em key={index} className="italic text-secondary">
+          {part.slice(1, -1)}
+        </em>
       );
     }
     return part;
@@ -227,25 +247,26 @@ export default function AIPlanner() {
         skipAead: true,
       });
 
-      if (response && response.reply) {
-        if (response.model_used) {
+      const payload = (response as any)?.data || response;
+      if (payload && payload.reply) {
+        if (payload.model_used) {
           setModelIndicator(
-            response.model_used.includes('gemini') ? 'Gemini 2.5 Flash' : 'Transfer Legacy Engine'
+            payload.model_used.includes('gemini') ? 'Gemini 2.0 Flash' : 'Transfer Legacy Engine'
           );
         }
         setMessages((prev) => [
           ...prev,
           {
             role: 'ai',
-            content: response.reply,
-            modelUsed: response.model_used,
+            content: payload.reply,
+            modelUsed: payload.model_used,
           },
         ]);
       } else {
         throw new Error('Empty response received from planner');
       }
     } catch (err: unknown) {
-      console.warn('AI Planner backend request fallback:', err);
+      console.error('[AI Planner] Backend request failed:', err);
       // Client-side graceful fallback if backend is unreachable or during network hiccups
       setMessages((prev) => [
         ...prev,
@@ -299,13 +320,13 @@ export default function AIPlanner() {
               <motion.div
                 animate={{
                   boxShadow: [
-                    '0 0 10px rgba(79,92,255,0.4)',
-                    '0 0 40px rgba(79,92,255,0.8)',
-                    '0 0 10px rgba(79,92,255,0.4)',
+                    '0 0 10px rgba(75,174,130,0.3)',
+                    '0 0 35px rgba(75,174,130,0.6)',
+                    '0 0 10px rgba(75,174,130,0.3)',
                   ],
                 }}
                 transition={{ repeat: Infinity, duration: 3 }}
-                className="w-14 h-14 bg-brand-primary text-obsidian-950 rounded-2xl flex items-center justify-center relative z-10"
+                className="w-14 h-14 bg-brand-primary text-white rounded-2xl flex items-center justify-center relative z-10 shadow-lg"
               >
                 <Bot size={32} />
               </motion.div>
@@ -354,8 +375,8 @@ export default function AIPlanner() {
                     <div
                       className={`max-w-[88%] p-6 rounded-3xl font-medium leading-relaxed ${
                         msg.role === 'user'
-                          ? 'bg-brand-primary text-obsidian-950 rounded-br-none shadow-lg shadow-brand-primary/10'
-                          : 'bg-page/70 border border-base/80 text-obsidian-100 rounded-bl-none shadow-sm'
+                          ? 'bg-brand-primary text-white dark:text-obsidian-950 rounded-br-none shadow-lg shadow-brand-primary/10'
+                          : 'bg-surface/90 border border-base text-primary rounded-bl-none shadow-sm'
                       }`}
                     >
                       {msg.role === 'ai' ? (
@@ -426,7 +447,7 @@ export default function AIPlanner() {
                 <button
                   type="submit"
                   disabled={!inputVal.trim() || isTyping}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-primary text-obsidian-950 rounded-xl hover:opacity-90 disabled:opacity-40 transition-all shadow-lg active:scale-95"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-primary text-white rounded-xl hover:opacity-90 disabled:opacity-40 transition-all shadow-lg active:scale-95"
                   aria-label="Send message"
                 >
                   <Send size={18} />
@@ -453,13 +474,13 @@ export default function AIPlanner() {
                       stroke="currentColor"
                       strokeWidth="6"
                       fill="transparent"
-                      className="text-obsidian-800"
+                      className="text-border-base dark:text-obsidian-800"
                     />
                     <motion.circle
                       cx="72"
                       cy="72"
                       r="60"
-                      stroke="#4F5CFF"
+                      stroke="var(--color-brand-primary, #1C6B4A)"
                       strokeWidth="6"
                       fill="transparent"
                       strokeDasharray={Math.PI * 120}
@@ -468,7 +489,7 @@ export default function AIPlanner() {
                         strokeDashoffset: (Math.PI * 120) * (1 - (user?.score ?? 80) / 100),
                       }}
                       transition={{ duration: 1.5, ease: 'easeOut' }}
-                      className="drop-shadow-[0_0_15px_rgba(79,92,255,0.4)]"
+                      className="drop-shadow-[0_0_15px_rgba(75,174,130,0.4)]"
                     />
                   </svg>
                   <div className="absolute flex flex-col items-center">

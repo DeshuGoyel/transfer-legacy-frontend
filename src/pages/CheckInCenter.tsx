@@ -288,16 +288,16 @@ export default function CheckInCenter() {
               ) : (
                 <div className="space-y-6">
                    <div className="flex justify-between items-center p-4 rounded-xl bg-page/40 border border-base/60">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600">Interval</span>
-                      <span className="text-xs font-bold text-obsidian-200 capitalize">{checkinSettings.frequency}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Interval</span>
+                      <span className="text-xs font-bold text-primary capitalize">{checkinSettings.frequency}</span>
                    </div>
                    <div className="flex justify-between items-center p-4 rounded-xl bg-page/40 border border-base/60">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600">Quorum Trigger</span>
-                      <span className="text-xs font-bold text-obsidian-200">{checkinSettings.alertGuardiansAfterMisses} Misses</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Quorum Trigger</span>
+                      <span className="text-xs font-bold text-primary">{checkinSettings.alertGuardiansAfterMisses} Misses</span>
                    </div>
                    <div className="flex justify-between items-center p-4 rounded-xl bg-page/40 border border-base/60">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-obsidian-600">Succession Depth</span>
-                      <span className="text-xs font-bold text-obsidian-200">{checkinSettings.consecutiveMissesAllowed} Misses</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Succession Depth</span>
+                      <span className="text-xs font-bold text-primary">{checkinSettings.consecutiveMissesAllowed} Misses</span>
                    </div>
                 </div>
               )}
