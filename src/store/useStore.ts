@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { mockActivity, mockNotifications } from '../data/mockData';
-import { api } from '../lib/api';
+import { mockActivity } from '../data/mockData';
+import { api, notificationApi } from '../lib/api';
 import { DerivedUserKeys } from '../lib/opaqueClient';
 
 export interface Asset {
@@ -44,9 +44,14 @@ export interface Activity {
 
 export interface Notification {
   id: string;
+  title?: string;
   message?: string;
   icon?: string;
   read: boolean;
+  action_url?: string | null;
+  notification_type?: string;
+  created_at?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface Charity {
@@ -121,9 +126,11 @@ interface AppState {
   updateHeirStatus: (id: string, status: string) => void;
   updateScore: (score: number) => void;
   toggleTheme: () => void;
+  fetchNotifications: () => Promise<void>;
   toggleNotifications: () => void;
-  markNotificationAsRead: (id: string) => void;
-  markAllNotificationsAsRead: () => void;
+  markNotificationAsRead: (id: string) => Promise<void> | void;
+  markAllNotificationsAsRead: () => Promise<void> | void;
+  deleteNotification: (id: string) => Promise<void> | void;
   performCheckIn: (method: string) => Promise<void>;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
@@ -343,7 +350,7 @@ export const useStore = create<AppState>((set) => ({
   ],
   allocations: [],
   activity: [...mockActivity],
-  notifications: [...mockNotifications],
+  notifications: [],
   theme: "dark",
   accentColor: "#4F5CFF",
   isNotificationOpen: false,
@@ -924,13 +931,75 @@ export const useStore = create<AppState>((set) => ({
   }),
   updateScore: (score) => set((state) => ({ user: { ...state.user, score } })),
   toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
-  toggleNotifications: () => set((state) => ({ isNotificationOpen: !state.isNotificationOpen })),
-  markNotificationAsRead: (id) => set((state) => ({
-    notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
-  })),
-  markAllNotificationsAsRead: () => set((state) => ({
-    notifications: state.notifications.map(n => ({ ...n, read: true }))
-  })),
+  fetchNotifications: async () => {
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (!userId) return;
+      const res = await notificationApi.list(userId);
+      const list = res.notifications || res.data?.notifications || [];
+      set({
+        notifications: list.map((n) => ({
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          icon: n.icon || 'Bell',
+          read: n.read,
+          action_url: n.action_url,
+          notification_type: n.notification_type,
+          created_at: n.created_at,
+          metadata: n.metadata,
+        })),
+      });
+    } catch (err) {
+      console.warn('Failed to fetch notifications from backend:', err);
+    }
+  },
+  toggleNotifications: () => {
+    const nextOpen = !useStore.getState().isNotificationOpen;
+    set({ isNotificationOpen: nextOpen });
+    if (nextOpen) {
+      useStore.getState().fetchNotifications();
+    }
+  },
+  markNotificationAsRead: async (id) => {
+    set((state) => ({
+      notifications: state.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    }));
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (userId) {
+        await notificationApi.markRead(id, userId);
+      }
+    } catch (err) {
+      console.warn('Failed to mark notification as read on backend:', err);
+    }
+  },
+  markAllNotificationsAsRead: async () => {
+    set((state) => ({
+      notifications: state.notifications.map((n) => ({ ...n, read: true })),
+    }));
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (userId) {
+        await notificationApi.markAllRead(userId);
+      }
+    } catch (err) {
+      console.warn('Failed to mark all notifications as read on backend:', err);
+    }
+  },
+  deleteNotification: async (id) => {
+    set((state) => ({
+      notifications: state.notifications.filter((n) => n.id !== id),
+    }));
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (userId) {
+        await notificationApi.delete(id, userId);
+      }
+    } catch (err) {
+      console.warn('Failed to delete notification on backend:', err);
+    }
+  },
   performCheckIn: async (method) => {
     try {
       let policyId = useStore.getState().activePolicyId;

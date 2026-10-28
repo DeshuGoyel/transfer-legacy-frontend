@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { useCheckinStore } from '../store/useCheckinStore';
-import { User, Shield, Bell, Palette, AlertTriangle, Activity, ChevronRight, HardDrive, Fingerprint, Globe, ShieldAlert, Camera, Loader2 } from 'lucide-react';
+import { User, Shield, Bell, Palette, AlertTriangle, Activity, ChevronRight, HardDrive, Fingerprint, Globe, ShieldAlert, Camera, Loader2, Check, Radio, Send, BellRing, Smartphone, Mail } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
 import toast from 'react-hot-toast';
 import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
-import { api } from '../lib/api';
+import { api, notificationApi, NotificationPreferences } from '../lib/api';
+import { getPushStatus, requestPushPermission, setOneSignalUser, PushStatus } from '../lib/onesignal';
 import { QRCodeSVG } from 'qrcode.react';
 import { registerDevice } from '../lib/deviceClient';
 import { toBase64Url, fromBase64Url } from '../lib/aeadClient';
@@ -416,6 +417,121 @@ export default function Settings() {
       loadShares();
     }
   }, [activeTab, fetchDevices, loadShares]);
+
+  // Notifications tab state
+  const [pushStatus, setPushStatus] = useState<PushStatus>({
+    configured: false,
+    supported: false,
+    permission: 'default',
+    isSubscribed: false,
+  });
+  const [isLoadingPush, setIsLoadingPush] = useState(false);
+  const [isTestingPush, setIsTestingPush] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({
+    user_id: '',
+    email_enabled: true,
+    push_enabled: true,
+    in_app_enabled: true,
+    security_alerts: true,
+    heartbeat_reminders: true,
+    guardian_signals: true,
+    vault_updates: true,
+    updated_at: '',
+  });
+  const [isLoadingPrefs, setIsLoadingPrefs] = useState(false);
+
+  const loadNotificationSettings = useCallback(async () => {
+    setIsLoadingPush(true);
+    try {
+      const status = await getPushStatus();
+      setPushStatus(status);
+    } catch (err) {
+      console.warn('Error checking push status:', err);
+    } finally {
+      setIsLoadingPush(false);
+    }
+
+    const userId = localStorage.getItem('tl_user_id');
+    if (!userId) return;
+
+    setIsLoadingPrefs(true);
+    try {
+      const res = await notificationApi.getPreferences(userId);
+      const data = (res as any).data || res;
+      if (data && data.user_id) {
+        setNotifPrefs(data);
+      }
+    } catch (err) {
+      console.warn('Error loading notification preferences:', err);
+    } finally {
+      setIsLoadingPrefs(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'Notifications') {
+      loadNotificationSettings();
+    }
+  }, [activeTab, loadNotificationSettings]);
+
+  const handleTogglePreference = async (key: keyof NotificationPreferences) => {
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+    const updated = {
+      ...notifPrefs,
+      user_id: userId,
+      [key]: !notifPrefs[key],
+    };
+    setNotifPrefs(updated);
+    try {
+      await notificationApi.updatePreferences(updated);
+      toast.success('Signal preference updated');
+    } catch (err) {
+      console.error('Failed to update preference:', err);
+      toast.error('Failed to update preference');
+    }
+  };
+
+  const handleEnablePush = async () => {
+    setIsLoadingPush(true);
+    try {
+      const granted = await requestPushPermission();
+      const status = await getPushStatus();
+      setPushStatus(status);
+
+      const userId = localStorage.getItem('tl_user_id');
+      if (granted && userId) {
+        await setOneSignalUser(userId);
+        toast.success('Web push notifications enabled');
+      } else if (!granted) {
+        toast.error('Browser permission was not granted');
+      }
+    } catch (err) {
+      console.error('Push enable error:', err);
+      toast.error('Failed to configure push notifications');
+    } finally {
+      setIsLoadingPush(false);
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    const userId = localStorage.getItem('tl_user_id');
+    if (!userId) {
+      toast.error('Session not initialized');
+      return;
+    }
+    setIsTestingPush(true);
+    try {
+      const res = await notificationApi.testPush(userId);
+      const data = (res as any).data || res;
+      toast.success(data.message || 'Signal test completed');
+      await useStore.getState().fetchNotifications();
+    } catch (err) {
+      console.error('Test push error:', err);
+      toast.error('Failed to trigger test push');
+    } finally {
+      setIsTestingPush(false);
+    }
+  };
 
   const tabs = [
     { name: 'Profile', icon: User, desc: 'Personal Identity' },
@@ -884,6 +1000,218 @@ export default function Settings() {
                             <p className="text-sm text-secondary max-w-md mx-auto font-medium italic leading-relaxed">Submit verified legal documentation to bypass wait periods. Our institutional compliance engine audits submissions in real-time.</p>
                           </div>
                           <Button variant="secondary" className="h-14 px-12 text-[10px] font-bold uppercase tracking-widest border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10 shadow-2xl">Submit Archival PDF</Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'Notifications' && (
+                  <motion.div 
+                    key="notifications"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-12"
+                  >
+                    <div className="space-y-4">
+                      <h2 className="text-3xl font-display font-bold text-primary tracking-tight">Signal Preferences</h2>
+                      <p className="text-sm text-secondary font-medium italic">Configure real-time protocols, OneSignal browser push channels, and verified notifications.</p>
+                    </div>
+
+                    {/* OneSignal Web Push Integration Card */}
+                    <div className="p-8 bg-page/60 border border-base rounded-[32px] space-y-6 relative overflow-hidden group">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-base/40">
+                        <div className="flex items-center gap-5">
+                          <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary shrink-0 shadow-inner">
+                            <BellRing size={24} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-3">
+                              <h3 className="font-display font-bold text-primary text-lg tracking-tight">OneSignal Web Push Protocol</h3>
+                              <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${
+                                !pushStatus.configured
+                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                  : pushStatus.permission === 'granted'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                  : pushStatus.permission === 'denied'
+                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                  : 'bg-brand-primary/10 text-brand-primary border-brand-primary/20'
+                              }`}>
+                                {!pushStatus.configured
+                                  ? 'Placeholder Credentials'
+                                  : pushStatus.permission === 'granted'
+                                  ? 'Active & Verified'
+                                  : pushStatus.permission === 'denied'
+                                  ? 'Blocked in Browser'
+                                  : 'Permission Needed'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-secondary font-medium mt-1">
+                              Direct push signals to your desktop or mobile browser even when Transfer Legacy is in the background.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3">
+                          <Button
+                            variant="secondary"
+                            onClick={handleEnablePush}
+                            disabled={isLoadingPush || pushStatus.permission === 'granted' || !pushStatus.supported}
+                            className="h-11 px-6 text-[10px] font-bold uppercase tracking-widest border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10"
+                          >
+                            {isLoadingPush ? 'Configuring...' : pushStatus.permission === 'granted' ? 'Push Enabled' : 'Enable Web Push'}
+                          </Button>
+                          <Button
+                            onClick={handleSendTestNotification}
+                            disabled={isTestingPush}
+                            className="h-11 px-6 text-[10px] font-bold uppercase tracking-widest bg-brand-primary text-white hover:bg-brand-primary/90 flex items-center gap-2"
+                          >
+                            {isTestingPush ? (
+                              <>
+                                <Loader2 size={13} className="animate-spin" />
+                                <span>Dispatching...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Send size={13} />
+                                <span>Send Test Signal</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {!pushStatus.configured && (
+                        <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs text-amber-300/80 leading-relaxed">
+                          Note: Placeholders for <span className="font-mono text-amber-200">VITE_ONESIGNAL_APP_ID</span> and <span className="font-mono text-amber-200">ONESIGNAL_REST_API_KEY</span> are currently active in your environment files. In-app notifications will function normally, and web push delivery will activate as soon as real OneSignal keys are pasted.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Delivery Channels */}
+                    <div className="space-y-6">
+                      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-secondary">Signal Delivery Channels</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div 
+                          onClick={() => handleTogglePreference('in_app_enabled')}
+                          className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+                            notifPrefs.in_app_enabled 
+                              ? 'bg-brand-primary/5 border-brand-primary/40 text-primary' 
+                              : 'bg-page/40 border-base text-secondary hover:border-base'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="w-10 h-10 rounded-xl bg-surface border border-base flex items-center justify-center text-brand-primary">
+                              <Bell size={18} />
+                            </div>
+                            <span className={`w-3 h-3 rounded-full border ${notifPrefs.in_app_enabled ? 'bg-brand-primary border-brand-primary shadow-[0_0_8px_rgba(79,92,255,0.8)]' : 'bg-transparent border-base'}`} />
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-primary">In-App Drawer</h4>
+                            <p className="text-[11px] text-secondary mt-1">Live indicator on navigation bell with searchable timeline.</p>
+                          </div>
+                        </div>
+
+                        <div 
+                          onClick={() => handleTogglePreference('push_enabled')}
+                          className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+                            notifPrefs.push_enabled 
+                              ? 'bg-brand-primary/5 border-brand-primary/40 text-primary' 
+                              : 'bg-page/40 border-base text-secondary hover:border-base'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="w-10 h-10 rounded-xl bg-surface border border-base flex items-center justify-center text-brand-primary">
+                              <Smartphone size={18} />
+                            </div>
+                            <span className={`w-3 h-3 rounded-full border ${notifPrefs.push_enabled ? 'bg-brand-primary border-brand-primary shadow-[0_0_8px_rgba(79,92,255,0.8)]' : 'bg-transparent border-base'}`} />
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-primary">OneSignal Web Push</h4>
+                            <p className="text-[11px] text-secondary mt-1">Real-time alerts sent to connected desktop and mobile browsers.</p>
+                          </div>
+                        </div>
+
+                        <div 
+                          onClick={() => handleTogglePreference('email_enabled')}
+                          className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+                            notifPrefs.email_enabled 
+                              ? 'bg-brand-primary/5 border-brand-primary/40 text-primary' 
+                              : 'bg-page/40 border-base text-secondary hover:border-base'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="w-10 h-10 rounded-xl bg-surface border border-base flex items-center justify-center text-brand-primary">
+                              <Mail size={18} />
+                            </div>
+                            <span className={`w-3 h-3 rounded-full border ${notifPrefs.email_enabled ? 'bg-brand-primary border-brand-primary shadow-[0_0_8px_rgba(79,92,255,0.8)]' : 'bg-transparent border-base'}`} />
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-primary">Email Dispatches</h4>
+                            <p className="text-[11px] text-secondary mt-1">Cryptographic alerts sent via verified Resend SMTP transport.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Protocol Event Categories */}
+                    <div className="space-y-6 pt-4 border-t border-base/40">
+                      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-secondary">Protocol Event Triggers</h3>
+                      <div className="space-y-4">
+                        {[
+                          {
+                            key: 'security_alerts' as const,
+                            title: 'Security and Authentication',
+                            desc: 'Unrecognized logins, MFA parameter changes, and session revocations.',
+                            icon: ShieldAlert,
+                          },
+                          {
+                            key: 'heartbeat_reminders' as const,
+                            title: 'Pulse & Heartbeat Reminders',
+                            desc: 'Dead-man switch deadlines, scheduled pulse alerts, and grace period countdowns.',
+                            icon: Activity,
+                          },
+                          {
+                            key: 'guardian_signals' as const,
+                            title: 'Guardian & Beneficiary Actions',
+                            desc: 'Invitation acceptance, cryptographic share verification, and claim consensus.',
+                            icon: User,
+                          },
+                          {
+                            key: 'vault_updates' as const,
+                            title: 'Vault Archival Modifications',
+                            desc: 'Succession parameter adjustments, encrypted document syncs, and audit logging.',
+                            icon: HardDrive,
+                          },
+                        ].map((item) => {
+                          const Icon = item.icon;
+                          const active = notifPrefs[item.key];
+                          return (
+                            <div
+                              key={item.key}
+                              onClick={() => handleTogglePreference(item.key)}
+                              className="flex items-center justify-between p-6 bg-page/40 rounded-[24px] border border-base/60 hover:bg-page/60 transition-all cursor-pointer group"
+                            >
+                              <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 rounded-xl bg-surface border border-base flex items-center justify-center text-secondary group-hover:text-brand-primary transition-colors shadow-inner">
+                                  <Icon size={20} />
+                                </div>
+                                <div>
+                                  <p className="font-display font-bold text-primary text-base tracking-tight">
+                                    {item.title}
+                                  </p>
+                                  <p className="text-xs text-secondary mt-0.5">
+                                    {item.desc}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className={`w-12 h-6 rounded-full transition-colors relative p-1 ${active ? 'bg-brand-primary' : 'bg-surface border border-base'}`}>
+                                <div className={`w-4 h-4 rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-0'}`} />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </motion.div>

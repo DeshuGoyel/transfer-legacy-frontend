@@ -117,7 +117,94 @@ export const api = {
   
   put: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => 
     request<T>(endpoint, { ...options, method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+
+  patch: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => 
+    request<T>(endpoint, { ...options, method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
   
   delete: <T>(endpoint: string, options?: RequestOptions) => 
     request<T>(endpoint, { ...options, method: 'DELETE' }),
 };
+
+export interface ApiNotification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  notification_type: string;
+  icon: string;
+  action_url?: string | null;
+  read: boolean;
+  metadata?: Record<string, any>;
+  created_at: string;
+  read_at?: string | null;
+}
+
+export interface NotificationPreferences {
+  user_id: string;
+  email_enabled: boolean;
+  push_enabled: boolean;
+  in_app_enabled: boolean;
+  security_alerts: boolean;
+  heartbeat_reminders: boolean;
+  guardian_signals: boolean;
+  vault_updates: boolean;
+  updated_at: string;
+}
+
+export const notificationApi = {
+  list: (userId: string, unreadOnly = false) =>
+    api.get<{ data?: { notifications: ApiNotification[]; unread_count: number }; notifications?: ApiNotification[]; unread_count?: number }>(
+      '/notifications',
+      {
+        params: { user_id: userId, unread_only: unreadOnly ? 'true' : 'false' },
+        skipAead: true,
+      }
+    ),
+
+  markRead: (notificationId: string, userId: string) =>
+    api.patch<boolean>(
+      `/notifications/${notificationId}/read`,
+      { user_id: userId },
+      { skipAead: true }
+    ),
+
+  markAllRead: (userId: string) =>
+    api.post<number>(
+      '/notifications/read-all',
+      { user_id: userId },
+      { skipAead: true }
+    ),
+
+  delete: (notificationId: string, userId: string) =>
+    api.delete<boolean>(
+      `/notifications/${notificationId}`,
+      {
+        params: { user_id: userId },
+        skipAead: true,
+      }
+    ),
+
+  getPreferences: (userId: string) =>
+    api.get<{ data?: NotificationPreferences } & NotificationPreferences>(
+      '/notifications/preferences',
+      {
+        params: { user_id: userId },
+        skipAead: true,
+      }
+    ),
+
+  updatePreferences: (prefs: Partial<NotificationPreferences> & { user_id: string }) =>
+    api.put<{ data?: NotificationPreferences } & NotificationPreferences>(
+      '/notifications/preferences',
+      prefs,
+      { skipAead: true }
+    ),
+
+  testPush: (userId: string) =>
+    api.post<{ in_app_created: boolean; push_dispatched: boolean; message: string }>(
+      '/notifications/test-push',
+      { user_id: userId },
+      { skipAead: true }
+    ),
+};
+

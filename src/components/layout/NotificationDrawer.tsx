@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
-import { X, Key, User, FileText, AlertTriangle, CheckCircle, Bell, CheckCheck } from 'lucide-react';
+import { X, Key, User, FileText, AlertTriangle, CheckCircle, Bell, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
 import React from 'react';
 
 const icons: Record<string, React.ElementType> = {
@@ -10,20 +11,63 @@ const icons: Record<string, React.ElementType> = {
   FileText,
   AlertTriangle,
   CheckCircle,
-  Bell
+  Bell,
 };
 
 export default function NotificationDrawer() {
-  const { notifications, isNotificationOpen, toggleNotifications, markNotificationAsRead, markAllNotificationsAsRead } = useStore();
+  const navigate = useNavigate();
+  const {
+    notifications,
+    isNotificationOpen,
+    toggleNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    deleteNotification,
+  } = useStore();
   const [filter, setFilter] = useState<'all' | 'unread' | 'security'>('all');
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const filteredNotifications = notifications.filter(n => {
+  const filteredNotifications = notifications.filter((n) => {
     if (filter === 'unread') return !n.read;
-    if (filter === 'security') return n.icon === 'AlertTriangle' || n.icon === 'Key';
+    if (filter === 'security') {
+      return (
+        n.icon === 'AlertTriangle' ||
+        n.icon === 'Key' ||
+        n.notification_type === 'security'
+      );
+    }
     return true;
   });
+
+  const handleNotificationClick = async (n: typeof notifications[0]) => {
+    if (!n.read) {
+      await markNotificationAsRead(n.id);
+    }
+    if (n.action_url) {
+      toggleNotifications();
+      navigate(n.action_url);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    await deleteNotification(id);
+  };
+
+  const formatTime = (isoString?: string) => {
+    if (!isoString) return 'Just now';
+    try {
+      const date = new Date(isoString);
+      const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (diffSec < 60) return 'Just now';
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+      return `${Math.floor(diffSec / 86400)}d ago`;
+    } catch {
+      return 'Recently';
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -54,14 +98,18 @@ export default function NotificationDrawer() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-display font-bold text-white tracking-tight">Notifications</h2>
+                    <h2 className="text-base font-display font-bold text-white tracking-tight">
+                      Notifications
+                    </h2>
                     {unreadCount > 0 && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary/20 text-brand-primary border border-brand-primary/30">
                         {unreadCount} new
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-[#9B97A3] font-medium">Vault security & protocol events</p>
+                  <p className="text-[11px] text-[#9B97A3] font-medium">
+                    Vault security and protocol events
+                  </p>
                 </div>
               </div>
 
@@ -87,7 +135,7 @@ export default function NotificationDrawer() {
 
             {/* Category Filter Tabs */}
             <div className="flex items-center gap-2 px-5 py-3 border-b border-[rgba(255,255,255,0.06)] bg-[#08090C]">
-              {(['all', 'unread', 'security'] as const).map(tab => (
+              {(['all', 'unread', 'security'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFilter(tab)}
@@ -97,7 +145,11 @@ export default function NotificationDrawer() {
                       : 'text-[#9B97A3] hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {tab === 'all' ? 'All' : tab === 'unread' ? `Unread (${unreadCount})` : 'Security'}
+                  {tab === 'all'
+                    ? 'All'
+                    : tab === 'unread'
+                    ? `Unread (${unreadCount})`
+                    : 'Security'}
                 </button>
               ))}
             </div>
@@ -110,20 +162,22 @@ export default function NotificationDrawer() {
                     <Bell size={22} className="opacity-50" />
                   </div>
                   <p className="text-sm font-semibold text-white">No notifications</p>
-                  <p className="text-xs text-[#9B97A3] mt-1">All systems and vaults are functioning normally.</p>
+                  <p className="text-xs text-[#9B97A3] mt-1">
+                    All systems and vaults are functioning normally.
+                  </p>
                 </div>
               ) : (
                 filteredNotifications.map((n) => {
-                  const Icon = icons[n.icon] || AlertTriangle;
-                  const isAlert = n.icon === 'AlertTriangle';
+                  const Icon = (n.icon && icons[n.icon]) ? icons[n.icon] : Bell;
+                  const isAlert = n.icon === 'AlertTriangle' || n.notification_type === 'security';
                   const isKey = n.icon === 'Key';
                   const isCheck = n.icon === 'CheckCircle';
 
                   return (
                     <div
                       key={n.id}
-                      onClick={() => !n.read && markNotificationAsRead(n.id)}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden flex items-start gap-3.5 ${
+                      onClick={() => handleNotificationClick(n)}
+                      className={`group p-3.5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden flex items-start gap-3.5 ${
                         !n.read
                           ? 'bg-[#0E1015] border-brand-primary/30 shadow-lg shadow-brand-primary/5 hover:border-brand-primary/50'
                           : 'bg-[#0E1015]/40 border-[rgba(255,255,255,0.05)] hover:bg-[#0E1015]/70 hover:border-white/10'
@@ -133,26 +187,52 @@ export default function NotificationDrawer() {
                         <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
                       )}
 
-                      <div className={`p-2.5 rounded-xl shrink-0 border ${
-                        isAlert
-                          ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                          : isKey
-                          ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/20'
-                          : isCheck
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                          : 'bg-white/5 text-[#9B97A3] border-white/10'
-                      }`}>
+                      <div
+                        className={`p-2.5 rounded-xl shrink-0 border ${
+                          isAlert
+                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                            : isKey
+                            ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/20'
+                            : isCheck
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                            : 'bg-white/5 text-[#9B97A3] border-white/10'
+                        }`}
+                      >
                         <Icon size={16} />
                       </div>
 
-                      <div className="flex-1 pr-3">
-                        <p className={`text-xs leading-relaxed ${!n.read ? 'text-[#E9E6DF] font-semibold' : 'text-[#9B97A3]'}`}>
+                      <div className="flex-1 pr-6">
+                        {n.title && (
+                          <p className="text-xs font-semibold text-white tracking-tight mb-0.5">
+                            {n.title}
+                          </p>
+                        )}
+                        <p
+                          className={`text-xs leading-relaxed ${
+                            !n.read ? 'text-[#E9E6DF]' : 'text-[#9B97A3]'
+                          }`}
+                        >
                           {n.message}
                         </p>
-                        <span className="text-[10px] text-[#6B6675] mt-1.5 block font-mono">
-                          Vault Protocol Alert
-                        </span>
+                        <div className="flex items-center gap-3 mt-2">
+                          <span className="text-[10px] text-[#6B6675] font-mono">
+                            {formatTime(n.created_at)}
+                          </span>
+                          {n.action_url && (
+                            <span className="text-[10px] text-brand-primary font-medium flex items-center gap-1 hover:underline">
+                              View details <ExternalLink size={10} />
+                            </span>
+                          )}
+                        </div>
                       </div>
+
+                      <button
+                        onClick={(e) => handleDelete(e, n.id)}
+                        title="Dismiss notification"
+                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-[#6B6675] hover:text-rose-400 hover:bg-rose-500/10 transition-all shrink-0"
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   );
                 })

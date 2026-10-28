@@ -49,12 +49,19 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
     user,
     toggleNotifications,
     notifications,
+    fetchNotifications,
     isMobileSidebarOpen,
     toggleMobileSidebar,
     isSidebarCollapsed,
     toggleSidebar,
     performCheckIn,
   } = useStore();
+
+  useEffect(() => {
+    if (variant !== 'marketing') {
+      fetchNotifications();
+    }
+  }, [variant, fetchNotifications]);
 
   const checkinSettings = useCheckinStore((state) => state.checkinSettings);
   const completeCheckin = useCheckinStore((state) => state.completeCheckin);
