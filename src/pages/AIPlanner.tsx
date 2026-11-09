@@ -12,7 +12,8 @@ import {
   ChevronRight,
   CheckCircle2,
   RotateCcw,
-  Cpu
+  Cpu,
+  Info
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import { motion, AnimatePresence } from 'framer-motion';

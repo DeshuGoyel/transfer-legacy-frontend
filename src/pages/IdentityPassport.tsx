@@ -244,7 +244,7 @@ export default function IdentityPassportPage() {
             <motion.button
               {...fadeUp(0.5)}
               onClick={() => toast.success('Institutional Verification PDF Generated')}
-              className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border border-base text-primary0 hover:text-obsidian-200 hover:border-base transition-all text-[10px] font-bold uppercase tracking-[0.2em]"
+              className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border border-base text-primary hover:text-brand-primary hover:border-brand-primary/40 transition-all text-[10px] font-bold uppercase tracking-[0.2em]"
             >
                <Download size={14}/> Generate Verification PDF
             </motion.button>
@@ -268,7 +268,7 @@ export default function IdentityPassportPage() {
                   <h3 className="text-xl font-display font-bold text-primary">Modify Protocol Data</h3>
                   <p className="text-[10px] font-bold text-obsidian-600 uppercase tracking-widest mt-1">Identity Authorization Required</p>
                 </div>
-                <button onClick={() => setIsEditModalOpen(false)} className="text-obsidian-600 hover:text-obsidian-200 p-2 transition-colors"><X size={20}/></button>
+                <button onClick={() => setIsEditModalOpen(false)} className="text-muted hover:text-primary p-2 transition-colors"><X size={20}/></button>
               </div>
               
               <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto scrollbar-hide">
@@ -321,7 +321,7 @@ export default function IdentityPassportPage() {
                           checked={editForm[pref.id as keyof IdentityPassport] as boolean} 
                           onChange={(e) => setEditForm({...editForm, [pref.id]: e.target.checked})} 
                         />
-                        <span className="text-[11px] font-bold text-muted uppercase tracking-widest group-hover:text-obsidian-200 transition-colors">{pref.label}</span>
+                        <span className="text-[11px] font-bold text-muted uppercase tracking-widest group-hover:text-primary transition-colors">{pref.label}</span>
                       </label>
                     ))}
                   </div>

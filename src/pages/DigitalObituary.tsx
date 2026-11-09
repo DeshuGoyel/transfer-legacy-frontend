@@ -191,7 +191,7 @@ export default function DigitalObituary() {
                       <p className="text-[9px] font-bold text-obsidian-600 uppercase tracking-[0.2em] mt-1">Archival Step {step} / 5</p>
                     </div>
                   </div>
-                  <button onClick={() => setIsModalOpen(false)} className="text-obsidian-600 hover:text-obsidian-200 p-2.5 rounded-xl hover:bg-page transition-all"><X size={20}/></button>
+                  <button onClick={() => setIsModalOpen(false)} className="text-muted hover:text-primary p-2.5 rounded-xl hover:bg-page transition-all"><X size={20}/></button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-10 lg:p-12 space-y-10 scrollbar-hide">
