@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import React from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
@@ -59,7 +60,7 @@ const DigitalWillPillar = () => {
         title="The Digital Will Blueprint: Legacy Planning for the 21st Century"
         description="Learn how to build a legally binding and technically secure Digital Will. Protect your crypto, social media, and digital identities with Transfer Legacy."
         canonical="https://transferlegacy.com/digital-will"
-        schema={[breadcrumbSchema, faqSchema]}
+        schema={[breadcrumbSchema, faqSchema, authorPersonSchema]}
         hreflangs={digitalWillHreflangs}
       />
 
@@ -151,6 +152,8 @@ const DigitalWillPillar = () => {
               </div>
             </div>
           </section>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <BookOpen className="w-16 h-16 mx-auto mb-8 opacity-80" />

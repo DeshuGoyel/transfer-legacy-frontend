@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
 import { ArrowRight, Shield, BookOpen, AlertTriangle, Skull, Zap } from 'lucide-react';
@@ -43,7 +44,7 @@ const WhatHappensToCrypto = () => {
         title="What Happens to Your Crypto When You Die? (The Brutal Truth)"
         description="The reality of cryptocurrency inheritance. Learn why Bitcoin is lost forever without a protocol and how to prevent your family from being locked out."
         canonicalUrl="https://transferlegacy.com/what-happens-to-crypto-when-you-die"
-        schema={breadcrumbSchema}
+        schema={[breadcrumbSchema, authorPersonSchema]}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -111,6 +112,8 @@ const WhatHappensToCrypto = () => {
               </Button>
             </div>
           </div>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <h3 className="text-3xl md:text-5xl font-display font-bold mb-6 tracking-tight leading-none">

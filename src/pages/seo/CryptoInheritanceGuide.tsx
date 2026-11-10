@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import React from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
@@ -62,7 +63,7 @@ const CryptoInheritanceGuide = () => {
         title="The Ultimate Crypto Inheritance Guide (2026): Secure Your Digital Wealth"
         description="Master the art of crypto inheritance. Learn how to securely pass Bitcoin, Ethereum, and digital assets to your family using institutional-grade protocols."
         canonical="https://transferlegacy.com/crypto-inheritance"
-        schema={[breadcrumbSchema, faqSchema]}
+        schema={[breadcrumbSchema, faqSchema, authorPersonSchema]}
         hreflangs={cryptoInheritanceHreflangs}
       />
 
@@ -192,6 +193,8 @@ const CryptoInheritanceGuide = () => {
               </Link>
             </div>
           </section>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <h3 className="text-3xl md:text-5xl font-display font-bold mb-6 tracking-tight leading-none">

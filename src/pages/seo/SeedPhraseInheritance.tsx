@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import React from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
@@ -40,7 +41,7 @@ const SeedPhraseInheritance = () => {
         title="Seed Phrase Inheritance: How to Securely Pass 12/24 Word Keys"
         description="Don't lose your crypto. Learn the most secure strategies for seed phrase inheritance, including Shamir's Secret Sharing and Transfer Legacy Vaults."
         canonical="https://transferlegacy.com/seed-phrase-inheritance"
-        schema={breadcrumbSchema}
+        schema={[breadcrumbSchema, authorPersonSchema]}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -126,6 +127,8 @@ const SeedPhraseInheritance = () => {
               </div>
             </div>
           </section>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <BookOpen className="w-16 h-16 mx-auto mb-8 opacity-80" />
