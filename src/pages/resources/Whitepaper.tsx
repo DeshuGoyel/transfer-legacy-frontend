@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Download, Shield, Cpu, Lock, Globe, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -37,6 +38,12 @@ export default function Whitepaper() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Technical Whitepaper | Decentralized Succession Architecture"
+        description="Read the complete Transfer Legacy architecture whitepaper on decentralized proof-of-life, MPC, and multi-custody inheritance."
+        canonicalUrl="https://transferlegacy.com/resources/whitepaper"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Hero Section */}

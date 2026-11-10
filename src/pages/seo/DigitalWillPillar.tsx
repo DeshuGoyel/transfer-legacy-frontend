@@ -5,6 +5,36 @@ import { ArrowRight, Shield, BookOpen, AlertTriangle, FileCheck, Landmark, Check
 import Button from '../../components/ui/Button';
 
 const DigitalWillPillar = () => {
+  const digitalWillHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/digital-will-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/digital-asset-inheritance-usa' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/digital-will' },
+  ];
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Digital Will Protocol",
+        "item": "https://transferlegacy.com/digital-will"
+      }
+    ]
+  };
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -29,7 +59,8 @@ const DigitalWillPillar = () => {
         title="The Digital Will Blueprint: Legacy Planning for the 21st Century"
         description="Learn how to build a legally binding and technically secure Digital Will. Protect your crypto, social media, and digital identities with Transfer Legacy."
         canonical="https://transferlegacy.com/digital-will"
-        schema={faqSchema}
+        schema={[breadcrumbSchema, faqSchema]}
+        hreflangs={digitalWillHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

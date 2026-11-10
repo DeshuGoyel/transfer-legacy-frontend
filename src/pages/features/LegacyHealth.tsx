@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, CheckCircle2, ArrowRight } from 'lucide-react';
@@ -14,6 +15,12 @@ const fadeUp = (delay = 0) => ({
 export default function LegacyHealth() {
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Legacy Health & Protocol Heartbeat Monitoring | Transfer Legacy"
+        description="Monitor the active health score of your digital estate. Automated proof-of-life heartbeats, ping intervals, and emergency overrides."
+        canonicalUrl="https://transferlegacy.com/features/legacy-health"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-6 mb-24">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-2 mb-4">

@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Lock, Eye, Zap, Fingerprint, CheckCircle2 } from 'lucide-react';
@@ -32,6 +33,12 @@ export default function VaultSecurity() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Institutional Vault Security & Cryptography | Transfer Legacy"
+        description="Explore our military-grade security architecture: AES-256 GCM encryption, Shamir Secret Sharing, and zero-knowledge client decryption."
+        canonicalUrl="https://transferlegacy.com/features/vault-security"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

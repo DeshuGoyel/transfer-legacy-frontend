@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { GitBranch, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -14,6 +15,12 @@ const fadeUp = (delay = 0) => ({
 export default function InheritanceLogic() {
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Smart Succession & Inheritance Logic Protocol | Transfer Legacy"
+        description="Configurable proof-of-life triggers, multi-condition time locks, and automated heir distribution engines."
+        canonicalUrl="https://transferlegacy.com/features/inheritance-logic"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-6 mb-24">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-2 mb-4">

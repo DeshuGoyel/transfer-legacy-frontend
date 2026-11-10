@@ -5,6 +5,13 @@ import { ArrowRight, Globe2, BookOpen, Landmark, Scale, Gavel, CheckCircle2 } fr
 import Button from '../../../components/ui/Button';
 
 const CryptoInheritanceUAE = () => {
+  const cryptoInheritanceHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/crypto-inheritance-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/crypto-inheritance-usa' },
+    { lang: 'en-GB', href: 'https://transferlegacy.com/crypto-inheritance-uk' },
+    { lang: 'en-AE', href: 'https://transferlegacy.com/crypto-inheritance-uae' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/crypto-inheritance' },
+  ];
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -34,10 +41,11 @@ const CryptoInheritanceUAE = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="UAE Crypto Inheritance Law: VARA & DIFC Guide (2024)"
+        title="UAE Crypto Inheritance Law: VARA & DIFC Guide (2026)"
         description="Master UAE crypto inheritance laws. Learn about VARA regulations, DIFC Wills, and how to securely pass Bitcoin in Dubai and Abu Dhabi."
         canonical="https://transferlegacy.com/crypto-inheritance-uae"
         schema={faqSchema}
+        hreflangs={cryptoInheritanceHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

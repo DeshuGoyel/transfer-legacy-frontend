@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Lock, Cpu, Network, Zap, CheckCircle2, Server, Terminal } from 'lucide-react';
@@ -31,6 +32,12 @@ export default function SecurityArchitecture() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Security Architecture Specification | Transfer Legacy"
+        description="Detailed cryptographic specifications: AES-256 GCM, Libsodium Sumo, Shamir Secret Sharing, and Argon2id key derivation."
+        canonicalUrl="https://transferlegacy.com/legal/security-architecture"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

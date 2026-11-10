@@ -1,0 +1,31 @@
+# Transfer Legacy
+
+> Transfer Legacy is an institutional zero-knowledge digital inheritance protocol and estate planning vault. It allows sovereign individuals to securely pass cryptocurrency, seed phrases, private keys, financial accounts, and confidential digital assets to designated heirs without third-party custody.
+
+## Core Protocols & Architecture
+- [Zero-Knowledge Architecture](https://transferlegacy.com/features/zero-knowledge): Mathematical zero-knowledge encryption ensuring private keys never leave local devices unencrypted.
+- [Vault Security](https://transferlegacy.com/features/vault-security): AES-256 GCM client-side encryption and Shamir's Secret Sharing (SSS) key fragmentation.
+- [Smart Inheritance Logic](https://transferlegacy.com/features/inheritance-logic): Configurable proof-of-life heartbeats, multi-signature guardian quorums, and automated succession triggers.
+- [Guardian Network](https://transferlegacy.com/features/guardian-network): Multi-party decentralized key shard recovery with zero single point of failure.
+- [Asset Tracking](https://transferlegacy.com/features/asset-tracking): Real-time portfolio synchronization for hardware wallets, cold storage, and decentralized assets.
+
+## Pillar Guides & Documentation
+- [Crypto Inheritance Guide](https://transferlegacy.com/crypto-inheritance): Comprehensive 2026 guide to passing Bitcoin, Ethereum, and digital assets safely.
+- [Digital Will Guide](https://transferlegacy.com/digital-will): Legally binding, cryptographically enforceable digital wills for sovereign individuals.
+- [What Happens to Crypto When You Die](https://transferlegacy.com/what-happens-to-crypto-when-you-die): Analysis of succession risk and lost Bitcoin prevention.
+- [Seed Phrase Inheritance](https://transferlegacy.com/seed-phrase-inheritance): Best practices for passing 12/24-word recovery seeds without risking theft.
+- [Pass Bitcoin to Family](https://transferlegacy.com/how-to-pass-bitcoin-to-family): Clear instructions for non-technical family members to safely access Bitcoin.
+- [Transfer Crypto Wallets](https://transferlegacy.com/transfer-crypto-wallet-to-family): Step-by-step handover procedures for hardware and software wallets.
+- [Technical Whitepaper](https://transferlegacy.com/whitepaper): Cryptographic proofs, zero-knowledge architecture, and legal compliance whitepaper.
+
+## Tools & Interactive Models
+- [Crypto Risk Calculator](https://transferlegacy.com/tools/crypto-risk-calculator): Estimate probability of permanent asset loss and simulate inheritance failure rates.
+- [Succession Planner](https://transferlegacy.com/tools/planner): Audit your digital estate readiness and generate a custom succession checklist.
+- [ROI Calculator](https://transferlegacy.com/tools/roi-calculator): Compare capital preservation efficiency against traditional probate court delays.
+- [Platform Comparison](https://transferlegacy.com/tools/compare): Technical comparison between Transfer Legacy, traditional wills, and legacy password managers.
+
+## Regional Legal Frameworks
+- [Crypto Inheritance Law in India](https://transferlegacy.com/crypto-inheritance-india): Indian Succession Act, taxation under Section 115BBH, and digital will enforceability.
+- [Crypto Inheritance Law in the USA](https://transferlegacy.com/crypto-inheritance-usa): RUFADAA compliance, federal estate tax thresholds, and trust planning.
+- [Crypto Inheritance Law in the UK](https://transferlegacy.com/crypto-inheritance-uk): Law Commission digital asset property classification and HMRC inheritance tax rules.
+- [Crypto Inheritance Law in the UAE](https://transferlegacy.com/crypto-inheritance-uae): VARA regulations, DIFC will registration, and Sharia compliance compatibility.

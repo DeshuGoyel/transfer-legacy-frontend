@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Globe, Shield, Scale, FileCheck, CheckCircle2, MapPin, Landmark } from 'lucide-react';
@@ -21,6 +22,12 @@ export default function GlobalCompliance() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Global Legal & Regulatory Compliance | Transfer Legacy"
+        description="Succession compliance across international jurisdictions including US RUFADAA, EU GDPR, Indian Succession Act, and UAE VARA."
+        canonicalUrl="https://transferlegacy.com/legal/compliance"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

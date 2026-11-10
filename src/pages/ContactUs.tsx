@@ -1,3 +1,4 @@
+import SEO from '../components/seo/SEO';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Send, MessageSquare, Clock } from 'lucide-react';
@@ -68,6 +69,19 @@ export default function ContactUs() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0B0E14] flex items-center justify-center">
+      <SEO 
+        title="Contact Security Desk & Support | Transfer Legacy"
+        description="Reach out to our security engineering team and support desk for institutional inquiries, vault assistance, and partnership opportunities."
+        canonicalUrl="https://transferlegacy.com/contact"
+        schema={{
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact Transfer Legacy",
+    "url": "https://transferlegacy.com/contact",
+    "description": "Contact Transfer Legacy security and customer support team."
+  }}
+      />
+
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

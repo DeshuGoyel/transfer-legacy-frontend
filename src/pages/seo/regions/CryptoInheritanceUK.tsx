@@ -5,6 +5,13 @@ import { ArrowRight, Globe2, BookOpen, Landmark, Scale, Gavel, CheckCircle2 } fr
 import Button from '../../../components/ui/Button';
 
 const CryptoInheritanceUK = () => {
+  const cryptoInheritanceHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/crypto-inheritance-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/crypto-inheritance-usa' },
+    { lang: 'en-GB', href: 'https://transferlegacy.com/crypto-inheritance-uk' },
+    { lang: 'en-AE', href: 'https://transferlegacy.com/crypto-inheritance-uae' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/crypto-inheritance' },
+  ];
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -26,10 +33,11 @@ const CryptoInheritanceUK = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="UK Crypto Inheritance Law: HMRC & IHT Guide (2024)"
+        title="UK Crypto Inheritance Law: HMRC & IHT Guide (2026)"
         description="Navigate UK inheritance laws for digital assets. Learn about HMRC's treatment of crypto, Inheritance Tax (IHT) rates, and how to pass Bitcoin securely in the UK."
         canonical="https://transferlegacy.com/crypto-inheritance-uk"
         schema={faqSchema}
+        hreflangs={cryptoInheritanceHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

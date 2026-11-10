@@ -1,4 +1,70 @@
+# Default Search Engines & AI Search Crawlers
 User-agent: *
 Allow: /
+Allow: /resources
+Allow: /resources/
+Allow: /crypto-*
+Allow: /digital-*
+Allow: /features/
+Allow: /tools/
+Allow: /legal/
+Allow: /whitepaper
+Allow: /legal-templates
+Allow: /contact
+Allow: /contact-us
+Allow: /llms.txt
+
+# Disallow Private Authenticated Application Routes
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /assets
+Disallow: /assets/
+Disallow: /allocations
+Disallow: /allocations/
+Disallow: /guardians
+Disallow: /guardians/
+Disallow: /heirs
+Disallow: /heirs/
+Disallow: /ai-planner
+Disallow: /ai-planner/
+Disallow: /trust
+Disallow: /trust/
+Disallow: /settings
+Disallow: /settings/
+Disallow: /checkin
+Disallow: /check-in
+Disallow: /capsules
+Disallow: /obituary
+Disallow: /passport
+Disallow: /identity
+Disallow: /developer
+Disallow: /activity
+Disallow: /analytics
+Disallow: /reports
+Disallow: /ops
+Disallow: /ops/
+Disallow: /login
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# AI Search Discovery & Citability Crawlers
+User-agent: OAI-SearchBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /ops
+
+User-agent: Claude-SearchBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /ops
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /ops
 
 Sitemap: https://transferlegacy.com/sitemap.xml

@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { LayoutGrid, TrendingUp, BarChart3, Database, Globe, Briefcase, Zap } from 'lucide-react';
@@ -21,6 +22,12 @@ export default function AssetTracking() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Real-Time Digital Asset Tracking & Valuation | Transfer Legacy"
+        description="Unified asset tracking across decentralized wallets, institutional funds, estates, and seed phrases with real-time valuation."
+        canonicalUrl="https://transferlegacy.com/features/asset-tracking"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

@@ -8,6 +8,32 @@ import { useStore } from '../../store/useStore';
 const WhatHappensToCrypto = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useStore();
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "What Happens to Crypto",
+        "item": "https://transferlegacy.com/what-happens-to-crypto-when-you-die"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -17,6 +43,7 @@ const WhatHappensToCrypto = () => {
         title="What Happens to Your Crypto When You Die? (The Brutal Truth)"
         description="The reality of cryptocurrency inheritance. Learn why Bitcoin is lost forever without a protocol and how to prevent your family from being locked out."
         canonicalUrl="https://transferlegacy.com/what-happens-to-crypto-when-you-die"
+        schema={breadcrumbSchema}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

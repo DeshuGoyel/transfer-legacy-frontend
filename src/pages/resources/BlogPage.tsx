@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, ArrowRight, Share2, Sparkles } from 'lucide-react';
@@ -44,6 +45,12 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Developer Journal & Research | Transfer Legacy"
+        description="Read the latest technical insights on decentralized custody, post-mortem cryptographic recovery, and digital estate architecture."
+        canonicalUrl="https://transferlegacy.com/resources/blog"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

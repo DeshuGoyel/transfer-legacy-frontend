@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, Search, HelpCircle, Shield, Key, Users, MessageSquare } from 'lucide-react';
@@ -42,6 +43,12 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Frequently Asked Questions (FAQ) | Transfer Legacy Protocol"
+        description="Find clear answers to questions about how Transfer Legacy protects your private keys, seed phrases, and family inheritance."
+        canonicalUrl="https://transferlegacy.com/resources/faq"
+      />
+
       <div className="max-w-4xl mx-auto px-6">
         
         {/* Header Section */}

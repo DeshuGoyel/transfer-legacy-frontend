@@ -5,6 +5,32 @@ import { ArrowRight, Shield, BookOpen, AlertTriangle, Landmark, CheckCircle2, Ke
 import Button from '../../components/ui/Button';
 
 const SeedPhraseInheritance = () => {
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Seed Phrase Inheritance",
+        "item": "https://transferlegacy.com/seed-phrase-inheritance"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -14,6 +40,7 @@ const SeedPhraseInheritance = () => {
         title="Seed Phrase Inheritance: How to Securely Pass 12/24 Word Keys"
         description="Don't lose your crypto. Learn the most secure strategies for seed phrase inheritance, including Shamir's Secret Sharing and Transfer Legacy Vaults."
         canonical="https://transferlegacy.com/seed-phrase-inheritance"
+        schema={breadcrumbSchema}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

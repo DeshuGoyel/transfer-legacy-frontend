@@ -6,6 +6,38 @@ import { Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 
 const CryptoInheritanceGuide = () => {
+  const cryptoInheritanceHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/crypto-inheritance-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/crypto-inheritance-usa' },
+    { lang: 'en-GB', href: 'https://transferlegacy.com/crypto-inheritance-uk' },
+    { lang: 'en-AE', href: 'https://transferlegacy.com/crypto-inheritance-uae' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/crypto-inheritance' },
+  ];
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Crypto Inheritance Guide",
+        "item": "https://transferlegacy.com/crypto-inheritance"
+      }
+    ]
+  };
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -27,10 +59,11 @@ const CryptoInheritanceGuide = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="The Ultimate Crypto Inheritance Guide (2024): Secure Your Digital Wealth"
+        title="The Ultimate Crypto Inheritance Guide (2026): Secure Your Digital Wealth"
         description="Master the art of crypto inheritance. Learn how to securely pass Bitcoin, Ethereum, and digital assets to your family using institutional-grade protocols."
         canonical="https://transferlegacy.com/crypto-inheritance"
-        schema={faqSchema}
+        schema={[breadcrumbSchema, faqSchema]}
+        hreflangs={cryptoInheritanceHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -128,6 +161,35 @@ const CryptoInheritanceGuide = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          
+          {/* Topic Cluster: Deep Dive Guides */}
+          <section className="space-y-6">
+            <h3 className="text-2xl font-display font-bold text-primary tracking-tight">
+              Deep Dive <span className="italic text-brand-primary">Knowledge Cluster</span>
+            </h3>
+            <p className="text-secondary text-sm">
+              Explore specialized protocols and actionable guides in the Transfer Legacy succession cluster:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Link to="/what-happens-to-crypto-when-you-die" className="p-6 rounded-2xl bg-surface/30 border border-base/60 hover:border-brand-primary/50 transition-all group">
+                <h4 className="font-bold text-primary group-hover:text-brand-primary transition-colors mb-2">What Happens to Crypto When You Die? &rarr;</h4>
+                <p className="text-xs text-secondary leading-relaxed">The brutal reality of unrecoverable private keys and how to avoid the $140B void.</p>
+              </Link>
+              <Link to="/seed-phrase-inheritance" className="p-6 rounded-2xl bg-surface/30 border border-base/60 hover:border-brand-primary/50 transition-all group">
+                <h4 className="font-bold text-primary group-hover:text-brand-primary transition-colors mb-2">Seed Phrase Inheritance Protocols &rarr;</h4>
+                <p className="text-xs text-secondary leading-relaxed">Pass 12 and 24-word recovery phrases safely using Shamir's Secret Sharing.</p>
+              </Link>
+              <Link to="/how-to-pass-bitcoin-to-family" className="p-6 rounded-2xl bg-surface/30 border border-base/60 hover:border-brand-primary/50 transition-all group">
+                <h4 className="font-bold text-primary group-hover:text-brand-primary transition-colors mb-2">How to Pass Bitcoin to Your Family &rarr;</h4>
+                <p className="text-xs text-secondary leading-relaxed">A zero-technical-jargon guide for non-crypto native spouses and heirs.</p>
+              </Link>
+              <Link to="/transfer-crypto-wallet-to-family" className="p-6 rounded-2xl bg-surface/30 border border-base/60 hover:border-brand-primary/50 transition-all group">
+                <h4 className="font-bold text-primary group-hover:text-brand-primary transition-colors mb-2">Crypto Wallet Handover Playbook &rarr;</h4>
+                <p className="text-xs text-secondary leading-relaxed">Hardware and self-custody wallet succession procedures for Ledger, Trezor, and MetaMask.</p>
+              </Link>
             </div>
           </section>
 

@@ -6,6 +6,32 @@ import { Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 
 const PassBitcoinToFamily = () => {
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Pass Bitcoin to Family",
+        "item": "https://transferlegacy.com/how-to-pass-bitcoin-to-family"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -15,6 +41,7 @@ const PassBitcoinToFamily = () => {
         title="How to Pass Bitcoin to Family: The Sovereign Succession Guide"
         description="Ensure your Bitcoin is securely passed to your heirs. Learn about cold storage inheritance, multisig setups, and Transfer Legacy's automated vaults."
         canonical="https://transferlegacy.com/how-to-pass-bitcoin-to-family"
+        schema={breadcrumbSchema}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
