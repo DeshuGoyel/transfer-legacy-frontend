@@ -68,6 +68,7 @@ export default function Onboarding() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [consentAgreed, setConsentAgreed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showOtpEntry, setShowOtpEntry] = useState(false);
   const [otpCode, setOtpCode] = useState('');
@@ -98,6 +99,18 @@ export default function Onboarding() {
     if (step === 1) {
       if (!fullName.trim() || !email.trim() || !password) {
         toast.error('All account fields are required');
+        return;
+      }
+
+      if (password.length < 12) {
+        toast.error('Master password must be at least 12 characters');
+        setError('For zero-knowledge security, your master password must be at least 12 characters.');
+        return;
+      }
+
+      if (!consentAgreed) {
+        toast.error('Please accept the Terms of Service and Privacy Protocol');
+        setError('You must accept the Terms of Service and acknowledge the Privacy Protocol to continue.');
         return;
       }
 
@@ -174,6 +187,8 @@ export default function Onboarding() {
           argon2_params: finishData.argon2Params,
           enc_legal_name: finishData.encLegalName,
           enc_email: finishData.encEmail,
+          terms_version: 'v1.4',
+          privacy_version: 'v2.1',
         });
 
         // 3. Perform Automatic OPAQUE Login immediately
@@ -440,7 +455,7 @@ export default function Onboarding() {
                     variant="primary"
                     size="lg"
                     onClick={nextStep}
-                    disabled={isSendingOtp}
+                    disabled={isSendingOtp || !consentAgreed || password.length < 12}
                     fullWidth
                     className="h-14 text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-brand-primary/20"
                   >

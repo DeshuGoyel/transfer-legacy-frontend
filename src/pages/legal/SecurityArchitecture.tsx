@@ -116,7 +116,7 @@ export default function SecurityArchitecture() {
            <h3 className="text-2xl font-display font-bold mb-10">Institutional Certifications</h3>
            <div className="flex flex-wrap justify-center gap-12 opacity-60">
               {/* Simplified logos/labels for compliance */}
-              {["SOC2 TYPE II", "GDPR READY", "ISO 27001", "HIPAA COMPLIANT", "FINRA COMPLIANT"].map((badge, i) => (
+              {["SOC2 TYPE II READY", "GDPR COMPLIANT", "ISO 27001 ALIGNED", "NIST SP 800-63B", "FINRA ALIGNED"].map((badge, i) => (
                 <div key={i} className="text-[10px] font-bold uppercase tracking-[0.3em] text-obsidian-700">
                    {badge}
                 </div>
