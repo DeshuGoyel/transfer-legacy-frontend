@@ -50,6 +50,8 @@ const Reports = lazy(() => import('./Reports'));
 const ResourceGuides = lazy(() => import('./resources/ResourceGuides'));
 const FAQPage = lazy(() => import('./resources/FAQPage'));
 const BlogPage = lazy(() => import('./resources/BlogPage'));
+const BlogIndex = lazy(() => import('./blog/BlogIndex'));
+const BlogPost = lazy(() => import('./blog/BlogPost'));
 const Whitepaper = lazy(() => import('./resources/Whitepaper'));
 
 // Tool Pages
@@ -79,6 +81,10 @@ const PasswordInheritance = lazy(() => import('./seo/PasswordInheritance'));
 const CompareDGLegacy = lazy(() => import('./seo/CompareDGLegacy'));
 const CompareInheriti = lazy(() => import('./seo/CompareInheriti'));
 const CompareTraditionalWills = lazy(() => import('./seo/CompareTraditionalWills'));
+const CompareCasa = lazy(() => import('./seo/CompareCasa'));
+const CompareUnchained = lazy(() => import('./seo/CompareUnchained'));
+const Compare1Password = lazy(() => import('./seo/Compare1Password'));
+const BestCryptoInheritance = lazy(() => import('./seo/BestCryptoInheritance'));
 const WhitepaperSEO = lazy(() => import('./seo/Whitepaper'));
 const LegalTemplates = lazy(() => import('./seo/LegalTemplates'));
 
@@ -174,7 +180,10 @@ function AppLayout() {
             
             <Route path="/resources/guides"                 element={<ResourceGuides />} />
             <Route path="/resources/faq"                    element={<FAQPage />} />
-            <Route path="/resources/blog"                   element={<BlogPage />} />
+            <Route path="/resources/blog"                   element={<BlogIndex />} />
+            <Route path="/resources/blog/:slug"             element={<BlogPost />} />
+            <Route path="/blog"                             element={<BlogIndex />} />
+            <Route path="/blog/:slug"                       element={<BlogPost />} />
             <Route path="/resources/whitepaper"             element={<Whitepaper />} />
             <Route path="/whitepaper"                       element={<WhitepaperSEO />} />
             <Route path="/legal-templates"                  element={<LegalTemplates />} />
@@ -205,6 +214,10 @@ function AppLayout() {
             <Route path="/transfer-legacy-vs-dglegacy"              element={<CompareDGLegacy />} />
             <Route path="/transfer-legacy-vs-inheriti"              element={<CompareInheriti />} />
             <Route path="/transfer-legacy-vs-traditional-wills"     element={<CompareTraditionalWills />} />
+            <Route path="/transfer-legacy-vs-casa"                  element={<CompareCasa />} />
+            <Route path="/transfer-legacy-vs-unchained"             element={<CompareUnchained />} />
+            <Route path="/transfer-legacy-vs-1password"             element={<Compare1Password />} />
+            <Route path="/best-crypto-inheritance-services"         element={<BestCryptoInheritance />} />
 
             {/* Regional Compliance & Law Routes */}
             <Route path="/crypto-inheritance-india"                 element={<CryptoInheritanceIndia />} />

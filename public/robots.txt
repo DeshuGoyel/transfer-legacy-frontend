@@ -1,6 +1,8 @@
 # Default Search Engines & AI Search Crawlers
 User-agent: *
 Allow: /
+Allow: /blog
+Allow: /blog/
 Allow: /resources
 Allow: /resources/
 Allow: /crypto-*
@@ -10,9 +12,12 @@ Allow: /tools/
 Allow: /legal/
 Allow: /whitepaper
 Allow: /legal-templates
+Allow: /transfer-legacy-vs-*
+Allow: /best-crypto-inheritance-services
 Allow: /contact
 Allow: /contact-us
 Allow: /llms.txt
+Allow: /llms-full.txt
 
 # Disallow Private Authenticated Application Routes
 Disallow: /dashboard
