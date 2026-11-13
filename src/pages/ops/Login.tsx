@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import { Shield, AlertCircle, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useOpsStore } from '../../store/useOpsStore';
 import { opsApi, ApiError } from '../../lib/opsApi';
 import Input from '../../components/ui/Input';
@@ -13,6 +13,7 @@ export default function OpsLogin() {
   useBodyClass('allow-cursor');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -92,15 +93,26 @@ export default function OpsLogin() {
               className="bg-slate-950/50 border-slate-800 text-white"
             />
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="bg-slate-950/50 border-slate-800 text-white"
-            />
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="bg-slate-950/50 border-slate-800 text-white pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-3.5 bottom-3 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
 
             <AnimatePresence>
               {error && (

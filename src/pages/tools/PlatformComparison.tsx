@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Shield, Zap, Globe, ArrowRight } from 'lucide-react';
@@ -23,6 +24,12 @@ export default function PlatformComparison() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Transfer Legacy vs Traditional Estate Solutions | Platform Comparison"
+        description="Compare Transfer Legacy against traditional wills, banks, and legacy password managers across zero-knowledge security and automated recovery."
+        canonicalUrl="https://transferlegacy.com/tools/compare"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-6 mb-24">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-2 mb-4">
@@ -82,7 +89,7 @@ export default function PlatformComparison() {
         <div className="mt-32 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
            <motion.div {...fadeUp(0.5)} className="space-y-8">
               <h2 className="text-4xl font-display font-bold">The Transfer Legacy <span className="text-brand-primary italic">Advantage</span></h2>
-              <p className="text-muted font-medium leading-relaxed">We didn't just build a better vault—we built a new cryptographic standard for generational wealth. Our protocol is the only solution that combines institutional compliance with absolute self-sovereignty.</p>
+              <p className="text-muted font-medium leading-relaxed">We didn't just build a better vault - we built a new cryptographic standard for generational wealth. Our protocol is the only solution that combines institutional compliance with absolute self-sovereignty.</p>
               <Button variant="primary" className="h-14 px-12 text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-brand-primary/20">
                  Switch to Protocol <ArrowRight size={16} className="ml-2" />
               </Button>

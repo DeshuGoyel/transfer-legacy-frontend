@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
 import { ArrowRight, Shield, BookOpen, AlertTriangle, Skull, Zap } from 'lucide-react';
@@ -8,6 +9,32 @@ import { useStore } from '../../store/useStore';
 const WhatHappensToCrypto = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useStore();
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "What Happens to Crypto",
+        "item": "https://transferlegacy.com/what-happens-to-crypto-when-you-die"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -17,6 +44,7 @@ const WhatHappensToCrypto = () => {
         title="What Happens to Your Crypto When You Die? (The Brutal Truth)"
         description="The reality of cryptocurrency inheritance. Learn why Bitcoin is lost forever without a protocol and how to prevent your family from being locked out."
         canonicalUrl="https://transferlegacy.com/what-happens-to-crypto-when-you-die"
+        schema={[breadcrumbSchema, authorPersonSchema]}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -53,7 +81,7 @@ const WhatHappensToCrypto = () => {
             </h2>
             <div className="prose prose-invert max-w-none text-secondary">
               <p className="text-lg leading-relaxed mb-6">
-                In technical terms, crypto without keys is <span className="text-primary font-bold">Burned</span>. It remains visible on the blockchain, but no one—not even the best hackers or government agencies—can move it. This is the brutal reality of decentralization.
+                In technical terms, crypto without keys is <span className="text-primary font-bold">Burned</span>. It remains visible on the blockchain, but no one - not even the best hackers or government agencies - can move it. This is the brutal reality of decentralization.
               </p>
               <p className="text-lg leading-relaxed">
                 If you have $100,000 in Bitcoin and you die without a protocol, you have effectively made a <span className="italic text-brand-primary font-bold">Donation to the Network</span>, increasing the value of everyone else's Bitcoin while leaving your family with nothing.
@@ -84,6 +112,8 @@ const WhatHappensToCrypto = () => {
               </Button>
             </div>
           </div>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <h3 className="text-3xl md:text-5xl font-display font-bold mb-6 tracking-tight leading-none">

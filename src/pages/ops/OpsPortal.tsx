@@ -3,7 +3,6 @@ import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-r
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
-  Shield, 
   ChevronRight,
   LogOut,
   ScrollText, 
@@ -15,14 +14,21 @@ import {
   Palette,
   Phone,
   Menu,
-  ClipboardList
+  ClipboardList,
+  CreditCard,
+  Tag,
+  Shield
 } from 'lucide-react';
 import { useOpsStore } from '../../store/useOpsStore';
 import { cn } from '../../utils/cn';
 import { useBodyClass } from '../../hooks/useBodyClass';
+import { LogoMark } from '../../components/ui/Logo';
 
 // Modules
 import OpsDashboard from './modules/Dashboard';
+import UserManagement from './modules/UserManagement';
+import PlanManagement from './modules/PlanManagement';
+import CouponManagement from './modules/CouponManagement';
 import WaitlistManager from './modules/Waitlist';
 import SystemSettings from './modules/SystemSettings';
 import AdminMgmt from './modules/AdminMgmt';
@@ -37,14 +43,22 @@ const NAV_GROUPS = [
     name: 'Main',
     items: [
       { name: 'Overview', path: '/ops/dashboard', icon: LayoutDashboard },
-      { name: 'Waitlist', path: '/ops/waitlist', icon: Users },
+      { name: 'Users', path: '/ops/users', icon: Users },
+      { name: 'Waitlist', path: '/ops/waitlist', icon: ClipboardList },
     ]
   },
   {
-    name: 'Staff',
+    name: 'Monetization',
+    items: [
+      { name: 'Plans', path: '/ops/plans', icon: CreditCard },
+      { name: 'Coupons', path: '/ops/coupons', icon: Tag },
+    ]
+  },
+  {
+    name: 'Staff & Security',
     items: [
       { name: 'Administrators', path: '/ops/admins', icon: ShieldCheck },
-      { name: 'Claim Reviews', path: '/ops/reviews', icon: ClipboardList },
+      { name: 'Claim Reviews', path: '/ops/reviews', icon: Shield },
     ]
   },
   {
@@ -81,8 +95,8 @@ export default function OpsPortal() {
 
   if (!isHydrated) {
     return (
-      <div className="min-h-screen bg-[#020409] flex items-center justify-center">
-        <div className="w-12 h-12 border-2 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#08090C] flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -97,16 +111,16 @@ export default function OpsPortal() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020409] text-slate-200 flex flex-col md:flex-row overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#08090C] text-[#E9E6DF] flex flex-col md:flex-row overflow-hidden font-sans">
       {/* Mobile Header */}
-      <div className="md:hidden h-16 bg-[#0B0E14] border-b border-slate-800 flex items-center justify-between px-6 z-[60]">
+      <div className="md:hidden h-16 bg-[#0E1015] border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between px-6 z-[60]">
         <div className="flex items-center gap-3">
-          <Shield className="w-6 h-6 text-indigo-500" />
-          <span className="font-bold text-white">Ops Center</span>
+          <LogoMark size={24} />
+          <span className="font-display font-bold text-white tracking-tight">Ops Center</span>
         </div>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-slate-400 hover:text-white"
+          className="p-2 text-[#9B97A3] hover:text-white"
         >
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -120,7 +134,7 @@ export default function OpsPortal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[40] md:hidden"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[40] md:hidden"
           />
         )}
       </AnimatePresence>
@@ -134,7 +148,7 @@ export default function OpsPortal() {
             exit={{ x: -300 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className={cn(
-              "fixed inset-y-0 left-0 z-50 bg-[#0B0E14] border-r border-slate-800",
+              "fixed inset-y-0 left-0 z-50 bg-[#0E1015] border-r border-[rgba(255,255,255,0.08)]",
               "md:sticky md:top-0 md:translate-x-0",
               isSidebarOpen ? "w-64" : "w-20",
               !isMobileMenuOpen && "hidden md:block"
@@ -142,21 +156,26 @@ export default function OpsPortal() {
           >
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="h-16 flex items-center px-6 border-b border-slate-800/50">
-                <Shield className="w-8 h-8 text-indigo-500 mr-3 flex-shrink-0" />
+              <div className="h-16 flex items-center px-6 border-b border-[rgba(255,255,255,0.08)]">
+                <LogoMark size={26} className="mr-3 flex-shrink-0" />
                 {isSidebarOpen && (
-                  <span className="font-bold text-lg tracking-tight text-white truncate">
-                    Ops Center
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-display font-bold text-base tracking-tight text-white truncate">
+                      Transfer Legacy
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-brand-primary/20 text-brand-primary border border-brand-primary/30">
+                      OPS
+                    </span>
+                  </div>
                 )}
               </div>
 
               {/* Navigation */}
-              <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
+              <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-7 custom-scrollbar">
                 {NAV_GROUPS.map((group) => (
-                  <div key={group.name} className="space-y-2">
+                  <div key={group.name} className="space-y-1.5">
                     {isSidebarOpen && (
-                      <h3 className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">
+                      <h3 className="px-4 text-[10px] font-bold text-[#6B6675] uppercase tracking-[0.2em] mb-2 font-mono">
                         {group.name}
                       </h3>
                     )}
@@ -170,20 +189,20 @@ export default function OpsPortal() {
                             key={item.path}
                             to={item.path}
                             className={cn(
-                              "flex items-center px-4 py-3 rounded-xl transition-all duration-200 group relative",
+                              "flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group relative text-xs",
                               isActive 
-                                ? "bg-indigo-500/10 text-indigo-400 font-medium shadow-[inset_0_0_20px_rgba(99,102,241,0.05)]" 
-                                : "text-slate-400 hover:bg-slate-800/30 hover:text-white"
+                                ? "bg-brand-primary/10 text-brand-primary font-bold shadow-[inset_0_0_15px_rgba(244,63,94,0.08)]" 
+                                : "text-[#9B97A3] hover:bg-white/[0.03] hover:text-white"
                             )}
                           >
-                            <Icon className={cn("w-5 h-5 flex-shrink-0 transition-transform duration-300", isActive ? "text-indigo-400 scale-110" : "group-hover:text-indigo-400 group-hover:scale-110")} />
+                            <Icon className={cn("w-4 h-4 flex-shrink-0 transition-transform duration-200", isActive ? "text-brand-primary scale-110" : "group-hover:text-brand-primary group-hover:scale-110")} />
                             {isSidebarOpen && (
-                              <span className="ml-3 truncate text-sm">{item.name}</span>
+                              <span className="ml-3 truncate font-medium">{item.name}</span>
                             )}
                             {isActive && (
                               <motion.div 
-                                layoutId="active-pill"
-                                className="absolute left-0 w-1 h-6 bg-indigo-500 rounded-r-full"
+                                layoutId="active-ops-pill"
+                                className="absolute left-0 w-1 h-5 bg-brand-primary rounded-r-full"
                               />
                             )}
                           </Link>
@@ -195,15 +214,15 @@ export default function OpsPortal() {
               </nav>
 
               {/* User Section */}
-              <div className="p-4 border-t border-slate-800/50 bg-slate-900/20">
+              <div className="p-4 border-t border-[rgba(255,255,255,0.08)] bg-[#08090C]/60">
                 <div className={cn("flex items-center", isSidebarOpen ? "space-x-3" : "justify-center")}>
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
+                  <div className="w-9 h-9 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary font-bold text-xs">
                     {admin?.email.charAt(0).toUpperCase()}
                   </div>
                   {isSidebarOpen && (
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{admin?.email}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-indigo-500 font-bold">
+                      <p className="text-xs font-bold text-white truncate">{admin?.email}</p>
+                      <p className="text-[10px] uppercase tracking-widest text-brand-primary font-bold font-mono">
                         {admin?.role_name}
                       </p>
                     </div>
@@ -212,12 +231,12 @@ export default function OpsPortal() {
                 <button 
                   onClick={handleLogout}
                   className={cn(
-                    "mt-4 flex items-center w-full py-2 text-slate-500 hover:text-red-400 transition-colors",
-                    isSidebarOpen ? "space-x-2 px-4" : "justify-center"
+                    "mt-3 flex items-center w-full py-1.5 text-[#9B97A3] hover:text-rose-400 transition-colors text-xs font-semibold",
+                    isSidebarOpen ? "space-x-2 px-3" : "justify-center"
                   )}
                 >
                   <LogOut className="w-4 h-4" />
-                  {isSidebarOpen && <span className="text-xs font-semibold">Sign Out</span>}
+                  {isSidebarOpen && <span>Sign Out</span>}
                 </button>
               </div>
             </div>
@@ -225,7 +244,7 @@ export default function OpsPortal() {
             {/* Toggle Button */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white border border-slate-800 shadow-xl hover:bg-indigo-500 transition-colors hidden md:flex"
+              className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-[#0E1015] border border-[rgba(255,255,255,0.15)] flex items-center justify-center text-white shadow-xl hover:border-brand-primary transition-colors hidden md:flex"
             >
               {isSidebarOpen ? <X className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
             </button>
@@ -236,13 +255,16 @@ export default function OpsPortal() {
       {/* Main Content */}
       <main 
         className={cn(
-          "flex-1 transition-all duration-300 overflow-y-auto bg-[#020409] h-[calc(100vh-4rem)] md:h-screen",
+          "flex-1 transition-all duration-300 overflow-y-auto bg-[#08090C] h-[calc(100vh-4rem)] md:h-screen",
         )}
       >
         <div className="p-8 max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="dashboard" element={<OpsDashboard />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="plans" element={<PlanManagement />} />
+              <Route path="coupons" element={<CouponManagement />} />
               <Route path="waitlist" element={<WaitlistManager />} />
               <Route path="admins" element={<AdminMgmt />} />
               <Route path="settings" element={<SystemSettings />} />

@@ -5,6 +5,11 @@ import { ArrowRight, Shield, Globe2, BookOpen, AlertTriangle, FileCheck, Landmar
 import Button from '../../../components/ui/Button';
 
 const DigitalWillIndia = () => {
+  const digitalWillHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/digital-will-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/digital-asset-inheritance-usa' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/digital-will' },
+  ];
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -14,7 +19,7 @@ const DigitalWillIndia = () => {
         "name": "What is a Digital Will in India?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A Digital Will in India is a legal document that specifically outlines how your digital assets—such as social media accounts, emails, and cryptocurrency—should be handled after death, according to the Indian Succession Act."
+          "text": "A Digital Will in India is a legal document that specifically outlines how your digital assets - such as social media accounts, emails, and cryptocurrency - should be handled after death, according to the Indian Succession Act."
         }
       }
     ]
@@ -26,10 +31,11 @@ const DigitalWillIndia = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="Digital Will India: Legal Guide for Crypto & Accounts (2024)"
+        title="Digital Will India: Legal Guide for Crypto & Accounts (2026)"
         description="Learn how to create a legally binding Digital Will in India. Protect your crypto, social media, and online banking under the Indian Succession Act."
         canonical="https://transferlegacy.com/digital-will-india"
         schema={faqSchema}
+        hreflangs={digitalWillHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

@@ -5,6 +5,32 @@ import { ArrowRight, Shield, Globe2, CheckCircle2, Lock, Zap } from 'lucide-reac
 import Button from '../../components/ui/Button';
 
 const PrivateKeyInheritance = () => {
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Private Key Inheritance",
+        "item": "https://transferlegacy.com/private-key-inheritance"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -14,6 +40,7 @@ const PrivateKeyInheritance = () => {
         title="Private Key Inheritance: Secure Digital Asset Succession Protocols"
         description="Learn the technical and legal protocols for private key inheritance. Secure your Ethereum, Solana, and ERC-20 assets for the next generation."
         canonical="https://transferlegacy.com/private-key-inheritance"
+        schema={breadcrumbSchema}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

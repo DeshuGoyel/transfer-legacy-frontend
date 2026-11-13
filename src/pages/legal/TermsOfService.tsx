@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Scale, FileText, ShieldAlert, Globe, Clock, CheckCircle2 } from 'lucide-react';
@@ -36,6 +37,12 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Terms of Service | Transfer Legacy Protocol"
+        description="Review the terms governing the use of Transfer Legacy sovereign digital inheritance vault and smart succession services."
+        canonicalUrl="https://transferlegacy.com/legal/terms"
+      />
+
       <div className="max-w-4xl mx-auto px-6">
         
         {/* Header Section */}

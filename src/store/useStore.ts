@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { mockActivity, mockNotifications } from '../data/mockData';
-import { api } from '../lib/api';
+import { mockActivity } from '../data/mockData';
+import { api, notificationApi } from '../lib/api';
 import { DerivedUserKeys } from '../lib/opaqueClient';
 
 export interface Asset {
@@ -75,9 +75,14 @@ export interface Activity {
 
 export interface Notification {
   id: string;
+  title?: string;
   message?: string;
   icon?: string;
   read: boolean;
+  action_url?: string | null;
+  notification_type?: string;
+  created_at?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface Charity {
@@ -118,6 +123,14 @@ interface User {
   jurisdiction?: string;
 }
 
+export interface ShareGrant {
+  share_id: string;
+  grantee_id: string;
+  item_id?: string;
+  owner_id?: string;
+  [key: string]: unknown;
+}
+
 interface AppState {
   user: User;
   assets: Asset[];
@@ -134,9 +147,9 @@ interface AppState {
   isMobileSidebarOpen: boolean;
   
   fetchAssets: () => Promise<void>;
-  addAsset: (asset: Omit<Asset, 'id'>) => void | Promise<void>;
-  updateAsset: (id: string, data: Partial<Asset>) => void | Promise<void>;
-  deleteAsset: (id: string) => void | Promise<void>;
+  addAsset: (asset: Omit<Asset, 'id'>) => Promise<void>;
+  updateAsset: (id: string, data: Partial<Asset>) => Promise<void>;
+  deleteAsset: (id: string) => Promise<void>;
   addGuardian: (guardian: Omit<Guardian, 'id' | 'status'>) => void;
   confirmGuardian: (id: string) => void;
   removeGuardian: (id: string) => void;
@@ -144,9 +157,12 @@ interface AppState {
   updateHeirStatus: (id: string, status: string) => void;
   updateScore: (score: number) => void;
   toggleTheme: () => void;
+  fetchNotifications: () => Promise<void>;
   toggleNotifications: () => void;
-  markNotificationAsRead: (id: string) => void;
-  performCheckIn: (method: string) => void | Promise<void>;
+  markNotificationAsRead: (id: string) => Promise<void> | void;
+  markAllNotificationsAsRead: () => Promise<void> | void;
+  deleteNotification: (id: string) => Promise<void> | void;
+  performCheckIn: (method: string) => Promise<void>;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
   addAllocation: (allocation: Omit<Allocation, 'id'>) => void;
@@ -166,25 +182,34 @@ interface AppState {
   publishPolicy: (totpCode: string) => Promise<void>;
   recoveredAssets: Asset[];
   initiateClaim: (policyId: string) => Promise<string>;
-  fetchRecoveredEnvelopes: (claimId: string) => Promise<any[]>;
+  fetchRecoveredEnvelopes: (claimId: string) => Promise<Record<string, unknown>[]>;
   recoverOwnerVault: (ownerUserId: string, shares: { x: number; y: string }[]) => Promise<void>;
+  architectureMode: 'direct' | 'quorum';
+  setArchitectureMode: (mode: 'direct' | 'quorum') => void;
   branding: { waitlist_enabled: boolean };
   setBranding: (branding: { waitlist_enabled: boolean }) => void;
   logActivity: (message: string, icon?: string) => void;
-  shares: any[];
+  shares: ShareGrant[];
   fetchShares: () => Promise<void>;
   revokeShare: (shareId: string) => Promise<void>;
+  setAvatar: (avatar: string | null) => void;
 }
 
-const calculateNewScore = (state: Pick<AppState, 'guardians' | 'assets' | 'heirs'>) => {
+const calculateNewScore = (state: Pick<AppState, 'guardians' | 'assets' | 'heirs'> & { architectureMode?: 'direct' | 'quorum' }) => {
   let score = 0;
   
-  // 1. Guardians (40%) - Institutional Threshold is 2 confirmed guardians
+  // 1. Guardians (40%) - Institutional Threshold is 2 confirmed guardians (or 1 in Direct Succession mode)
   const confirmedGuardians = state.guardians.filter((g: Guardian) => g.status === 'Confirmed').length;
-  if (confirmedGuardians >= 2) {
-    score += 40;
+  if (state.architectureMode === 'direct') {
+    if (confirmedGuardians >= 1) {
+      score += 40;
+    }
   } else {
-    score += confirmedGuardians * 20;
+    if (confirmedGuardians >= 2) {
+      score += 40;
+    } else {
+      score += confirmedGuardians * 20;
+    }
   }
 
   // 2. Assets Coverage (40%) - Requires instructions and assigned beneficiaries
@@ -270,21 +295,36 @@ async function decryptItem(item: RawItem, masterKey: Uint8Array | null): Promise
   return baseAsset;
 }
 const getInitialState = () => {
-  const isAuth = !!localStorage.getItem('tl_session_token');
+  let architectureMode: 'direct' | 'quorum' = 'quorum';
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const savedMode = localStorage.getItem('tl_architecture_mode');
+      if (savedMode === 'direct' || savedMode === 'quorum') {
+        architectureMode = savedMode;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse tl_architecture_mode from localStorage', e);
+  }
+
+  const isAuth = typeof localStorage !== 'undefined' ? !!localStorage.getItem('tl_session_token') : false;
   if (!isAuth) {
     return {
       assets: [] as Asset[],
       guardians: [] as Guardian[],
       heirs: [] as Heir[],
+      architectureMode,
       activity: [] as Activity[],
     };
   }
 
   let guardians: Guardian[] = [];
   try {
-    const savedGuardians = localStorage.getItem('tl_guardians');
-    if (savedGuardians) {
-      guardians = JSON.parse(savedGuardians);
+    if (typeof localStorage !== 'undefined') {
+      const savedGuardians = localStorage.getItem('tl_guardians');
+      if (savedGuardians) {
+        guardians = JSON.parse(savedGuardians);
+      }
     }
   } catch (e) {
     console.error('Failed to parse tl_guardians from localStorage', e);
@@ -292,9 +332,11 @@ const getInitialState = () => {
 
   let heirs: Heir[] = [];
   try {
-    const savedHeirs = localStorage.getItem('tl_heirs');
-    if (savedHeirs) {
-      heirs = JSON.parse(savedHeirs);
+    if (typeof localStorage !== 'undefined') {
+      const savedHeirs = localStorage.getItem('tl_heirs');
+      if (savedHeirs) {
+        heirs = JSON.parse(savedHeirs);
+      }
     }
   } catch (e) {
     console.error('Failed to parse tl_heirs from localStorage', e);
@@ -317,19 +359,23 @@ const getInitialState = () => {
     assets: [] as Asset[],
     guardians,
     heirs,
+    architectureMode,
     activity,
   };
 };
 
 const getInitialUser = (state: ReturnType<typeof getInitialState>) => {
-  const name = localStorage.getItem('tl_user_name') || "Secured User";
-  const email = localStorage.getItem('tl_user_email') || "";
+  const name = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_name') || "Secured User") : "Secured User";
+  const email = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_email') || "") : "";
+  const savedPlan = typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null;
+  const savedAvatar = typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_avatar') : null;
+  const plan = savedPlan || "Always Free";
   return {
     name,
     email,
-    avatar: null,
+    avatar: savedAvatar || null,
     score: calculateNewScore(state),
-    plan: "Family",
+    plan,
     nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     checkInHistory: [
       { date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), method: 'App Tap' }
@@ -357,11 +403,21 @@ export const useStore = create<AppState>((set, get) => ({
   isNotificationOpen: false,
   isSidebarCollapsed: false,
   isMobileSidebarOpen: false,
-  isAuthenticated: !!localStorage.getItem('tl_session_token'),
+  isAuthenticated: typeof localStorage !== 'undefined' ? !!localStorage.getItem('tl_session_token') : false,
   masterKey: null,
   setMasterKey: (key) => set({ masterKey: key }),
   userKeys: null,
   setUserKeys: (keys) => set({ userKeys: keys }),
+  setAvatar: (avatar) => {
+    if (typeof localStorage !== 'undefined') {
+      if (avatar) {
+        localStorage.setItem('tl_user_avatar', avatar);
+      } else {
+        localStorage.removeItem('tl_user_avatar');
+      }
+    }
+    set((state) => ({ user: { ...state.user, avatar } }));
+  },
   activePolicyId: null,
   recoveredAssets: [] as Asset[],
   fetchActivePolicy: async () => {
@@ -442,7 +498,7 @@ export const useStore = create<AppState>((set, get) => ({
             targetKyberPub = keysRes.kyber768_pubkey;
             isRegistered = true;
           }
-        } catch (err) {
+        } catch {
           console.warn(`Heir ${heir.email} is not registered yet, generating ephemeral wrapper...`);
         }
 
@@ -465,8 +521,8 @@ export const useStore = create<AppState>((set, get) => ({
         );
 
         // 2. PQ Shared Secret (Kyber-768/ML-KEM-768 mock encaps or real if registered)
-        let kyberCt: any = new Uint8Array();
-        let ssPq: any = new Uint8Array(32);
+        let kyberCt: Uint8Array = new Uint8Array();
+        let ssPq: Uint8Array = new Uint8Array(32);
         try {
           const kyberRes = sodium.crypto_kem_mlkem768_enc_deterministic(
             fromBase64Url(targetKyberPub),
@@ -596,7 +652,7 @@ export const useStore = create<AppState>((set, get) => ({
       const personId = localStorage.getItem('tl_person_id');
       if (!personId) throw new Error("Claimant person ID not found");
 
-      const response = await api.get<{ items: any[] }>(`/inheritance/envelopes?claim_id=${claimId}&claimant_person_id=${personId}`);
+      const response = await api.get<{ items: Record<string, unknown>[] }>(`/inheritance/envelopes?claim_id=${claimId}&claimant_person_id=${personId}`);
       return response.items || [];
     } catch (err) {
       console.error("Failed to fetch envelopes:", err);
@@ -618,7 +674,7 @@ export const useStore = create<AppState>((set, get) => ({
       const reconstructedMk = combineShares(parsedShares);
 
       // 2. Fetch owner's encrypted items
-      const response = await api.post<{ items: any[] }>('/vault/items/list', {
+      const response = await api.post<{ items: RawItem[] }>('/vault/items/list', {
         user_id: ownerUserId
       });
       const encryptedItems = response.items || [];
@@ -694,7 +750,7 @@ export const useStore = create<AppState>((set, get) => ({
           email: "",
           avatar: null,
           score: 0,
-          plan: "Family",
+          plan: (typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null) || "Always Free",
           nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           checkInHistory: []
         }
@@ -731,7 +787,7 @@ export const useStore = create<AppState>((set, get) => ({
           email: "",
           avatar: null,
           score: 0,
-          plan: "Family",
+          plan: (typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_plan') : null) || "Always Free",
           nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           checkInHistory: []
         }
@@ -805,7 +861,7 @@ export const useStore = create<AppState>((set, get) => ({
       });
       get().logActivity(`Asset "${asset.name}" secured in vault`, 'Lock');
     } catch (err) {
-      console.error('Failed to add asset:', err);
+      console.error('Failed to add asset to secure vault:', err);
       if (import.meta.env.DEV) {
         set((state) => {
           const newAsset = {
@@ -821,6 +877,7 @@ export const useStore = create<AppState>((set, get) => ({
         });
         get().logActivity(`Asset "${asset.name}" secured in vault (Local)`, 'Lock');
       }
+      throw err;
     }
   },
   updateAsset: async (id, data) => {
@@ -881,7 +938,7 @@ export const useStore = create<AppState>((set, get) => ({
       });
       get().logActivity(`Asset "${updatedAsset.name}" record updated`, 'FileText');
     } catch (err) {
-      console.error('Failed to update asset:', err);
+      console.error('Failed to update asset in vault:', err);
       if (import.meta.env.DEV) {
         set((state) => {
           const updated = state.assets.map(a => a.id === id ? { ...a, ...data } : a);
@@ -891,6 +948,7 @@ export const useStore = create<AppState>((set, get) => ({
         });
         get().logActivity(`Asset "${data.name || currentAsset.name || 'Unnamed'}" record updated (Local)`, 'FileText');
       }
+      throw err;
     }
   },
   deleteAsset: async (id) => {
@@ -913,7 +971,7 @@ export const useStore = create<AppState>((set, get) => ({
       });
       get().logActivity(`Asset "${assetName}" removed from vault`, 'Trash2');
     } catch (err) {
-      console.error('Failed to delete asset:', err);
+      console.error('Failed to delete asset from vault:', err);
       if (import.meta.env.DEV) {
         set((state) => {
           const assetName = state.assets.find(a => a.id === id)?.name || 'Unnamed';
@@ -924,6 +982,7 @@ export const useStore = create<AppState>((set, get) => ({
           return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
         });
       }
+      throw err;
     }
   },
   addGuardian: (guardian) => set((state) => {
@@ -942,13 +1001,27 @@ export const useStore = create<AppState>((set, get) => ({
     return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
   }),
   removeGuardian: (id) => set((state) => {
-    const gName = state.guardians.find(g => g.id === id)?.name || 'Guardian';
+    const target = state.guardians.find(g => g.id === id);
+    const gName = target?.name || 'Guardian';
+    if (state.architectureMode === 'quorum' && target?.status === 'Confirmed') {
+      const remainingConfirmed = state.guardians.filter(g => g.status === 'Confirmed' && g.id !== id).length;
+      if (remainingConfirmed < 2) {
+        console.warn('Safety Guard: Confirmed guardian count is below institutional quorum threshold (minimum 2 required)');
+      }
+    }
     const updated = state.guardians.filter(g => g.id !== id);
     localStorage.setItem('tl_guardians', JSON.stringify(updated));
     get().logActivity(`Guardian "${gName}" removed from network`, 'Trash2');
     const newState = { ...state, guardians: updated };
     return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
   }),
+  setArchitectureMode: (mode) => {
+    localStorage.setItem('tl_architecture_mode', mode);
+    set((state) => {
+      const newState = { ...state, architectureMode: mode };
+      return { ...newState, user: { ...state.user, score: calculateNewScore(newState) } };
+    });
+  },
   addHeir: (heir) => set((state) => {
     const updated = [...state.heirs, { ...heir, id: Date.now().toString(), status: 'Not Notified', progress: 0 }];
     localStorage.setItem('tl_heirs', JSON.stringify(updated));
@@ -965,10 +1038,75 @@ export const useStore = create<AppState>((set, get) => ({
   }),
   updateScore: (score) => set((state) => ({ user: { ...state.user, score } })),
   toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
-  toggleNotifications: () => set((state) => ({ isNotificationOpen: !state.isNotificationOpen })),
-  markNotificationAsRead: (id) => set((state) => ({
-    notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
-  })),
+  fetchNotifications: async () => {
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (!userId) return;
+      const res = await notificationApi.list(userId);
+      const list = res.notifications || res.data?.notifications || [];
+      set({
+        notifications: list.map((n) => ({
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          icon: n.icon || 'Bell',
+          read: n.read,
+          action_url: n.action_url,
+          notification_type: n.notification_type,
+          created_at: n.created_at,
+          metadata: n.metadata,
+        })),
+      });
+    } catch (err) {
+      console.warn('Failed to fetch notifications from backend:', err);
+    }
+  },
+  toggleNotifications: () => {
+    const nextOpen = !useStore.getState().isNotificationOpen;
+    set({ isNotificationOpen: nextOpen });
+    if (nextOpen) {
+      useStore.getState().fetchNotifications();
+    }
+  },
+  markNotificationAsRead: async (id) => {
+    set((state) => ({
+      notifications: state.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    }));
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (userId) {
+        await notificationApi.markRead(id, userId);
+      }
+    } catch (err) {
+      console.warn('Failed to mark notification as read on backend:', err);
+    }
+  },
+  markAllNotificationsAsRead: async () => {
+    set((state) => ({
+      notifications: state.notifications.map((n) => ({ ...n, read: true })),
+    }));
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (userId) {
+        await notificationApi.markAllRead(userId);
+      }
+    } catch (err) {
+      console.warn('Failed to mark all notifications as read on backend:', err);
+    }
+  },
+  deleteNotification: async (id) => {
+    set((state) => ({
+      notifications: state.notifications.filter((n) => n.id !== id),
+    }));
+    try {
+      const userId = localStorage.getItem('tl_user_id');
+      if (userId) {
+        await notificationApi.delete(id, userId);
+      }
+    } catch (err) {
+      console.warn('Failed to delete notification on backend:', err);
+    }
+  },
   performCheckIn: async (method) => {
     try {
       let policyId = useStore.getState().activePolicyId;
@@ -980,7 +1118,8 @@ export const useStore = create<AppState>((set, get) => ({
 
       const ts = Math.floor(Date.now() / 1000);
       const deviceId = localStorage.getItem('tl_device_id') || '00000000-0000-0000-0000-000000000000';
-      const devicePrivateKeyStr = localStorage.getItem('tl_device_private_key');
+      const { getSecureItem } = await import('../lib/secureKeyStore');
+      const devicePrivateKeyStr = await getSecureItem('tl_device_private_key');
 
       let deviceSigStr = 'device-signature-placeholder';
 
@@ -1041,7 +1180,7 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const userId = localStorage.getItem('tl_user_id');
       if (!userId) return;
-      const res = await api.post<{ shares: any[] }>('/vault/shares/list', { owner_id: userId });
+      const res = await api.post<{ shares: ShareGrant[] }>('/vault/shares/list', { owner_id: userId });
       set({ shares: res.shares || [] });
     } catch (err) {
       console.error('Failed to fetch shares:', err);
@@ -1052,7 +1191,7 @@ export const useStore = create<AppState>((set, get) => ({
       const userId = localStorage.getItem('tl_user_id');
       if (!userId) return;
       await api.post('/vault/shares/revoke', { owner_id: userId, share_id: shareId });
-      const res = await api.post<{ shares: any[] }>('/vault/shares/list', { owner_id: userId });
+      const res = await api.post<{ shares: ShareGrant[] }>('/vault/shares/list', { owner_id: userId });
       set({ shares: res.shares || [] });
     } catch (err) {
       console.error('Failed to revoke share:', err);

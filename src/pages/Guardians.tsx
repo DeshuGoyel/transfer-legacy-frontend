@@ -28,7 +28,7 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function Guardians() {
-  const { guardians, addGuardian, removeGuardian, confirmGuardian } = useStore();
+  const { guardians, addGuardian, removeGuardian, confirmGuardian, architectureMode, setArchitectureMode } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [template, setTemplate] = useState('Formal');
 
@@ -48,8 +48,9 @@ export default function Guardians() {
   };
 
   const onSubmit = (data: unknown) => {
-    addGuardian({ name: data.name, email: data.email });
-    toast.success(`Protocol invitation sent to ${data.name}`);
+    const d = data as { name: string; email: string };
+    addGuardian({ name: d.name, email: d.email });
+    toast.success(`Protocol invitation sent to ${d.name}`);
     setIsModalOpen(false);
     reset();
   };
@@ -74,12 +75,49 @@ export default function Guardians() {
               Guardian <span className="italic text-brand-gold">Network</span>
             </h1>
             <p className="text-muted text-sm font-medium max-w-xl">
-              Distribute cryptographic key fragments across a trusted circle of {confirmed} verified guardians and {pending} pending nodes.
+              {architectureMode === 'direct' 
+                ? `Direct Succession Protocol active. Vault keys will be transferred to your nominated guardian/beneficiary directly.` 
+                : `Distribute cryptographic key fragments across a trusted circle of ${confirmed} verified guardians and ${pending} pending nodes via Shamir's Secret Sharing.`}
             </p>
           </div>
-          <Button onClick={() => setIsModalOpen(true)} variant="primary" className="h-12 px-8 text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-brand-gold/10">
-            <UserPlus size={18} className="mr-2" /> Invite Guardian
-          </Button>
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            {/* Architecture Mode Toggle */}
+            <div className="flex items-center p-1 rounded-2xl bg-surface/60 border border-base shadow-inner">
+              <button
+                type="button"
+                onClick={() => {
+                  setArchitectureMode('quorum');
+                  toast.success('Architecture: M-of-N Consensus Quorum enabled');
+                }}
+                className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  architectureMode === 'quorum'
+                    ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/20'
+                    : 'text-muted hover:text-primary'
+                }`}
+              >
+                M-of-N Quorum
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setArchitectureMode('direct');
+                  toast.success('Architecture: Direct Beneficiary Succession enabled');
+                }}
+                className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  architectureMode === 'direct'
+                    ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
+                    : 'text-muted hover:text-primary'
+                }`}
+              >
+                Direct (Single)
+              </button>
+            </div>
+
+            <Button onClick={() => setIsModalOpen(true)} variant="primary" className="h-12 px-8 text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-brand-gold/10">
+              <UserPlus size={18} className="mr-2" /> Invite Guardian
+            </Button>
+          </div>
         </motion.header>
 
         {/* ── 3D Network Visualization ── */}
@@ -93,7 +131,9 @@ export default function Guardians() {
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Live Trust Graph Synthesis</span>
           </div>
           <div className="absolute bottom-8 right-8 text-right">
-             <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-muted mb-1">Decentralized Recovery Active</p>
+             <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-muted mb-1">
+               {architectureMode === 'direct' ? 'Direct Beneficiary Mode' : 'Decentralized Recovery Active'}
+             </p>
              <div className="flex gap-1 justify-end">
                 {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-4 bg-brand-gold/20 rounded-full" />)}
              </div>
@@ -103,7 +143,22 @@ export default function Guardians() {
         {/* ── Security Status Hub ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <motion.div {...fadeUp(0.2)}>
-            {confirmed < 3 ? (
+            {architectureMode === 'direct' ? (
+              <Card className="bg-brand-primary/5 border border-brand-primary/20 p-8 flex items-start space-x-6 relative overflow-hidden group">
+                <div className="absolute -right-8 -bottom-8 opacity-5 transform group-hover:scale-110 transition-transform duration-700">
+                   <ShieldCheck size={160} className="text-brand-primary" />
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 flex items-center justify-center shrink-0 border border-brand-primary/20 shadow-inner">
+                   <ShieldCheck size={24} className="text-brand-primary" />
+                </div>
+                <div>
+                   <h4 className="text-[11px] font-bold text-brand-primary uppercase tracking-[0.2em] mb-2">Direct Beneficiary Succession</h4>
+                   <p className="text-sm text-secondary font-medium leading-relaxed max-w-sm">
+                     M-of-N threshold is optional and currently bypassed. Single-node transfer will deliver vault access directly upon triggered succession.
+                   </p>
+                </div>
+              </Card>
+            ) : confirmed < 3 ? (
               <Card className="bg-brand-gold/5 border border-brand-gold/20 p-8 flex items-start space-x-6 relative overflow-hidden group">
                 <div className="absolute -right-8 -bottom-8 opacity-5 transform group-hover:scale-110 transition-transform duration-700">
                    <ShieldCheck size={160} className="text-brand-gold" />
@@ -114,7 +169,7 @@ export default function Guardians() {
                 <div>
                    <h4 className="text-[11px] font-bold text-brand-gold uppercase tracking-[0.2em] mb-2">Quorum Threshold Required</h4>
                    <p className="text-sm text-secondary font-medium leading-relaxed max-w-sm">
-                     Institutional recovery via Shamir's Secret Sharing requires a minimum of 3 verified nodes. Secure {3 - confirmed} more guardians to finalize protocol.
+                     Institutional recovery via Shamir's Secret Sharing requires a minimum of 3 verified nodes. Secure {3 - confirmed} more guardians to finalize protocol, or switch to Direct mode above.
                    </p>
                 </div>
               </Card>
@@ -208,7 +263,17 @@ export default function Guardians() {
                         </div>
                       )}
                       <button 
-                        onClick={() => { removeGuardian(g.id); toast.success('Node removed from network'); }}
+                        onClick={() => {
+                          if (architectureMode === 'quorum' && g.status === 'Confirmed') {
+                            const remainingConfirmed = guardians.filter(item => item.status === 'Confirmed' && item.id !== g.id).length;
+                            if (remainingConfirmed < 2) {
+                              toast.error('Cannot remove guardian: at least 2 confirmed guardians are required for quorum recovery. Switch to Direct Mode if desired.');
+                              return;
+                            }
+                          }
+                          removeGuardian(g.id);
+                          toast.success('Node removed from network');
+                        }}
                         className="p-3 text-muted hover:text-red-500 transition bg-page hover:bg-surface/80 rounded-xl border border-base shadow-inner"
                         title="Purge Node"
                       >

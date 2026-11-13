@@ -13,6 +13,7 @@ export interface Checkin {
 export interface CheckinSettings {
   frequency: "weekly" | "biweekly" | "monthly" | string;
   consecutiveMissesAllowed: number;
+  consecutiveMisses: number;
   currentStreak: number;
   totalMissed: number;
   alertGuardiansAfterMisses: number;
@@ -36,6 +37,7 @@ export const useCheckinStore = create<CheckinState>()(
       checkinSettings: {
         frequency: "weekly",
         consecutiveMissesAllowed: 3,
+        consecutiveMisses: 0,
         currentStreak: 0,
         totalMissed: 0,
         alertGuardiansAfterMisses: 2,
@@ -54,15 +56,55 @@ export const useCheckinStore = create<CheckinState>()(
           metadata: {}
         };
         
-        set((state) => ({
-          checkins: [newCheckin, ...state.checkins],
-          checkinSettings: {
-            ...state.checkinSettings,
-            currentStreak: state.checkinSettings.currentStreak + 1,
-            lastCheckinAt: now,
-            status: "active"
+        set((state) => {
+          // Guard: active status cannot be restored once recovery has already been triggered (Release)
+          const isReleaseTriggered = state.checkinSettings.status === 'recovery_triggered';
+          const lastDateStr = state.checkinSettings.lastCheckinAt;
+          
+          let updatedStreak = state.checkinSettings.currentStreak || 0;
+          
+          if (!lastDateStr) {
+            // First checkin ever
+            updatedStreak = Math.max(1, updatedStreak || 1);
+          } else {
+            const lastDate = new Date(lastDateStr);
+            const currentDate = new Date(now);
+            
+            // Check if same calendar day
+            const isSameDay = 
+              lastDate.getFullYear() === currentDate.getFullYear() &&
+              lastDate.getMonth() === currentDate.getMonth() &&
+              lastDate.getDate() === currentDate.getDate();
+
+            if (isSameDay) {
+              // Same day: preserve current streak (ensure at least 1)
+              updatedStreak = Math.max(1, updatedStreak);
+            } else {
+              // Calculate difference in hours
+              const diffMs = currentDate.getTime() - lastDate.getTime();
+              const diffHours = diffMs / (1000 * 60 * 60);
+              
+              // Consecutive day check (allowing up to 48 hours for daily streak grace period)
+              if (diffHours <= 48) {
+                updatedStreak = updatedStreak + 1;
+              } else {
+                // Streak broken due to inactivity
+                updatedStreak = 1;
+              }
+            }
           }
-        }));
+
+          return {
+            checkins: [newCheckin, ...state.checkins],
+            checkinSettings: {
+              ...state.checkinSettings,
+              currentStreak: updatedStreak,
+              consecutiveMisses: 0,
+              lastCheckinAt: now,
+              status: isReleaseTriggered ? 'recovery_triggered' : 'active'
+            }
+          };
+        });
       },
       
       missCheckin: () => {
@@ -78,8 +120,7 @@ export const useCheckinStore = create<CheckinState>()(
         
         set((state) => {
           const missedCount = state.checkinSettings.totalMissed + 1;
-          // Determine status based on misses
-          const consecutive = state.checkinSettings.currentStreak === 0 ? missedCount : 1;
+          const consecutive = (state.checkinSettings.consecutiveMisses || 0) + 1;
           
           let updatedStatus = state.checkinSettings.status;
           if (consecutive >= state.checkinSettings.alertGuardiansAfterMisses) {
@@ -94,6 +135,7 @@ export const useCheckinStore = create<CheckinState>()(
             checkinSettings: {
               ...state.checkinSettings,
               currentStreak: 0,
+              consecutiveMisses: consecutive,
               totalMissed: missedCount,
               status: updatedStatus
             }

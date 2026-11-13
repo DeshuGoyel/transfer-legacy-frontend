@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import React from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
@@ -5,6 +6,36 @@ import { ArrowRight, Shield, BookOpen, AlertTriangle, FileCheck, Landmark, Check
 import Button from '../../components/ui/Button';
 
 const DigitalWillPillar = () => {
+  const digitalWillHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/digital-will-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/digital-asset-inheritance-usa' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/digital-will' },
+  ];
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Digital Will Protocol",
+        "item": "https://transferlegacy.com/digital-will"
+      }
+    ]
+  };
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -29,7 +60,8 @@ const DigitalWillPillar = () => {
         title="The Digital Will Blueprint: Legacy Planning for the 21st Century"
         description="Learn how to build a legally binding and technically secure Digital Will. Protect your crypto, social media, and digital identities with Transfer Legacy."
         canonical="https://transferlegacy.com/digital-will"
-        schema={faqSchema}
+        schema={[breadcrumbSchema, faqSchema, authorPersonSchema]}
+        hreflangs={digitalWillHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -66,7 +98,7 @@ const DigitalWillPillar = () => {
             </h2>
             <div className="prose prose-invert max-w-none text-secondary">
               <p className="text-lg leading-relaxed mb-6">
-                A <span className="text-primary font-bold">Digital Will</span> is not just a document—it's a technical protocol. While a traditional will gives your heirs the <span className="italic">legal right</span> to your property, a Digital Will provides them with the <span className="italic">technical means</span> to access it.
+                A <span className="text-primary font-bold">Digital Will</span> is not just a document - it's a technical protocol. While a traditional will gives your heirs the <span className="italic">legal right</span> to your property, a Digital Will provides them with the <span className="italic">technical means</span> to access it.
               </p>
               <p className="text-lg leading-relaxed">
                 In the US, UK, and India, digital assets are recognized as property, but the "Stored Communications Act" and exchange "Terms of Service" often block executors from accessing accounts even with a death certificate.
@@ -120,6 +152,8 @@ const DigitalWillPillar = () => {
               </div>
             </div>
           </section>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <BookOpen className="w-16 h-16 mx-auto mb-8 opacity-80" />

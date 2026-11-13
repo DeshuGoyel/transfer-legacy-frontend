@@ -51,8 +51,8 @@ export default function AssetDonutChart() {
           )}
           {!isEmpty && (
             <Tooltip 
-              contentStyle={{ backgroundColor: 'rgb(var(--bg-surface))', border: '1px solid rgb(var(--color-border))', borderRadius: '12px' }}
-              itemStyle={{ color: 'rgb(var(--color-text))' }}
+              contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', color: 'var(--color-text-primary)' }}
+              itemStyle={{ color: 'var(--color-text-primary)' }}
             />
           )}
         </PieChart>
@@ -68,7 +68,7 @@ export default function AssetDonutChart() {
 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="text-center">
-          <span className="block text-2xl font-bold text-text">{assets.length}</span>
+          <span className="block text-2xl font-bold text-primary">{assets.length}</span>
           <span className="text-xs text-muted">Total Assets</span>
         </div>
       </div>

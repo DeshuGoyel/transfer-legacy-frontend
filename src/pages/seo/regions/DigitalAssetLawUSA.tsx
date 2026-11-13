@@ -5,6 +5,11 @@ import { ArrowRight, Shield, Globe2, BookOpen, AlertTriangle, FileCheck, Landmar
 import Button from '../../../components/ui/Button';
 
 const DigitalAssetLawUSA = () => {
+  const digitalWillHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/digital-will-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/digital-asset-inheritance-usa' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/digital-will' },
+  ];
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -26,10 +31,11 @@ const DigitalAssetLawUSA = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="US Digital Asset Laws: RUFADAA & Privacy Guide (2024)"
+        title="US Digital Asset Laws: RUFADAA & Privacy Guide (2026)"
         description="Comprehensive guide to US digital asset laws. Learn how RUFADAA and the Stored Communications Act impact your digital estate and crypto inheritance."
         canonical="https://transferlegacy.com/digital-asset-inheritance-usa"
         schema={faqSchema}
+        hreflangs={digitalWillHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

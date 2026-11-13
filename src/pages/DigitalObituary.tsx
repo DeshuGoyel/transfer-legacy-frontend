@@ -191,7 +191,7 @@ export default function DigitalObituary() {
                       <p className="text-[9px] font-bold text-obsidian-600 uppercase tracking-[0.2em] mt-1">Archival Step {step} / 5</p>
                     </div>
                   </div>
-                  <button onClick={() => setIsModalOpen(false)} className="text-obsidian-600 hover:text-obsidian-200 p-2.5 rounded-xl hover:bg-page transition-all"><X size={20}/></button>
+                  <button onClick={() => setIsModalOpen(false)} className="text-muted hover:text-primary p-2.5 rounded-xl hover:bg-page transition-all"><X size={20}/></button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-10 lg:p-12 space-y-10 scrollbar-hide">
@@ -261,7 +261,7 @@ export default function DigitalObituary() {
                       <div className="flex-1 relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary/5 to-transparent blur opacity-0 group-hover:opacity-100 transition duration-500" />
                         <textarea 
-                          className="relative w-full h-full min-h-[350px] bg-page border border-base rounded-[32px] p-8 text-lg text-primary font-medium placeholder-obsidian-800 resize-none focus:outline-none focus:border-brand-primary/40 transition-all leading-relaxed"
+                          className="relative w-full h-full min-h-[350px] bg-page border border-base rounded-[32px] p-8 text-lg text-primary font-medium placeholder:text-muted resize-none focus:outline-none focus:border-brand-primary/40 transition-all leading-relaxed"
                           placeholder="Initialize protocol message here...&#10;&#10;Consider sharing:&#10;• Personal values and final guidance.&#10;• Distribution intent beyond legal dry text.&#10;• Final words of continuity."
                           value={newEntry.content || ''}
                           onChange={(e) => setNewEntry({...newEntry, content: e.target.value})}

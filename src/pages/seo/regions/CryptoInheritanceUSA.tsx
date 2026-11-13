@@ -6,6 +6,13 @@ import { Link } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
 
 const CryptoInheritanceUSA = () => {
+  const cryptoInheritanceHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/crypto-inheritance-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/crypto-inheritance-usa' },
+    { lang: 'en-GB', href: 'https://transferlegacy.com/crypto-inheritance-uk' },
+    { lang: 'en-AE', href: 'https://transferlegacy.com/crypto-inheritance-uae' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/crypto-inheritance' },
+  ];
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -35,10 +42,11 @@ const CryptoInheritanceUSA = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="US Crypto Inheritance Law: RUFADAA & Federal Guide (2024)"
+        title="US Crypto Inheritance Law: RUFADAA & Federal Guide (2026)"
         description="Master US crypto inheritance laws. Learn about RUFADAA, federal estate tax implications, and how to securely pass Bitcoin to heirs using Transfer Legacy."
         canonical="https://transferlegacy.com/crypto-inheritance-usa"
         schema={faqSchema}
+        hreflangs={cryptoInheritanceHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -91,7 +99,7 @@ const CryptoInheritanceUSA = () => {
               <Landmark className="w-10 h-10 text-brand-gold mb-6" />
               <h3 className="text-xl font-display font-bold mb-4 text-primary">IRS Considerations</h3>
               <p className="text-secondary text-sm leading-relaxed mb-6">
-                The IRS treats crypto as property. While federal estate tax exemption is high ($13.61M in 2024), "Cost Basis Step-up" at death is a critical benefit for US heirs that requires verifiable records.
+                The IRS treats crypto as property. While federal estate tax exemption is high ($13.61M in 2026), "Cost Basis Step-up" at death is a critical benefit for US heirs that requires verifiable records.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-center gap-2 text-[11px] font-bold text-muted uppercase tracking-wider">

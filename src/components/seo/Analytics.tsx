@@ -1,5 +1,13 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 /**
  * Analytics Interface
@@ -7,8 +15,8 @@ import { useLocation } from 'react-router-dom';
  */
 export const trackEvent = (eventName: string, properties?: Record<string, unknown>) => {
   const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID;
-  if (typeof window !== 'undefined' && (window as any).gtag && gaId && gaId !== 'G-XXXXXXXXXX') {
-    (window as any).gtag('event', eventName, properties);
+  if (typeof window !== 'undefined' && window.gtag && gaId && gaId !== 'G-XXXXXXXXXX') {
+    window.gtag('event', eventName, properties);
   }
   // Console logging for dev mode parity
   if (import.meta.env.DEV) {
@@ -31,20 +39,20 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
       document.head.appendChild(script);
 
-      (window as any).dataLayer = (window as any).dataLayer || [];
-      (window as any).gtag = function () {
-        (window as any).dataLayer.push(arguments);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function (...args: unknown[]) {
+        window.dataLayer?.push(args);
       };
-      (window as any).gtag('js', new Date());
-      (window as any).gtag('config', gaId, { anonymize_ip: true });
+      window.gtag('js', new Date());
+      window.gtag('config', gaId, { anonymize_ip: true });
     }
   }, [gaId]);
 
   useEffect(() => {
     if (!gaId || gaId === 'G-XXXXXXXXXX') return;
 
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('config', gaId, {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('config', gaId, {
         page_path: location.pathname + location.search,
       });
     }

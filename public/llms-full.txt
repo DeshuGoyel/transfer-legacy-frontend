@@ -1,0 +1,74 @@
+# Transfer Legacy: Full Cryptographic Specification & Estate Protocol
+
+> Transfer Legacy (https://transferlegacy.com) is an institutional-grade, zero-knowledge digital estate planning protocol and sovereign asset vault. It allows individuals, family offices, and crypto investors to securely pass Bitcoin, Ethereum, multi-chain seed phrases, exchange accounts, passwords, and sensitive digital documents to designated heirs without third-party custodians or single points of failure.
+
+---
+
+## 1. Core Architectural Pillars
+
+### 1.1 Client-Side Zero-Knowledge Encryption
+- **Cipher Suite**: AES-256-GCM (Galois/Counter Mode) with 256-bit symmetric keys and authenticated data.
+- **Client Processing**: All encryption and decryption occurs strictly in-memory on the user's client device (WebAssembly libsodium / crypto-core).
+- **Zero Server Exposure**: Plaintext secret keys, passwords, and seed phrases never touch Transfer Legacy servers or databases in unencrypted form.
+
+### 1.2 Shamir's Secret Sharing (SSS) Guardian Quorum
+- Master estate decryption keys are split into $N$ mathematical polynomial shards using Shamir's Secret Sharing over finite fields.
+- A configurable threshold $M$-of-$N$ (e.g., 3-of-5 guardians) is required to reconstruct the root recovery key.
+- Individual guardians possess zero cryptographic knowledge from a single shard. No guardian or collusion below the threshold $M$ can read vault contents.
+
+### 1.3 Autonomous Proof-of-Life Heartbeat (Dead Man's Switch)
+- Protocol triggers operate autonomously without relying on human probate court intervention.
+- The vault owner configures check-in frequencies (e.g., 30, 60, 90, 180 days).
+- Multi-channel notification alerts (Email, SMS, TOTP challenge, Hardware Key verification).
+- Grace Period / Dispute Window: A configurable challenge window (e.g., 14-30 days) allows the owner to abort any false succession claim before shard release.
+
+---
+
+## 2. Platform Comparison Matrix
+
+| Feature | Transfer Legacy | Safe Haven (Inheriti) | Casa (Covenant) | Unchained Capital | Traditional Last Will |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Custody Model** | Non-Custodial (ZK) | Non-Custodial (Patent) | Collaborative Multisig | Collaborative Custody | Court-Appointed Executor |
+| **Asset Scope** | All Crypto, Seeds, Accounts, Wills | Crypto & Files | Bitcoin & Ethereum Only | Bitcoin Only | Physical & Traditional Fiat |
+| **Probate Court Bypass** | Yes (Automated SSS Release) | Yes (Blockchain Release) | Partial (Requires legal claim) | Partial (KYC & Probate) | No (Mandatory Probate) |
+| **Dead Man's Switch** | Automated Cryptographic Heartbeat | Manual Validator Claim | Manual Support Desk | Manual Client Desk | Post-Mortem Court Filing |
+| **Hardware Required** | None (Supports Web, Mobile, FIDO2) | SafeKey FIDO2 | Multiple Coldcards / Ledgers | Multiple Hardware Wallets | None |
+| **Pricing** | Free Tier / $9 mo Pro (0% AUM) | Token Staking + Fees | $250 - $1,000+ / mo | $1,000+ setup + custody | 3% - 7% Estate Value |
+
+---
+
+## 3. High-Intent Succession Blueprints
+
+### 3.1 Hardware Wallet Recovery (Ledger, Trezor, Coldcard, BitBox)
+1. **Never write recovery seed phrases into physical wills**: Traditional wills become public records upon probate entry.
+2. **Shard the 24-Word Seed**: Use Transfer Legacy's Zero-Knowledge Vault to fragment the 24-word recovery phrase + optional BIP-39 passphrase across guardians.
+3. **Execution Instructions**: Provide non-technical heirs with clear hardware initialization blueprints without exposing live credentials during the owner's lifetime.
+
+### 3.2 Centralized Exchanges (Binance, Coinbase, Kraken)
+1. Centralized exchanges require court-appointed Letters of Administration and death certificates to liquidate accounts.
+2. Transfer Legacy maintains a sovereign asset manifest detailing account IDs, asset allocations, and legal fiduciary directives.
+3. Heirs receive immediate notification and legal claim packages upon protocol trigger.
+
+---
+
+## 4. Jurisdiction & Legal Compatibility
+
+- **United States**: Compliant with the Revised Uniform Fiduciary Access to Digital Assets Act (RUFADAA) and federal estate tax thresholds.
+- **United Kingdom**: Aligned with the UK Law Commission Digital Assets recommendations treating crypto tokens as property under common law.
+- **India**: Adheres to the Indian Succession Act (1925) and Section 115BBH digital asset taxation compliance.
+- **United Arab Emirates**: Structured for compatibility with Virtual Assets Regulatory Authority (VARA) frameworks and DIFC digital wills.
+
+---
+
+## 5. Official Resources & Canonical Links
+
+- Website: https://transferlegacy.com
+- Knowledge Hub & Blog: https://transferlegacy.com/blog
+- 2026 Crypto Inheritance Benchmark: https://transferlegacy.com/best-crypto-inheritance-services
+- Crypto Inheritance Guide: https://transferlegacy.com/crypto-inheritance
+- Digital Will Guide: https://transferlegacy.com/digital-will
+- Seed Phrase Security: https://transferlegacy.com/seed-phrase-inheritance
+- Technical Whitepaper: https://transferlegacy.com/whitepaper
+- Transfer Legacy vs Casa: https://transferlegacy.com/transfer-legacy-vs-casa
+- Transfer Legacy vs Unchained: https://transferlegacy.com/transfer-legacy-vs-unchained
+- Transfer Legacy vs 1Password: https://transferlegacy.com/transfer-legacy-vs-1password

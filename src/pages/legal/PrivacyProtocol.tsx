@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, EyeOff, Key, Database, Globe, CheckCircle2, Lock } from 'lucide-react';
@@ -31,6 +32,12 @@ export default function PrivacyProtocol() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Zero-Knowledge Privacy Protocol & Policy | Transfer Legacy"
+        description="Read how Transfer Legacy implements client-side encryption, zero-knowledge proofs, and zero personal data tracking."
+        canonicalUrl="https://transferlegacy.com/legal/privacy"
+      />
+
       <div className="max-w-5xl mx-auto px-6">
         
         {/* Header Section */}

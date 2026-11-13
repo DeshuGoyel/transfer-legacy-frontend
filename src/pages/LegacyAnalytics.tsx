@@ -21,7 +21,7 @@ export default function LegacyAnalytics() {
 
   // ── Data Preparation ──────────────────────────────────────────
 
-  // Asset Distribution — with guaranteed fallback
+  // Asset Distribution - with fallback data
   const assetDataRaw = assets.reduce((acc, a) => {
     const type = a.type || 'Other';
     acc[type] = (acc[type] || 0) + (a.value || 1000);
@@ -38,7 +38,7 @@ export default function LegacyAnalytics() {
         { name: 'Other',       value: 90000  },
       ];
 
-  // Heir Allocation — with guaranteed fallback
+  // Heir Allocation - with fallback data
   const heirData = heirs.length > 0
     ? heirs.map(h => ({
         name: h.name,
@@ -52,7 +52,7 @@ export default function LegacyAnalytics() {
         { name: 'Foundation DAO', allocated: 10, verified: 100 },
       ];
 
-  // Succession Confidence Radar — safe divide-by-zero guards
+  // Succession Confidence Radar - safe divide-by-zero guards
   const assetScore  = Math.min((assets.length    / 8)   * 100, 100) || 82;
   const heirScore   = heirs.length > 0
     ? (heirs.filter(h => h.status === 'Verified').length / heirs.length) * 100
@@ -172,7 +172,7 @@ export default function LegacyAnalytics() {
               <div style={{ width: '100%', height: 320 }}>
                 <ResponsiveContainer width="100%" height={320} minWidth={0}>
                   <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                    <PolarGrid stroke="var(--color-border-strong)" />
+                    <PolarGrid stroke="var(--color-border)" />
                     <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 'bold' }} />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                     <Radar
@@ -196,13 +196,12 @@ export default function LegacyAnalytics() {
               <div style={{ width: '100%', height: 320 }}>
                 <ResponsiveContainer width="100%" height={320} minWidth={0}>
                   <BarChart data={heirData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-divider)" horizontal={false} />
                     <XAxis type="number" hide />
                     <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-primary)', fontSize: 12, fontWeight: 'bold' }} width={120} />
                     <Tooltip
-                      cursor={{ fill: 'var(--color-border)' }}
-                      contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '12px' }}
-                      labelStyle={{ color: 'var(--color-text-primary)' }}
+                      cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                      contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', color: 'var(--color-text-primary)' }}
                       itemStyle={{ color: 'var(--color-text-primary)' }}
                     />
                     <Bar dataKey="allocated" fill="#F97316" radius={[0, 4, 4, 0]} barSize={24} />
@@ -235,9 +234,8 @@ export default function LegacyAnalytics() {
                         ))}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '12px' }}
-                        labelStyle={{ color: 'var(--color-text-primary)' }}
-                        itemStyle={{ color: 'var(--color-text-primary)' }}
+                        contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', color: 'var(--color-text-primary)' }}
+                      itemStyle={{ color: 'var(--color-text-primary)' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -283,7 +281,7 @@ export default function LegacyAnalytics() {
               </div>
             </Card>
 
-            <div className="p-6 rounded-[32px] bg-brand-primary text-obsidian-950 flex items-center justify-between group cursor-pointer hover:scale-[1.02] transition-all shadow-lg shadow-brand-primary/20">
+            <div className="p-6 rounded-[32px] bg-brand-primary text-white flex items-center justify-between group cursor-pointer hover:scale-[1.02] transition-all shadow-lg shadow-brand-primary/20">
               <div>
                 <h4 className="text-sm font-bold uppercase tracking-tight">Generate Full Audit Report</h4>
                 <p className="text-[10px] font-bold opacity-70">Export PDF for institutional partners</p>

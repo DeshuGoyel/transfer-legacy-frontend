@@ -4,9 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="Y9sdWYW8JUzqe0ac89PKACu8-lXfCfraqBZcz3m2OLQ" />
     
     <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https: ws: wss: http://localhost:8080 http://127.0.0.1:8080;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com https://cdn.onesignal.com https://onesignal.com https://api.onesignal.com https://*.onesignal.com blob:; worker-src 'self' blob: https://cdn.onesignal.com https://*.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https: ws: wss: http://localhost:8080 http://127.0.0.1:8080;" />
+
+    <!-- OneSignal Web Push SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "1ed98a30-a4ac-4ba2-a993-b956fe268581",
+          allowLocalhostAsSecureOrigin: true,
+          notifyButton: {
+            enable: false,
+          },
+        });
+      });
+    </script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,22 +31,31 @@
     
     <!-- Primary Meta Tags -->
     <title>Transfer Legacy | Secure Crypto Inheritance Vault</title>
-    <meta name="title" content="Transfer Legacy" />
+    <meta name="title" content="Transfer Legacy | Secure Crypto Inheritance Vault" />
     <meta name="description" content="Transfer the access. Protect the legacy. The only platform that securely and automatically transfers your crypto and digital assets to your family." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://transferlegacy.com/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Transfer Legacy" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://transferlegacy.com/" />
     <meta property="og:title" content="Transfer Legacy | Secure Your Digital Inheritance" />
-    <meta property="og:description" content="The world's first AI-guided zero-knowledge legacy transfer protocol." />
+    <meta property="og:description" content="The world's first AI-guided zero-knowledge legacy transfer protocol. Pass access to crypto and confidential assets to your family securely." />
     <meta property="og:image" content="https://transferlegacy.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:site" content="@transferlegacy" />
+    <meta property="twitter:creator" content="@transferlegacy" />
     <meta property="twitter:url" content="https://transferlegacy.com/" />
     <meta property="twitter:title" content="Transfer Legacy | Secure Your Digital Inheritance" />
-    <meta property="twitter:description" content="The world's first AI-guided zero-knowledge legacy transfer protocol." />
+    <meta property="twitter:description" content="The world's first AI-guided zero-knowledge legacy transfer protocol. Pass access to crypto and confidential assets to your family securely." />
     <meta property="twitter:image" content="https://transferlegacy.com/og-image.png" />
+    <meta property="twitter:image:alt" content="Transfer Legacy - Secure Crypto Inheritance Vault" />
 
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="/favicon.png">
@@ -84,6 +109,18 @@
     <!-- Schema.org JSON-LD Markup for SEO -->
     <script type="application/ld+json">
     [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Transfer Legacy",
+        "url": "https://transferlegacy.com",
+        "description": "Secure digital inheritance vault for cryptocurrency, seed phrases, and confidential digital assets.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://transferlegacy.com/resources?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",

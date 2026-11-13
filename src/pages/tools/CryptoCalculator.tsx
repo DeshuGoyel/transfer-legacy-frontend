@@ -30,7 +30,7 @@ export default function CryptoCalculator() {
       
       <SEO 
         title="Crypto Inheritance Risk Calculator | Transfer Legacy"
-        description="Estimate the probability of permanent asset loss. 20% of all Bitcoin is already lost—don't let your portfolio be next."
+        description="Estimate the probability of permanent asset loss. 20% of all Bitcoin is already lost - don't let your portfolio be next."
         canonicalUrl="https://transferlegacy.com/tools/crypto-risk-calculator"
       />
 

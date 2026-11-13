@@ -66,12 +66,12 @@ export default function TrustCenter() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { name: 'SOC 2 Type II', desc: 'Audited & Certified Infrastructure' },
+                  { name: 'SOC 2 Type II', desc: 'Readiness & Aligned Trust Criteria' },
                   { name: 'GDPR / UK GDPR', desc: 'Full Data Protection Compliance' },
-                  { name: 'ISO/IEC 27001', desc: 'Information Security Management' },
-                  { name: 'CCSS Level 3', desc: 'Crypto Security Standard Certified' },
-                  { name: 'CCPA / CPRA', desc: 'California Consumer Privacy' },
-                  { name: 'DPDP Act 2023', desc: 'India Digital Privacy Compliant' }
+                  { name: 'ISO/IEC 27001', desc: 'Information Security Management Controls' },
+                  { name: 'Post-Quantum NIST', desc: 'Kyber768 & OPAQUE RFC 9801 Protocol' },
+                  { name: 'CCPA / CPRA', desc: 'California Consumer Privacy Act Aligned' },
+                  { name: 'DPDP Act 2023', desc: 'India Digital Privacy Standard' }
                 ].map((cert, i) => (
                   <div key={i} className="flex items-start space-x-4 p-5 rounded-2xl border border-base bg-page/50 hover:bg-page hover:border-brand-primary/30 transition-all duration-300 group shadow-sm">
                     <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 group-hover:bg-brand-primary/20 transition-colors">
@@ -97,9 +97,9 @@ export default function TrustCenter() {
               </div>
               <div className="space-y-4">
                 {[
-                  { date: 'MAY 2026', type: 'Full Penetration Test', status: 'Passed', author: 'Trail of Bits' },
-                  { date: 'JAN 2026', type: 'SOC 2 Annual Audit', status: 'Certified', author: 'PwC Global' },
-                  { date: 'OCT 2025', type: 'Zero-Knowledge Review', status: 'Verified', author: 'Kudelski Security' },
+                  { date: 'MAY 2026', type: 'Automated Pen-Test & Dynamic Analysis', status: 'Passed', author: 'OWASP ZAP & Semgrep Core' },
+                  { date: 'APR 2026', type: 'Post-Quantum & OPAQUE Handshake Review', status: 'Verified', author: 'Cryptographic Architecture Audit' },
+                  { date: 'Q3/Q4 2026', type: 'External SOC 2 Type II & Pen-Test', status: 'Scheduled', author: 'Accredited AICPA Auditor' },
                 ].map((audit, i) => (
                   <div key={i} className="flex items-center justify-between p-6 rounded-2xl border border-base bg-page/30 hover:bg-page transition-all cursor-default group">
                     <div>

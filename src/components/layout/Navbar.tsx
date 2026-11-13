@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
-import { Bell, Menu, X } from 'lucide-react';
+import { Bell, Menu, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import ThemeToggle from './ThemeToggle';
 import { LogoMark } from '../ui/Logo';
+import toast from 'react-hot-toast';
+import { useCheckinStore } from '../../store/useCheckinStore';
 
 const navLinks = [
   { label: 'How It Works', href: '#how' },
@@ -47,11 +49,38 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
     user,
     toggleNotifications,
     notifications,
+    fetchNotifications,
     isMobileSidebarOpen,
     toggleMobileSidebar,
     isSidebarCollapsed,
     toggleSidebar,
+    performCheckIn,
   } = useStore();
+
+  useEffect(() => {
+    if (variant !== 'marketing') {
+      fetchNotifications();
+    }
+  }, [variant, fetchNotifications]);
+
+  const checkinSettings = useCheckinStore((state) => state.checkinSettings);
+  const completeCheckin = useCheckinStore((state) => state.completeCheckin);
+  const [isSyncingHeartbeat, setIsSyncingHeartbeat] = useState(false);
+
+  const handleHeartbeatSync = async () => {
+    if (isSyncingHeartbeat) return;
+    setIsSyncingHeartbeat(true);
+    try {
+      await performCheckIn('Header Pulse');
+      completeCheckin('tap');
+      toast.success('Heartbeat synchronized. Vault secured!');
+    } catch (err) {
+      console.error('Failed to sync heartbeat:', err);
+      toast.error('Heartbeat sync failed');
+    } finally {
+      setIsSyncingHeartbeat(false);
+    }
+  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -242,7 +271,7 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-14 flex items-center border-b border-base/40 transition-all duration-200",
+        "fixed top-0 left-0 right-0 z-50 h-14 flex items-center border-b border-[rgba(255,255,255,0.07)] transition-all duration-200",
         isSidebarCollapsed ? "lg:pl-0" : "lg:pl-[240px]"
       )}
       style={{ background: 'var(--color-bg-page)' }}
@@ -252,8 +281,8 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           {/* Toggle sidebar button */}
           <button
             onClick={handleSidebarToggle}
-            className="p-1.5 rounded-md transition-colors hover:bg-base/40"
-            style={{ color: 'var(--color-text-secondary)' }}
+            className="p-1.5 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+            style={{ color: '#9B97A3' }}
             aria-label="Toggle menu"
           >
             {isMobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
@@ -271,7 +300,7 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           </Link>
 
           {/* Home etc. Links in Title Bar */}
-          <div className="hidden lg:flex items-center gap-6 ml-8 border-l border-base/40 pl-8">
+          <div className="hidden lg:flex items-center gap-6 ml-8 border-l border-border pl-8">
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
@@ -319,11 +348,28 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
           </div>
         </div>
 
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1.5 ml-auto">
+          {/* Heartbeat Pulse Indicator & Manual Sync */}
+          <button
+            onClick={handleHeartbeatSync}
+            disabled={isSyncingHeartbeat}
+            className="relative p-2 rounded-md transition-colors hover:bg-surface/50 text-rose-500 hover:text-rose-400 group flex items-center justify-center"
+            aria-label="Heartbeat Pulse"
+            title={`Heartbeat Active (Streak: ${checkinSettings?.currentStreak ?? 1}) - Click to sync`}
+          >
+            <Heart 
+              size={17} 
+              className={cn(
+                "fill-rose-500/20 text-rose-500 transition-transform group-hover:scale-110",
+                isSyncingHeartbeat ? "animate-spin" : "animate-pulse"
+              )} 
+            />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping opacity-75" />
+          </button>
+
           <button
             onClick={toggleNotifications}
-            className="relative p-2 rounded-md transition-colors hover:bg-base/40"
-            style={{ color: 'var(--color-text-secondary)' }}
+            className="relative p-2 rounded-md transition-colors hover:bg-surface/50 text-secondary hover:text-primary"
             aria-label="Notifications"
           >
             <Bell size={17} strokeWidth={1.75} />
@@ -338,15 +384,14 @@ export default function Navbar({ variant = 'app' }: { variant?: 'app' | 'marketi
 
           <Link
             to="/settings"
-            className="ml-1 flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-[8px] border border-base/40 hover:border-base/80 transition-colors"
-            style={{ background: 'var(--color-bg-surface)' }}
+            className="ml-1 flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-[8px] border border-border hover:border-brand-primary/40 transition-colors bg-surface"
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-brand-primary"
             >
-              {user.name.charAt(0).toUpperCase()}
+              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
-            <span className="hidden sm:inline text-[12px] font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            <span className="hidden sm:inline text-[12px] font-medium text-primary">
               {user.name.split(' ')[0]}
             </span>
           </Link>

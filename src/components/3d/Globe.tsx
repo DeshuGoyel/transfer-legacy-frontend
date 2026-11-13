@@ -58,7 +58,7 @@ function Pin({ lat, lon, name, holders, families, color }: PinProps) {
       ringRef.current.scale.set(s, s, s);
       const mat = ringRef.current.material;
       if (mat && !Array.isArray(mat) && 'opacity' in mat) {
-        (mat as any).opacity = 0.6 - (s - 1) * 2;
+        (mat as THREE.Material).opacity = 0.6 - (s - 1) * 2;
       }
     }
   });

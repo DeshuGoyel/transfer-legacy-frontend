@@ -38,7 +38,7 @@
 .landing-root {
 
 /* ══════════════════════════════════════════════
-   TRANSFER LEGACY — DESIGN TOKENS
+   TRANSFER LEGACY - DESIGN TOKENS
    Light + Dark. Accent: heirloom emerald.
    Display: Fraunces (heritage serif, optical)
    Body: Inter. Accent-script: Caveat.
@@ -60,7 +60,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .wrap{max-width:1200px;margin:0 auto;padding:0 40px}
 .serif{font-family:"Fraunces",Georgia,serif;font-optical-sizing:auto}
 
-/* accent script word — the Alice move, but ours */
+/* accent script word - the Alice move, but ours */
 .script{font-family:"Caveat",cursive;color:var(--accent);font-weight:600;
   font-style:normal;display:inline-block;transform:rotate(-3deg);
   padding:0 .08em;line-height:.8}
@@ -210,7 +210,7 @@ section{padding:104px 0}
   font-size:clamp(2.1rem,3.8vw,3.2rem);line-height:1.08;letter-spacing:-.02em;margin-bottom:16px}
 .sec-head p{font-size:1.06rem;color:var(--muted);line-height:1.6}
 
-/* ══ PROBLEM — big statement + cards ══ */
+/* ══ PROBLEM - big statement + cards ══ */
 .big-claim{font-family:"Fraunces",serif;font-weight:400;
   font-size:clamp(1.9rem,3.4vw,2.9rem);line-height:1.14;letter-spacing:-.015em;
   max-width:900px;margin-bottom:56px}

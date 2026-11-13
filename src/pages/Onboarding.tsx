@@ -68,6 +68,7 @@ export default function Onboarding() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [consentAgreed, setConsentAgreed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showOtpEntry, setShowOtpEntry] = useState(false);
   const [otpCode, setOtpCode] = useState('');
@@ -100,8 +101,27 @@ export default function Onboarding() {
 
   const nextStep = async () => {
     if (step === 1) {
-      if (!fullName || !email || !password) {
+      if (!fullName.trim() || !email.trim() || !password) {
         toast.error('All account fields are required');
+        return;
+      }
+
+      if (password.length < 12) {
+        toast.error('Master password must be at least 12 characters');
+        setError('For zero-knowledge security, your master password must be at least 12 characters.');
+        return;
+      }
+
+      if (!consentAgreed) {
+        toast.error('Please accept the Terms of Service and Privacy Protocol');
+        setError('You must accept the Terms of Service and acknowledge the Privacy Protocol to continue.');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        toast.error('Please enter a valid email address');
+        setError('Please enter a valid email address');
         return;
       }
 
@@ -174,6 +194,8 @@ export default function Onboarding() {
           argon2_params: finishData.argon2Params,
           enc_legal_name: finishData.encLegalName,
           enc_email: finishData.encEmail,
+          terms_version: 'v1.4',
+          privacy_version: 'v2.1',
         });
 
         // 3. Perform Automatic OPAQUE Login immediately
@@ -248,7 +270,7 @@ export default function Onboarding() {
             email: email,
             avatar: null,
             score: 0,
-            plan: "Family",
+            plan: localStorage.getItem('tl_user_plan') || "Always Free",
             nextCheckInDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             checkInHistory: []
           }
@@ -485,7 +507,7 @@ export default function Onboarding() {
                     variant="primary"
                     size="lg"
                     onClick={nextStep}
-                    disabled={isSendingOtp}
+                    disabled={isSendingOtp || !consentAgreed || password.length < 12}
                     fullWidth
                     className="h-14 text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-brand-primary/20"
                   >
@@ -655,7 +677,7 @@ export default function Onboarding() {
                 </div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-primary mb-2">Step 4 of 5</p>
                 <h2 className="text-3xl font-display font-bold text-primary tracking-tight mb-2">Assign a Guardian</h2>
-                <p className="text-muted text-sm font-medium mb-8">Guardians verify succession events. They never see your encrypted data — only approve the release.</p>
+                <p className="text-muted text-sm font-medium mb-8">Guardians verify succession events. They never see your encrypted data - only approve the release.</p>
                 <Input
                   label="Guardian Email"
                   placeholder="guardian@institution.com"

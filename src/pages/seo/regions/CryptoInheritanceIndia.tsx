@@ -6,6 +6,13 @@ import Button from '../../../components/ui/Button';
 import { useStore } from '../../../store/useStore';
 
 const CryptoInheritanceIndia = () => {
+  const cryptoInheritanceHreflangs = [
+    { lang: 'en-IN', href: 'https://transferlegacy.com/crypto-inheritance-india' },
+    { lang: 'en-US', href: 'https://transferlegacy.com/crypto-inheritance-usa' },
+    { lang: 'en-GB', href: 'https://transferlegacy.com/crypto-inheritance-uk' },
+    { lang: 'en-AE', href: 'https://transferlegacy.com/crypto-inheritance-uae' },
+    { lang: 'x-default', href: 'https://transferlegacy.com/crypto-inheritance' },
+  ];
   const navigate = useNavigate();
   const { isAuthenticated } = useStore();
   const faqSchema = {
@@ -38,10 +45,11 @@ const CryptoInheritanceIndia = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <SEO 
-        title="Crypto Inheritance Law in India: The Ultimate Guide (2024)"
+        title="Crypto Inheritance Law in India: The Ultimate Guide (2026)"
         description="Navigate crypto inheritance laws in India. Learn about digital wills, tax implications, and how to securely pass your Bitcoin to your family under the Hindu Succession Act."
         canonicalUrl="https://transferlegacy.com/crypto-inheritance-india"
         schema={faqSchema}
+        hreflangs={cryptoInheritanceHreflangs}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

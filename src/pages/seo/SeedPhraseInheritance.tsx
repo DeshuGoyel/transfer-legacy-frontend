@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import React from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
@@ -5,6 +6,32 @@ import { ArrowRight, Shield, BookOpen, AlertTriangle, Landmark, CheckCircle2, Ke
 import Button from '../../components/ui/Button';
 
 const SeedPhraseInheritance = () => {
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Seed Phrase Inheritance",
+        "item": "https://transferlegacy.com/seed-phrase-inheritance"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -14,6 +41,7 @@ const SeedPhraseInheritance = () => {
         title="Seed Phrase Inheritance: How to Securely Pass 12/24 Word Keys"
         description="Don't lose your crypto. Learn the most secure strategies for seed phrase inheritance, including Shamir's Secret Sharing and Transfer Legacy Vaults."
         canonical="https://transferlegacy.com/seed-phrase-inheritance"
+        schema={[breadcrumbSchema, authorPersonSchema]}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -74,7 +102,7 @@ const SeedPhraseInheritance = () => {
               <Landmark className="w-10 h-10 text-brand-primary mb-6" />
               <h3 className="text-xl font-display font-bold mb-4 text-primary">Multi-Sig Guard</h3>
               <p className="text-secondary text-sm leading-relaxed mb-6">
-                Appoint multiple <span className="text-primary font-bold">Guardians</span> who must reach a consensus before keys are released. They never see the keys—only the authorization to release them.
+                Appoint multiple <span className="text-primary font-bold">Guardians</span> who must reach a consensus before keys are released. They never see the keys - only the authorization to release them.
               </p>
               <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-brand-primary p-0">
                 Learn about Quorum Release
@@ -99,6 +127,8 @@ const SeedPhraseInheritance = () => {
               </div>
             </div>
           </section>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <BookOpen className="w-16 h-16 mx-auto mb-8 opacity-80" />

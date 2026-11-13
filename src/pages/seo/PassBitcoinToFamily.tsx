@@ -1,3 +1,4 @@
+import AuthorBio, { authorPersonSchema } from '../../components/seo/AuthorBio';
 import React from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../../components/seo/SEO';
@@ -6,6 +7,32 @@ import { Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 
 const PassBitcoinToFamily = () => {
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Pass Bitcoin to Family",
+        "item": "https://transferlegacy.com/how-to-pass-bitcoin-to-family"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -15,6 +42,7 @@ const PassBitcoinToFamily = () => {
         title="How to Pass Bitcoin to Family: The Sovereign Succession Guide"
         description="Ensure your Bitcoin is securely passed to your heirs. Learn about cold storage inheritance, multisig setups, and Transfer Legacy's automated vaults."
         canonical="https://transferlegacy.com/how-to-pass-bitcoin-to-family"
+        schema={[breadcrumbSchema, authorPersonSchema]}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -51,7 +79,7 @@ const PassBitcoinToFamily = () => {
             </h2>
             <div className="prose prose-invert max-w-none text-secondary">
               <p className="text-lg leading-relaxed mb-6">
-                Most Bitcoin maximalists use <span className="text-primary font-bold">Cold Storage</span> (Ledger, Trezor, BitBox). While this is the gold standard for security, it is a nightmare for inheritance. If your family doesn't know where the device is—or the PIN to unlock it—they have zero options.
+                Most Bitcoin maximalists use <span className="text-primary font-bold">Cold Storage</span> (Ledger, Trezor, BitBox). While this is the gold standard for security, it is a nightmare for inheritance. If your family doesn't know where the device is - or the PIN to unlock it - they have zero options.
               </p>
               <p className="text-lg leading-relaxed">
                 Traditional executors are not trained in <span className="italic text-brand-primary font-bold">UTXO Management</span> or <span className="italic text-brand-primary font-bold">Hardware Wallet Recovery</span>. You need a technical protocol that guides them through the process safely.
@@ -82,6 +110,8 @@ const PassBitcoinToFamily = () => {
               </Link>
             </div>
           </div>
+
+          <AuthorBio />
 
           <div className="bg-gradient-to-br from-brand-primary to-blue-900 text-obsidian-950 rounded-[40px] p-10 md:p-16 text-center shadow-2xl shadow-brand-primary/20">
             <h3 className="text-3xl md:text-5xl font-display font-bold mb-6 tracking-tight leading-none">

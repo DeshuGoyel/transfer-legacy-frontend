@@ -68,7 +68,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     // Dynamically swap children to "Go to Dashboard" if authenticated
     let renderedChildren = children;
     if (isSpecialCta && isAuthenticated) {
-      const hasArrow = text.includes('arrow') || (Array.isArray(children) && children.some(c => React.isValidElement(c) && (c.type as any)?.name?.includes('Arrow')));
+      const hasArrow = text.includes('arrow') || (Array.isArray(children) && children.some(c => React.isValidElement(c) && (c.type as { name?: string })?.name?.includes('Arrow')));
       renderedChildren = (
         <>
           Go to Dashboard

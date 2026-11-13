@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { GitBranch, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -14,6 +15,12 @@ const fadeUp = (delay = 0) => ({
 export default function InheritanceLogic() {
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Smart Succession & Inheritance Logic Protocol | Transfer Legacy"
+        description="Configurable proof-of-life triggers, multi-condition time locks, and automated heir distribution engines."
+        canonicalUrl="https://transferlegacy.com/features/inheritance-logic"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-6 mb-24">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-2 mb-4">
@@ -33,7 +40,7 @@ export default function InheritanceLogic() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
            <motion.div {...fadeUp(0.3)} className="space-y-8">
               <h2 className="text-4xl font-display font-bold">Smart Contract <span className="text-brand-primary italic">Governance</span></h2>
-              <p className="text-muted font-medium leading-relaxed">Our logic engine allows you to program exactly how and when your assets are released. No more ambiguity—just mathematical certainty.</p>
+              <p className="text-muted font-medium leading-relaxed">Our logic engine allows you to program exactly how and when your assets are released. No more ambiguity - just mathematical certainty.</p>
               <div className="space-y-4">
                  {[
                    "Time-locked distribution phases",

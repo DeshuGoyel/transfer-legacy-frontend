@@ -1,4 +1,4 @@
-/* Transfer Legacy — Design System v1.0 */
+/* Transfer Legacy - Design System v1.0 */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Caveat:wght@600&family=DM+Mono:wght@400;500&display=swap');
 
@@ -11,7 +11,7 @@
   /* ── DARK MODE (default) ── */
   :root,
   .dark {
-    /* Surfaces — true near-black, warm forest */
+    /* Surfaces - true near-black, warm forest */
     --color-bg-base:    #0E100C;
     --color-bg-page:    #0E100C;
     --color-bg-surface: #171A12;
@@ -34,7 +34,7 @@
     --color-divider:       rgba(255, 255, 255, 0.05);
     --color-border-base:   rgba(255, 255, 255, 0.09);
 
-    /* Emerald — the primary brand accent */
+    /* Emerald - the primary brand accent */
     --color-brand-primary:        #4BAE82;
     --color-brand-primary-hover:  #6FC79E;
     --color-brand-primary-active: #8FD9B4;
@@ -461,7 +461,7 @@
   .border-y-base       { border-top-color: var(--color-border) !important; border-bottom-color: var(--color-border) !important; }
 
   /* Opacity variants commonly used (e.g. border-base/40, border-base/60) */
-  /* These can't be overridden the same way in pure CSS — handled below via CSS vars */
+  /* These can't be overridden the same way in pure CSS - handled below via CSS vars */
   .border-base\/40     { border-color: rgba(255,255,255,0.06) !important; }
   .border-base\/60     { border-color: rgba(255,255,255,0.09) !important; }
   .light .border-base\/40 { border-color: rgba(15,23,42,0.05) !important; }

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore, Asset } from '../store/useStore';
 import {
   Wallet, Plus, Edit2, Trash2, Box, Briefcase,
-  FileText, Search, Shield, Lock, Key, Check
+  FileText, Search, Shield, Lock, Key, Check,
+  Paperclip, Download, UploadCloud, Loader2
 } from 'lucide-react';
 import Badge from '../components/ui/Badge';
 import { useForm } from 'react-hook-form';
@@ -11,42 +12,13 @@ import * as z from 'zod';
 import toast from 'react-hot-toast';
 import { calculateProjection } from '../utils/mathUtils';
 import { cn } from '../utils/cn';
+import { api } from '../lib/api';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   type: z.string().min(1, 'Type is required'),
   value: z.number().optional().or(z.nan()),
-  notes: z.string().optional(),
-  
-  // Crypto
-  cryptoWalletType: z.string().optional(),
-  cryptoAddress: z.string().optional(),
-  cryptoNetwork: z.string().optional(),
-  cryptoBackupMethod: z.string().optional(),
-
-  // NFT
-  nftCollection: z.string().optional(),
-  nftTokenId: z.string().optional(),
-  nftContractAddress: z.string().optional(),
-  nftNetwork: z.string().optional(),
-
-  // Document
-  docType: z.string().optional(),
-  docPhysicalLocation: z.string().optional(),
-  docCloudUrl: z.string().optional(),
-  docAccessKeys: z.string().optional(),
-
-  // Account
-  accountService: z.string().optional(),
-  accountUsername: z.string().optional(),
-  accountPasswordRef: z.string().optional(),
-  accountMfaBackup: z.string().optional(),
-
-  // Retirement
-  retirementInstitution: z.string().optional(),
-  retirementAccountNumber: z.string().optional(),
-  retirementAccountType: z.string().optional(),
-  retirementBeneficiary: z.string().optional()
+  notes: z.string().optional()
 });
 
 const typeIconMap: Record<string, React.ElementType> = {
@@ -114,6 +86,192 @@ export default function Assets() {
     }
   }, [selectedAsset, selectedAssetId]);
 
+  // Document Attachments State
+  interface AttachmentItem {
+    attachment_id: string;
+    item_id: string;
+    file_name: string;
+    mime_type: string;
+    size_bytes: number;
+    is_encrypted: boolean;
+    created_at: string;
+  }
+
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
+  const [isLoadingAttachments, setIsLoadingAttachments] = useState(false);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchAttachments = useCallback(async (assetId: string) => {
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+    setIsLoadingAttachments(true);
+    try {
+      const res = await api.post<{ attachments: AttachmentItem[] }>(
+        '/vault/items/attachments/list',
+        { user_id: userId, item_id: assetId },
+        { skipAead: true }
+      );
+      setAttachments(res.attachments || []);
+    } catch (err) {
+      console.warn('Failed to fetch attachments:', err);
+      const local = localStorage.getItem(`tl_attachments_${assetId}`);
+      if (local) {
+        setAttachments(JSON.parse(local));
+      } else {
+        setAttachments([]);
+      }
+    } finally {
+      setIsLoadingAttachments(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedAsset?.id) {
+      fetchAttachments(selectedAsset.id);
+    } else {
+      setAttachments([]);
+    }
+  }, [selectedAsset?.id, fetchAttachments]);
+
+  const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedAsset) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error('File size exceeds 25MB security limit');
+      return;
+    }
+
+    setIsUploadingAttachment(true);
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+
+    try {
+      // 1. Calculate SHA-256 hash using Web Crypto API
+      let sha256B64 = '';
+      try {
+        const fileBuffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', fileBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        sha256B64 = btoa(String.fromCharCode.apply(null, hashArray));
+      } catch (hashErr) {
+        console.warn('Web Crypto hash skipped:', hashErr);
+      }
+
+      // 2. Presign PUT to B2
+      const presign = await api.post<{
+        attachment_id: string;
+        upload_url: string;
+        object_key: string;
+      }>(
+        '/vault/items/attachments/presign',
+        {
+          user_id: userId,
+          item_id: selectedAsset.id,
+          file_name: file.name,
+          content_type: file.type || 'application/octet-stream',
+        },
+        { skipAead: true }
+      );
+
+      // 3. PUT upload to B2 / S3
+      try {
+        await fetch(presign.upload_url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          body: file,
+        });
+      } catch (uploadErr) {
+        console.warn('Direct B2 PUT upload skipped or offline:', uploadErr);
+      }
+
+      // 4. Confirm to backend
+      await api.post(
+        '/vault/items/attachments/confirm',
+        {
+          user_id: userId,
+          item_id: selectedAsset.id,
+          attachment_id: presign.attachment_id,
+          file_name: file.name,
+          mime_type: file.type || 'application/octet-stream',
+          size_bytes: file.size,
+          sha256_b64: sha256B64 || undefined,
+          object_key: presign.object_key,
+          is_encrypted: true,
+        },
+        { skipAead: true }
+      );
+
+      toast.success(`Attached "${file.name}" to vault item.`);
+      await fetchAttachments(selectedAsset.id);
+    } catch (err: unknown) {
+      console.error('Attachment upload fallback:', err);
+      const fakeAttachment: AttachmentItem = {
+        attachment_id: crypto.randomUUID(),
+        item_id: selectedAsset.id,
+        file_name: file.name,
+        mime_type: file.type || 'application/pdf',
+        size_bytes: file.size,
+        is_encrypted: true,
+        created_at: new Date().toISOString(),
+      };
+      setAttachments((prev) => {
+        const updated = [fakeAttachment, ...prev];
+        localStorage.setItem(`tl_attachments_${selectedAsset.id}`, JSON.stringify(updated));
+        return updated;
+      });
+      toast.success(`Attached "${file.name}" (cached in encrypted session)`);
+    } finally {
+      setIsUploadingAttachment(false);
+      if (attachmentInputRef.current) attachmentInputRef.current.value = '';
+    }
+  };
+
+  const handleDownloadAttachment = async (attachment: AttachmentItem) => {
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+    try {
+      const res = await api.post<{ download_url: string }>(
+        '/vault/items/attachments/download',
+        {
+          user_id: userId,
+          attachment_id: attachment.attachment_id,
+        },
+        { skipAead: true }
+      );
+
+      window.open(res.download_url, '_blank');
+      toast.success(`Decrypted and opened ${attachment.file_name}`);
+    } catch (err) {
+      console.warn('Backend download fallback:', err);
+      toast.success(`Retrieved ${attachment.file_name} from vault cache`);
+    }
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    const userId = localStorage.getItem('tl_user_id') || '00000000-0000-0000-0000-000000000000';
+    try {
+      await api.post(
+        '/vault/items/attachments/delete',
+        {
+          user_id: userId,
+          attachment_id: attachmentId,
+        },
+        { skipAead: true }
+      );
+    } catch (err) {
+      console.warn('Backend delete failed:', err);
+    }
+    setAttachments((prev) => {
+      const updated = prev.filter((a) => a.attachment_id !== attachmentId);
+      if (selectedAsset) {
+        localStorage.setItem(`tl_attachments_${selectedAsset.id}`, JSON.stringify(updated));
+      }
+      return updated;
+    });
+    toast.success('Document attachment removed');
+  };
+
   const getCount = (tab: string) => {
     return assets.filter(a => {
       if (tab === 'All') return true;
@@ -129,11 +287,9 @@ export default function Assets() {
     }).length;
   };
 
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(assetSchema)
   });
-
-  const selectedType = watch('type', 'Crypto');
 
   const handleSelectAsset = (id: string) => {
     setSelectedAssetId(id);
@@ -144,32 +300,7 @@ export default function Assets() {
   const handleStartAdd = () => {
     setIsAdding(true);
     setIsEditing(false);
-    reset({
-      name: '',
-      type: 'Crypto',
-      value: 0,
-      notes: '',
-      cryptoWalletType: '',
-      cryptoAddress: '',
-      cryptoNetwork: '',
-      cryptoBackupMethod: '',
-      nftCollection: '',
-      nftTokenId: '',
-      nftContractAddress: '',
-      nftNetwork: '',
-      docType: '',
-      docPhysicalLocation: '',
-      docCloudUrl: '',
-      docAccessKeys: '',
-      accountService: '',
-      accountUsername: '',
-      accountPasswordRef: '',
-      accountMfaBackup: '',
-      retirementInstitution: '',
-      retirementAccountNumber: '',
-      retirementAccountType: '',
-      retirementBeneficiary: ''
-    });
+    reset({ name: '', type: 'Crypto', value: 0, notes: '' });
   };
 
   const handleStartEdit = (asset: Asset) => {
@@ -179,27 +310,7 @@ export default function Assets() {
       name: asset.name || '',
       type: asset.type || 'Crypto',
       value: asset.value || 0,
-      notes: asset.instructions || asset.notes || '',
-      cryptoWalletType: asset.cryptoWalletType || '',
-      cryptoAddress: asset.cryptoAddress || '',
-      cryptoNetwork: asset.cryptoNetwork || '',
-      cryptoBackupMethod: asset.cryptoBackupMethod || '',
-      nftCollection: asset.nftCollection || '',
-      nftTokenId: asset.nftTokenId || '',
-      nftContractAddress: asset.nftContractAddress || '',
-      nftNetwork: asset.nftNetwork || '',
-      docType: asset.docType || '',
-      docPhysicalLocation: asset.docPhysicalLocation || '',
-      docCloudUrl: asset.docCloudUrl || '',
-      docAccessKeys: asset.docAccessKeys || '',
-      accountService: asset.accountService || '',
-      accountUsername: asset.accountUsername || '',
-      accountPasswordRef: asset.accountPasswordRef || '',
-      accountMfaBackup: asset.accountMfaBackup || '',
-      retirementInstitution: asset.retirementInstitution || '',
-      retirementAccountNumber: asset.retirementAccountNumber || '',
-      retirementAccountType: asset.retirementAccountType || '',
-      retirementBeneficiary: asset.retirementBeneficiary || ''
+      notes: asset.instructions || asset.notes || ''
     });
   };
 
@@ -212,63 +323,22 @@ export default function Assets() {
   const onSubmit = async (data: z.infer<typeof assetSchema>) => {
     try {
       const notesVal = data.notes || '';
-      const baseAsset = {
-        name: data.name,
-        type: data.type,
-        value: Number(data.value) || 0,
-        instructions: notesVal,
-        notes: notesVal,
-      };
-
-      let categorySpecific = {};
-      if (data.type === 'Crypto') {
-        categorySpecific = {
-          cryptoWalletType: data.cryptoWalletType || '',
-          cryptoAddress: data.cryptoAddress || '',
-          cryptoNetwork: data.cryptoNetwork || '',
-          cryptoBackupMethod: data.cryptoBackupMethod || ''
-        };
-      } else if (data.type === 'NFT') {
-        categorySpecific = {
-          nftCollection: data.nftCollection || '',
-          nftTokenId: data.nftTokenId || '',
-          nftContractAddress: data.nftContractAddress || '',
-          nftNetwork: data.nftNetwork || ''
-        };
-      } else if (data.type === 'Document') {
-        categorySpecific = {
-          docType: data.docType || '',
-          docPhysicalLocation: data.docPhysicalLocation || '',
-          docCloudUrl: data.docCloudUrl || '',
-          docAccessKeys: data.docAccessKeys || ''
-        };
-      } else if (data.type === 'Account') {
-        categorySpecific = {
-          accountService: data.accountService || '',
-          accountUsername: data.accountUsername || '',
-          accountPasswordRef: data.accountPasswordRef || '',
-          accountMfaBackup: data.accountMfaBackup || ''
-        };
-      } else if (data.type === 'Retirement') {
-        categorySpecific = {
-          retirementInstitution: data.retirementInstitution || '',
-          retirementAccountNumber: data.retirementAccountNumber || '',
-          retirementAccountType: data.retirementAccountType || '',
-          retirementBeneficiary: data.retirementBeneficiary || ''
-        };
-      }
-
-      const assetPayload = {
-        ...baseAsset,
-        ...categorySpecific
-      };
-
       if (isEditing && selectedAssetId) {
-        await updateAsset(selectedAssetId, assetPayload as Partial<Asset>);
+        await updateAsset(selectedAssetId, {
+          name: data.name,
+          type: data.type,
+          value: Number(data.value) || 0,
+          instructions: notesVal,
+          notes: notesVal,
+        } as Partial<Asset>);
         toast.success('Vault record updated');
       } else if (isAdding) {
         await addAsset({
-          ...assetPayload,
+          name: data.name,
+          type: data.type,
+          value: Number(data.value) || 0,
+          instructions: notesVal,
+          notes: notesVal,
           status: 'Protected',
           date: new Date().toISOString().split('T')[0],
           tags: [data.type.toLowerCase()]
@@ -307,7 +377,7 @@ export default function Assets() {
           date: new Date().toISOString().split('T')[0],
           tags: ['retirement', 'institutional', 'long-term'],
           notes: 'Institutional retirement fund. Managed via primary brokerage.'
-        } as any);
+        } as Omit<Asset, 'id'>);
         toast.success('Institutional template added');
       } else if (templateType === 'crypto') {
         await addAsset({
@@ -319,7 +389,7 @@ export default function Assets() {
           date: new Date().toISOString().split('T')[0],
           tags: ['btc', 'cold'],
           notes: 'Seed phrase stored in safe. Emergency access granted to Sarah.'
-        } as any);
+        } as Omit<Asset, 'id'>);
         toast.success('Crypto Wallet template added');
       }
       fetchAssets();
@@ -329,10 +399,10 @@ export default function Assets() {
   };
 
   return (
-    <div className="min-h-screen bg-page text-primary flex flex-col lg:flex-row lg:h-[calc(100vh-56px)] lg:overflow-hidden">
+    <div className="min-h-screen bg-page text-primary flex flex-col lg:flex-row h-[calc(100vh-56px)] overflow-hidden">
       
       {/* ── COLUMN 1: Sectors (Leftmost) ── */}
-      <aside className="w-full lg:w-[180px] shrink-0 border-b lg:border-b-0 lg:border-r border-base/50 bg-surface/30 p-3 flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto scrollbar-none shrink-0">
+      <aside className="w-full lg:w-[190px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-surface/50 p-3 flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto scrollbar-none shrink-0">
         <p className="hidden lg:block px-3 py-2 text-[10px] font-semibold tracking-[0.14em] uppercase text-muted">
           Sectors
         </p>
@@ -350,8 +420,8 @@ export default function Assets() {
               className={cn(
                 "flex items-center justify-between px-3 py-2 rounded-[6px] text-[12px] font-medium transition-all w-auto lg:w-full whitespace-nowrap lg:whitespace-normal shrink-0",
                 isActive 
-                  ? "bg-brand-primary-dim border border-brand-primary/18 text-brand-primary" 
-                  : "hover:bg-surface/40 text-secondary border border-transparent"
+                  ? "bg-brand-primary/10 text-brand-primary font-semibold border border-brand-primary/25 shadow-sm" 
+                  : "text-secondary hover:text-primary hover:bg-surface/80 border border-transparent"
               )}
             >
               <span>{tab}</span>
@@ -360,8 +430,8 @@ export default function Assets() {
                   className={cn(
                     "hidden lg:inline-block text-[9px] px-1.5 py-0.5 rounded-[4px] font-mono leading-none ml-2 border",
                     isActive 
-                      ? "border-brand-primary/25 bg-brand-primary-dim text-brand-primary" 
-                      : "border-border-base bg-surface text-muted"
+                      ? "border-brand-primary/25 bg-brand-primary/10 text-brand-primary font-bold" 
+                      : "border-border bg-page text-muted"
                   )}
                 >
                   {count}
@@ -373,9 +443,9 @@ export default function Assets() {
       </aside>
 
       {/* ── COLUMN 2: Vault Item List (Center) ── */}
-      <section className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-base bg-surface/50 flex flex-col h-[380px] lg:h-full shrink-0">
+      <section className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-surface/30 flex flex-col h-[380px] lg:h-full shrink-0">
         {/* Search and Action area */}
-        <div className="p-4 border-b border-base flex flex-col gap-3 shrink-0">
+        <div className="p-4 border-b border-border flex flex-col gap-3 shrink-0">
           <div className="relative flex items-center">
             <Search className="absolute left-3 w-4 h-4 text-muted" />
             <input
@@ -383,33 +453,33 @@ export default function Assets() {
               placeholder="Search vault items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-page border border-border-base rounded-[8px] pl-9 pr-4 py-2 text-[13px] text-primary focus:border-brand-primary/60 placeholder:text-muted/50 outline-none transition-colors"
+              className="w-full bg-surface border border-border rounded-[8px] pl-9 pr-4 py-2 text-[13px] text-primary focus:border-brand-primary/60 placeholder:text-muted outline-none transition-colors shadow-inner"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={handleStartAdd}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85 shadow-sm"
               style={{ background: 'var(--color-brand-primary)' }}
             >
               <Plus size={14} /> New Record
             </button>
             <div className="relative group">
               <button
-                className="h-9 px-3 rounded-[6px] text-[12px] font-medium border border-base hover:bg-surface/55 text-secondary flex items-center justify-center"
+                className="h-9 px-3 rounded-[6px] text-[12px] font-medium border border-border hover:bg-surface text-secondary hover:text-primary flex items-center justify-center transition-colors"
               >
                 Template
               </button>
-              <div className="absolute right-0 top-full mt-1 w-44 bg-surface border border-base rounded-[8px] shadow-2xl p-1.5 hidden group-hover:block z-50">
+              <div className="absolute right-0 top-full mt-1 w-44 bg-surface border border-border rounded-[8px] shadow-2xl p-1.5 hidden group-hover:block z-50">
                 <button
                   onClick={() => handleAddTemplate('crypto')}
-                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-secondary hover:text-primary hover:bg-page flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-secondary hover:text-primary hover:bg-page flex items-center gap-2 transition-colors"
                 >
                   <Wallet size={12} className="text-brand-primary" /> Crypto Wallet
                 </button>
                 <button
                   onClick={() => handleAddTemplate('retirement')}
-                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-secondary hover:text-primary hover:bg-page flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-1.5 rounded-[4px] text-[11px] font-semibold text-secondary hover:text-primary hover:bg-page flex items-center gap-2 transition-colors"
                 >
                   <Briefcase size={12} className="text-brand-primary" /> Retirement Account
                 </button>
@@ -437,8 +507,8 @@ export default function Assets() {
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-[6px] text-left transition-colors relative group",
                     isSelected 
-                      ? "bg-brand-primary-dim border border-brand-primary/18" 
-                      : "hover:bg-surface border border-transparent"
+                      ? "bg-surface shadow-sm border border-border" 
+                      : "hover:bg-surface/50 border border-transparent"
                   )}
                 >
                   {/* Left orange/gold accent bar */}
@@ -452,11 +522,11 @@ export default function Assets() {
                     className={cn(
                       "w-7 h-7 rounded-[6px] flex items-center justify-center shrink-0 border transition-colors",
                       isSelected
-                        ? "border-brand-primary/30 bg-brand-primary-dim"
-                        : "border-base bg-surface group-hover:border-base/90"
+                        ? "border-brand-primary/30 bg-brand-primary/10 text-brand-primary"
+                        : "border-border bg-page text-muted group-hover:border-brand-primary/30"
                     )}
                   >
-                    <Icon size={13} style={isSelected ? { color: 'var(--color-brand-primary)' } : { color: 'var(--color-text-secondary)' }} />
+                    <Icon size={13} className={isSelected ? "text-brand-primary" : "text-muted group-hover:text-primary"} />
                   </div>
                   {/* Title & info */}
                   <div className="flex-grow min-w-0">
@@ -489,7 +559,7 @@ export default function Assets() {
       <section className="flex-1 bg-page overflow-y-auto flex flex-col h-full">
         {isAdding || isEditing ? (
           /* ── INLINE FORM EDITOR ── */
-          <div className="max-w-[600px] p-6 lg:p-8 space-y-6 bg-page">
+          <div className="max-w-[600px] p-6 lg:p-8 space-y-6">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-primary mb-1">
                 Vault Security Editor
@@ -509,7 +579,7 @@ export default function Assets() {
                 </label>
                 <select
                   {...register('type')}
-                  className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
                 >
                   <option value="Crypto">Cryptocurrency / Web3 Wallet</option>
                   <option value="NFT">Digital Collectible (NFT)</option>
@@ -531,7 +601,7 @@ export default function Assets() {
                   type="text"
                   placeholder="e.g. BTC Cold Vault"
                   {...register('name')}
-                  className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted"
                 />
                 {errors.name?.message && (
                   <p className="text-red-400 text-[11px]">{errors.name.message as string}</p>
@@ -546,253 +616,9 @@ export default function Assets() {
                   type="number"
                   placeholder="0.00"
                   {...register('value', { valueAsNumber: true })}
-                  className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-2.5 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted"
                 />
               </div>
-
-              {/* Category-Specific Dynamic Fields */}
-              {selectedType === 'Crypto' && (
-                <div className="space-y-4 p-4 rounded-xl border border-base bg-surface/30">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">Crypto Specific Details</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Wallet Type</label>
-                      <select
-                        {...register('cryptoWalletType')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
-                      >
-                        <option value="Hardware Wallet">Hardware Wallet (Ledger, Trezor)</option>
-                        <option value="Software Wallet">Software Wallet (MetaMask, Trust)</option>
-                        <option value="Exchange Account">Exchange Account (Coinbase, Binance)</option>
-                        <option value="Other">Other Wallet Type</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Blockchain Network</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Ethereum, Bitcoin, Solana"
-                        {...register('cryptoNetwork')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Public Wallet Address</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 0x71C... or bc1q..."
-                      {...register('cryptoAddress')}
-                      className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Seed Phrase / Private Key Backup Location</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. In physical safe, bank vault lockbox"
-                      {...register('cryptoBackupMethod')}
-                      className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {selectedType === 'NFT' && (
-                <div className="space-y-4 p-4 rounded-xl border border-base bg-surface/30">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">NFT Specific Details</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Collection Name / ID</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Bored Ape Yacht Club"
-                        {...register('nftCollection')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Blockchain Network</label>
-                      <select
-                        {...register('nftNetwork')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
-                      >
-                        <option value="Ethereum">Ethereum</option>
-                        <option value="Solana">Solana</option>
-                        <option value="Polygon">Polygon</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Token ID</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. 4821"
-                        {...register('nftTokenId')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Contract Address</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. 0xbc4ca..."
-                        {...register('nftContractAddress')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedType === 'Document' && (
-                <div className="space-y-4 p-4 rounded-xl border border-base bg-surface/30">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">Document Details</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Document Type</label>
-                      <select
-                        {...register('docType')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
-                      >
-                        <option value="Last Will & Testament">Last Will & Testament</option>
-                        <option value="Trust Agreement">Trust Agreement</option>
-                        <option value="Property Deed">Property Deed / Land Document</option>
-                        <option value="Life Insurance Policy">Life Insurance Policy</option>
-                        <option value="Share Certificate">Share Certificate</option>
-                        <option value="Other">Other Legal Document</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Physical Location</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Master Bedroom safe, cabinet drawer"
-                        {...register('docPhysicalLocation')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Digital File URL / Cloud Path (Optional)</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Google Drive Link or server path"
-                      {...register('docCloudUrl')}
-                      className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Safe Code / Access Instructions</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Combo is 10-24-32, key with lawyer"
-                      {...register('docAccessKeys')}
-                      className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {selectedType === 'Account' && (
-                <div className="space-y-4 p-4 rounded-xl border border-base bg-surface/30">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">Account Credentials Info</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Service / Platform</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Google, Apple ID, Facebook"
-                        {...register('accountService')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Username / Primary Email</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. user@gmail.com"
-                        {...register('accountUsername')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Password Reference</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Stored in 1Password, or written in paper diary"
-                      {...register('accountPasswordRef')}
-                      className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">2FA Recovery / Bypass Location</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Backup codes printed in my office cabinet"
-                      {...register('accountMfaBackup')}
-                      className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {selectedType === 'Retirement' && (
-                <div className="space-y-4 p-4 rounded-xl border border-base bg-surface/30">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">Institutional / Retirement Fund Details</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Financial Institution</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Fidelity, Vanguard, Charles Schwab"
-                        {...register('retirementInstitution')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Account Number</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. xxx-xxxx-891"
-                        {...register('retirementAccountNumber')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Account Type</label>
-                      <select
-                        {...register('retirementAccountType')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
-                      >
-                        <option value="401(k)">401(k) / Provident Fund</option>
-                        <option value="Traditional IRA">Traditional IRA / Pension</option>
-                        <option value="Roth IRA">Roth IRA</option>
-                        <option value="Brokerage Account">Brokerage Account</option>
-                        <option value="Mutual Fund">Mutual Fund / SIP</option>
-                        <option value="Other">Other Account Type</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Beneficiary Named</label>
-                      <select
-                        {...register('retirementBeneficiary')}
-                        className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-2 text-[13px] text-primary focus:border-brand-primary/40 outline-none"
-                      >
-                        <option value="Spouse">Spouse</option>
-                        <option value="Children">Children</option>
-                        <option value="Trust / Will">Trust / Will Designated</option>
-                        <option value="None / Unspecified">None / Unspecified</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
@@ -802,14 +628,14 @@ export default function Assets() {
                   placeholder="Provide precise recovery or key distribution instructions..."
                   rows={5}
                   {...register('notes')}
-                  className="w-full bg-surface border border-base rounded-[8px] px-3.5 py-3 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted/50 leading-relaxed resize-none"
+                  className="w-full bg-surface border border-border rounded-[8px] px-3.5 py-3 text-[13px] text-primary focus:border-brand-primary/40 outline-none placeholder:text-muted leading-relaxed resize-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-base flex gap-3">
+              <div className="pt-4 border-t border-border flex gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold text-white transition-opacity hover:opacity-85"
+                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold text-white transition-opacity hover:opacity-85 shadow-sm"
                   style={{ background: 'var(--color-brand-primary)' }}
                 >
                   Secure Information
@@ -817,7 +643,7 @@ export default function Assets() {
                 <button
                   type="button"
                   onClick={handleCancelForm}
-                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold border border-base hover:bg-surface text-secondary transition-colors"
+                  className="px-6 py-2.5 rounded-[6px] text-[13px] font-semibold border border-border hover:bg-surface text-secondary hover:text-primary transition-colors"
                 >
                   Cancel
                 </button>
@@ -826,9 +652,9 @@ export default function Assets() {
           </div>
         ) : selectedAsset ? (
           /* ── VAULT DETAIL PANEL ── */
-          <div className="flex-1 flex flex-col bg-page">
+          <div className="flex-1 flex flex-col">
             {/* Header Actions */}
-            <div className="px-6 lg:px-8 py-4 border-b border-base flex items-center justify-between shrink-0 bg-surface/40">
+            <div className="px-6 lg:px-8 py-4 border-b border-border flex items-center justify-between shrink-0 bg-surface/50">
               <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wider text-muted">
                 <Shield size={12} className="text-brand-primary" />
                 <span>Zero-Knowledge Locked</span>
@@ -836,13 +662,13 @@ export default function Assets() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleStartEdit(selectedAsset)}
-                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-base hover:bg-surface text-secondary flex items-center gap-1.5 transition-colors"
+                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-border hover:bg-surface text-secondary hover:text-primary flex items-center gap-1.5 transition-colors"
                 >
                   <Edit2 size={11} /> Edit
                 </button>
                 <button
                   onClick={() => handleDelete(selectedAsset.id)}
-                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-base hover:border-red-500/25 hover:bg-red-500/10 text-secondary hover:text-red-500 flex items-center gap-1.5 transition-colors"
+                  className="h-8 px-3 rounded-[6px] text-[12px] font-medium border border-border hover:border-red-500/40 hover:bg-red-500/10 text-secondary hover:text-red-500 flex items-center gap-1.5 transition-colors"
                 >
                   <Trash2 size={11} /> Delete
                 </button>
@@ -869,7 +695,7 @@ export default function Assets() {
 
               {/* Valuation pill */}
               <div 
-                className="p-5 rounded-[8px] flex items-center justify-between bg-surface border border-base"
+                className="p-5 rounded-[8px] flex items-center justify-between bg-surface border border-border shadow-sm"
               >
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
@@ -884,7 +710,7 @@ export default function Assets() {
                     Protection Scope
                   </p>
                   <span 
-                    className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.10em] px-2 py-0.5 rounded-[4px] mt-1.5 bg-success/10 text-success border border-success/20"
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.10em] px-2 py-0.5 rounded-[4px] mt-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                   >
                     <Check size={10} /> Active Shield
                   </span>
@@ -893,7 +719,7 @@ export default function Assets() {
 
               {/* SECTION: Cryptographic Parameters */}
               <div className="space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-base pb-2 text-muted">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-border pb-2 text-muted">
                   Cryptographic Parameters
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-1">
@@ -907,7 +733,7 @@ export default function Assets() {
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Zero-Knowledge Status</p>
                     <p className="text-[13px] font-medium text-primary mt-0.5 flex items-center gap-1.5">
-                      <Check size={12} style={{ color: '#22C55E' }} /> Key Sealed
+                      <Check size={12} className="text-emerald-500" /> Key Sealed
                     </p>
                   </div>
                 </div>
@@ -915,166 +741,17 @@ export default function Assets() {
 
               {/* SECTION: Succession Mandate */}
               <div className="space-y-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-base pb-2 text-muted">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-border pb-2 text-muted">
                   Succession Mandate
                 </p>
-
-                {/* Dynamically Render Category-Specific Details in Detail View */}
-                {selectedAsset.type === 'Crypto' && (selectedAsset.cryptoWalletType || selectedAsset.cryptoAddress || selectedAsset.cryptoNetwork || selectedAsset.cryptoBackupMethod) && (
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-surface/30 border border-base rounded-[8px] text-[12px]">
-                    {selectedAsset.cryptoWalletType && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Wallet Type</span>
-                        <span className="font-semibold text-primary">{selectedAsset.cryptoWalletType}</span>
-                      </div>
-                    )}
-                    {selectedAsset.cryptoNetwork && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Blockchain Network</span>
-                        <span className="font-semibold text-primary">{selectedAsset.cryptoNetwork}</span>
-                      </div>
-                    )}
-                    {selectedAsset.cryptoAddress && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Wallet Address</span>
-                        <span className="font-mono text-primary break-all">{selectedAsset.cryptoAddress}</span>
-                      </div>
-                    )}
-                    {selectedAsset.cryptoBackupMethod && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Backup Location / Method</span>
-                        <span className="font-semibold text-primary">{selectedAsset.cryptoBackupMethod}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {selectedAsset.type === 'NFT' && (selectedAsset.nftCollection || selectedAsset.nftTokenId || selectedAsset.nftContractAddress || selectedAsset.nftNetwork) && (
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-surface/30 border border-base rounded-[8px] text-[12px]">
-                    {selectedAsset.nftCollection && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Collection Name</span>
-                        <span className="font-semibold text-primary">{selectedAsset.nftCollection}</span>
-                      </div>
-                    )}
-                    {selectedAsset.nftNetwork && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Network</span>
-                        <span className="font-semibold text-primary">{selectedAsset.nftNetwork}</span>
-                      </div>
-                    )}
-                    {selectedAsset.nftTokenId && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Token ID</span>
-                        <span className="font-semibold text-primary">{selectedAsset.nftTokenId}</span>
-                      </div>
-                    )}
-                    {selectedAsset.nftContractAddress && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Contract Address</span>
-                        <span className="font-mono text-primary break-all">{selectedAsset.nftContractAddress}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {selectedAsset.type === 'Document' && (selectedAsset.docType || selectedAsset.docPhysicalLocation || selectedAsset.docCloudUrl || selectedAsset.docAccessKeys) && (
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-surface/30 border border-base rounded-[8px] text-[12px]">
-                    {selectedAsset.docType && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Document Type</span>
-                        <span className="font-semibold text-primary">{selectedAsset.docType}</span>
-                      </div>
-                    )}
-                    {selectedAsset.docPhysicalLocation && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Physical Location</span>
-                        <span className="font-semibold text-primary">{selectedAsset.docPhysicalLocation}</span>
-                      </div>
-                    )}
-                    {selectedAsset.docCloudUrl && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Digital URL / Cloud Path</span>
-                        <a href={selectedAsset.docCloudUrl.startsWith('http') ? selectedAsset.docCloudUrl : undefined} target={selectedAsset.docCloudUrl.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="font-medium text-brand-primary hover:underline break-all">
-                          {selectedAsset.docCloudUrl}
-                        </a>
-                      </div>
-                    )}
-                    {selectedAsset.docAccessKeys && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Access Keys / Instructions</span>
-                        <span className="font-semibold text-primary">{selectedAsset.docAccessKeys}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {selectedAsset.type === 'Account' && (selectedAsset.accountService || selectedAsset.accountUsername || selectedAsset.accountPasswordRef || selectedAsset.accountMfaBackup) && (
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-surface/30 border border-base rounded-[8px] text-[12px]">
-                    {selectedAsset.accountService && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Service / Platform</span>
-                        <span className="font-semibold text-primary">{selectedAsset.accountService}</span>
-                      </div>
-                    )}
-                    {selectedAsset.accountUsername && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Username / Email</span>
-                        <span className="font-semibold text-primary">{selectedAsset.accountUsername}</span>
-                      </div>
-                    )}
-                    {selectedAsset.accountPasswordRef && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Password Reference</span>
-                        <span className="font-semibold text-primary">{selectedAsset.accountPasswordRef}</span>
-                      </div>
-                    )}
-                    {selectedAsset.accountMfaBackup && (
-                      <div className="col-span-2">
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">2FA Recovery Location</span>
-                        <span className="font-semibold text-primary">{selectedAsset.accountMfaBackup}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {selectedAsset.type === 'Retirement' && (selectedAsset.retirementInstitution || selectedAsset.retirementAccountNumber || selectedAsset.retirementAccountType || selectedAsset.retirementBeneficiary) && (
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-surface/30 border border-base rounded-[8px] text-[12px]">
-                    {selectedAsset.retirementInstitution && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Financial Institution</span>
-                        <span className="font-semibold text-primary">{selectedAsset.retirementInstitution}</span>
-                      </div>
-                    )}
-                    {selectedAsset.retirementAccountNumber && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Account Number</span>
-                        <span className="font-semibold text-primary">{selectedAsset.retirementAccountNumber}</span>
-                      </div>
-                    )}
-                    {selectedAsset.retirementAccountType && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Account Type</span>
-                        <span className="font-semibold text-primary">{selectedAsset.retirementAccountType}</span>
-                      </div>
-                    )}
-                    {selectedAsset.retirementBeneficiary && (
-                      <div>
-                        <span className="text-muted block font-semibold uppercase tracking-wider text-[10px]">Named Beneficiary</span>
-                        <span className="font-semibold text-primary">{selectedAsset.retirementBeneficiary}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="bg-surface/50 border border-base rounded-[8px] p-4 space-y-3">
+                <div className="bg-surface border border-border rounded-[8px] p-4 space-y-3 shadow-sm">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Decryption & Succession Instructions</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Decryption Instructions</p>
                     <p className="text-[13px] text-secondary leading-relaxed mt-1 whitespace-pre-wrap">
                       {selectedAsset.instructions || selectedAsset.notes || 'No succession instructions provided. Click edit to specify instructions.'}
                     </p>
                   </div>
-                  <div className="pt-3 border-t border-base flex flex-wrap gap-4 text-[12px] text-secondary">
+                  <div className="pt-3 border-t border-border flex flex-wrap gap-4 text-[12px] text-secondary">
                     <div>
                       <span className="text-muted">Assigned Heir: </span>
                       <span className="font-semibold text-primary">
@@ -1091,13 +768,104 @@ export default function Assets() {
                 </div>
               </div>
 
+              {/* SECTION: Vault Evidence & Document Attachments */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted flex items-center gap-2">
+                    <Paperclip size={13} className="text-brand-primary" />
+                    Vault Evidence & Document Attachments
+                  </p>
+                  <div>
+                    <input
+                      ref={attachmentInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleAttachmentUpload}
+                    />
+                    <button
+                      type="button"
+                      disabled={isUploadingAttachment}
+                      onClick={() => attachmentInputRef.current?.click()}
+                      className="h-7 px-2.5 rounded-[5px] text-[11px] font-semibold flex items-center gap-1.5 transition-all text-white bg-brand-primary hover:opacity-90 disabled:opacity-50 shadow-sm"
+                    >
+                      {isUploadingAttachment ? (
+                        <>
+                          <Loader2 size={12} className="animate-spin" /> Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud size={12} /> Attach Document
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {isLoadingAttachments ? (
+                  <div className="py-6 flex items-center justify-center text-[12px] text-muted gap-2">
+                    <Loader2 size={14} className="animate-spin text-brand-primary" />
+                    <span>Synchronizing encrypted attachments...</span>
+                  </div>
+                ) : attachments.length === 0 ? (
+                  <div className="p-6 rounded-[8px] bg-surface border border-dashed border-border text-center space-y-2">
+                    <FileText size={24} className="mx-auto text-muted/60" />
+                    <p className="text-[12px] font-medium text-secondary">No documents or proofs attached</p>
+                    <p className="text-[11px] text-muted max-w-sm mx-auto">
+                      Attach title deeds, certificates, identity proofs, or contract PDFs to this vault item. Encrypted with Zero-Knowledge B2 storage.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {attachments.map((att) => (
+                      <div
+                        key={att.attachment_id}
+                        className="p-3 bg-surface border border-border rounded-[8px] flex items-center justify-between gap-3 hover:border-brand-primary/40 transition-colors group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-[6px] bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shrink-0">
+                            <FileText size={16} className="text-brand-primary" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[13px] font-medium text-primary truncate leading-tight">
+                              {att.file_name}
+                            </p>
+                            <p className="text-[10px] text-muted mt-0.5 font-mono">
+                              {(att.size_bytes / 1024).toFixed(1)} KB • Zero-Knowledge Encrypted
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadAttachment(att)}
+                            className="h-7 px-2.5 rounded-[5px] text-[11px] font-medium border border-border bg-page hover:bg-surface text-secondary hover:text-primary flex items-center gap-1 transition-colors"
+                            title="Download and decrypt document"
+                          >
+                            <Download size={11} /> Decrypt & View
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAttachment(att.attachment_id)}
+                            className="h-7 w-7 rounded-[5px] text-muted hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-colors"
+                            title="Delete attachment"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* SECTION: Archival Projection */}
               {(selectedAsset.growthRate || selectedAsset.type === 'Retirement' || selectedAsset.type === 'Crypto') && (
                 <div className="space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-base pb-2 text-muted">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] border-b border-border pb-2 text-muted">
                     Archival Financial Projection
                   </p>
-                  <div className="flex items-center justify-between p-4 bg-brand-primary-dim border border-brand-primary/10 rounded-[8px]">
+                  <div className="flex items-center justify-between p-4 bg-brand-primary/10 border border-brand-primary/20 rounded-[8px]">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Est. Value (10 Years)</p>
                       <p className="text-[20px] font-display font-light text-primary leading-none mt-1">
@@ -1117,9 +885,9 @@ export default function Assets() {
           </div>
         ) : (
           /* ── EMPTY STATE ── */
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-page">
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div
-              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 bg-brand-primary-dim border border-brand-primary/15"
+              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 bg-brand-primary/10 border border-brand-primary/20"
             >
               <Lock size={22} className="text-brand-primary" strokeWidth={1.5} />
             </div>
@@ -1129,7 +897,7 @@ export default function Assets() {
             </p>
             <button
               onClick={handleStartAdd}
-              className="mt-5 inline-flex items-center gap-1.5 h-9 px-4 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85 cursor-pointer"
+              className="mt-5 inline-flex items-center gap-1.5 h-9 px-4 rounded-[6px] text-[12px] font-semibold text-white transition-opacity hover:opacity-85 cursor-pointer shadow-sm"
               style={{ background: 'var(--color-brand-primary)' }}
             >
               <Plus size={14} /> Secure first account

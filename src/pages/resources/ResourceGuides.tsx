@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Key, Users, Shield, Clock, ArrowRight, Download, Search } from 'lucide-react';
@@ -38,6 +39,12 @@ export default function ResourceGuides() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Institutional Guides & Handbooks | Transfer Legacy"
+        description="Access sovereign estate planning guides, attorney checklists, and wallet recovery templates."
+        canonicalUrl="https://transferlegacy.com/resources/guides"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

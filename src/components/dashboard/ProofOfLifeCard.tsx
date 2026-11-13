@@ -1,11 +1,17 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldAlert, ShieldCheck, Activity, Settings2 } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Heart, Settings2 } from 'lucide-react';
 import { useCheckinStore } from '../../store/useCheckinStore';
 import Button from '../ui/Button';
 import { trackEvent, EVENTS } from '../seo/Analytics';
+import toast from 'react-hot-toast';
+import { cn } from '../../utils/cn';
 
 export default function ProofOfLifeCard() {
+  const navigate = useNavigate();
   const { checkinSettings, completeCheckin } = useCheckinStore();
+  const [isSyncing, setIsSyncing] = useState(false);
   
   const last = checkinSettings.lastCheckinAt ? new Date(checkinSettings.lastCheckinAt) : new Date(Date.now() - 86400000);
   const nextDue = new Date(last);
@@ -20,6 +26,39 @@ export default function ProofOfLifeCard() {
   const isUrgent = daysUntilNext <= 2;
   const isOverdue = daysUntilNext < 0;
 
+  const isCheckedInToday = Boolean(
+    checkinSettings.lastCheckinAt && 
+    new Date(checkinSettings.lastCheckinAt).toDateString() === new Date().toDateString()
+  );
+
+  const handleHeartbeatSync = () => {
+    setIsSyncing(true);
+    const prevStreak = checkinSettings.currentStreak || 0;
+    completeCheckin('tap');
+    const updatedStreak = useCheckinStore.getState().checkinSettings.currentStreak;
+    const wasAlreadyLogged = updatedStreak === prevStreak && prevStreak > 0;
+
+    toast.success(
+      wasAlreadyLogged
+        ? `Heartbeat confirmed. Vault secured! Streak: ${updatedStreak} days (already logged today)`
+        : `Heartbeat confirmed. Streak updated to ${updatedStreak} days!`, 
+      {
+        icon: '❤️',
+        style: {
+          background: 'var(--color-bg-surface, #0E1015)',
+          color: 'var(--color-text-primary, #E9E6DF)',
+          border: '1px solid rgba(244, 63, 94, 0.3)'
+        }
+      }
+    );
+    trackEvent(EVENTS.HEARTBEAT_SYNC, {
+      frequency: checkinSettings.frequency,
+      status: isOverdue ? 'overdue' : isUrgent ? 'urgent' : 'nominal',
+      streak: updatedStreak
+    });
+    setTimeout(() => setIsSyncing(false), 900);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -30,13 +69,13 @@ export default function ProofOfLifeCard() {
         'border-base/60 hover:border-brand-primary/40'
       }`}
     >
-      {/* Heartbeat Pulse Background */}
-      <div className="absolute top-0 right-0 p-8 opacity-10">
+      {/* Heartbeat Pulse Background with Beating Heart */}
+      <div className="absolute top-0 right-0 p-8 opacity-15 pointer-events-none">
         <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ scale: [1, 1.25, 1], rotate: [0, 2, -2, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <Activity size={120} className={isOverdue ? 'text-red-500' : isUrgent ? 'text-brand-gold' : 'text-brand-primary'} />
+          <Heart size={110} className={isOverdue ? 'text-red-500 fill-red-500/20' : isUrgent ? 'text-brand-gold fill-brand-gold/20' : 'text-rose-500 fill-rose-500/20'} />
         </motion.div>
       </div>
 
@@ -53,11 +92,15 @@ export default function ProofOfLifeCard() {
             )}
           </div>
           <p className="text-secondary text-[11px] font-medium tracking-wide flex items-center gap-1.5 uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-ping" />
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
             Heartbeat Monitoring Active
           </p>
         </div>
-        <button className="p-2 rounded-lg bg-white/5 border border-white/10 text-muted hover:text-primary transition-colors">
+        <button 
+          onClick={() => navigate('/check-in')}
+          title="Configure Dead Man's Switch Protocols"
+          className="p-2 rounded-lg bg-surface/60 border border-base/60 text-muted hover:text-primary hover:border-brand-primary/40 transition-colors"
+        >
           <Settings2 size={16} />
         </button>
       </div>
@@ -95,24 +138,53 @@ export default function ProofOfLifeCard() {
         </div>
       </div>
 
+      {/* Heartbeat Action Button with Animated Heart Icon and Ripple */}
       <Button 
-        className="w-full h-14 relative group overflow-hidden shadow-xl shadow-brand-primary/10" 
-        variant={isOverdue || isUrgent ? 'primary' : 'secondary'}
-        onClick={() => {
-          completeCheckin('tap');
-          trackEvent(EVENTS.HEARTBEAT_SYNC, {
-            frequency: checkinSettings.frequency,
-            status: isOverdue ? 'overdue' : isUrgent ? 'urgent' : 'nominal'
-          });
-        }}
+        className={cn(
+          "w-full h-14 relative group overflow-hidden shadow-xl flex items-center justify-center gap-3 border transition-all",
+          isOverdue 
+            ? "bg-red-500 text-white border-red-400 hover:bg-red-600 shadow-red-500/20"
+            : isUrgent
+              ? "bg-brand-gold text-obsidian-950 border-brand-gold/50 shadow-brand-gold/20"
+              : "bg-surface hover:bg-surface/80 text-primary border-base hover:border-brand-primary/50 shadow-rose-500/5"
+        )} 
+        variant="secondary"
+        onClick={handleHeartbeatSync}
+        disabled={isSyncing}
       >
-        <span className="relative z-10 font-bold uppercase tracking-widest text-[11px]">Initiate Heartbeat Sync</span>
+        <motion.div
+          animate={isSyncing ? { scale: [1, 1.4, 0.9, 1.3, 1], rotate: [0, 15, -15, 0] } : { scale: [1, 1.2, 1] }}
+          transition={{ duration: isSyncing ? 0.6 : 1.4, repeat: isSyncing ? 1 : Infinity, ease: "easeInOut" }}
+          className="relative flex items-center justify-center"
+        >
+          <Heart 
+            size={18} 
+            className="fill-rose-500 text-rose-500 filter drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]" 
+          />
+          <span className="absolute inset-0 rounded-full bg-rose-500/30 animate-ping -z-10" />
+        </motion.div>
+        <span className={cn(
+          "relative z-10 font-bold uppercase tracking-widest text-[11px]",
+          isOverdue ? "text-white" : isUrgent ? "text-obsidian-950" : "text-primary"
+        )}>
+          {isSyncing ? 'Heartbeat Pulsing...' : isCheckedInToday ? 'Pulse Active (Logged Today)' : 'Initiate Heartbeat Sync'}
+        </span>
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
       </Button>
 
-      <p className="text-center mt-6 text-[10px] font-medium text-muted">
-        Fail-safe protocol: Succession triggers after <span className="text-primary font-bold">48 hours</span> of inactivity.
-      </p>
+      <div className="text-center mt-6">
+        <p className="text-[10px] font-medium text-muted">
+          Fail-safe protocol: Succession triggers after{' '}
+          <button 
+            onClick={() => navigate('/check-in')} 
+            className="text-primary font-bold hover:text-brand-primary hover:underline"
+            title="Click to configure Dead Man's Switch inactivity duration"
+          >
+            {checkinSettings.consecutiveMissesAllowed || 3} missed {checkinSettings.frequency === 'weekly' ? 'weeks' : checkinSettings.frequency === 'biweekly' ? 'biweekly cycles' : checkinSettings.frequency === 'monthly' ? 'months' : 'intervals'}
+          </button>
+          {' '}of inactivity.
+        </p>
+      </div>
     </motion.div>
   );
 }

@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, EyeOff, Zap, CheckCircle2 } from 'lucide-react';
@@ -13,6 +14,12 @@ const fadeUp = (delay = 0) => ({
 export default function ZeroKnowledge() {
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Zero-Knowledge Privacy Architecture | Transfer Legacy"
+        description="Learn how Transfer Legacy mathematically guarantees your private keys and documents cannot be viewed by anyone, including us."
+        canonicalUrl="https://transferlegacy.com/features/zero-knowledge"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-6 mb-24">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-2 mb-4">
@@ -49,7 +56,7 @@ export default function ZeroKnowledge() {
            </motion.div>
            <motion.div {...fadeUp(0.4)} className="space-y-8">
               <h2 className="text-4xl font-display font-bold">Privacy as a <span className="text-brand-primary italic">Right</span></h2>
-              <p className="text-muted font-medium leading-relaxed">In an era of surveillance, we provide a sanctuary for your digital life. Your data remains yours—unseen, untouched, and uncompromised.</p>
+              <p className="text-muted font-medium leading-relaxed">In an era of surveillance, we provide a sanctuary for your digital life. Your data remains yours - unseen, untouched, and uncompromised.</p>
               <div className="p-8 rounded-3xl bg-surface/20 border border-base">
                  <div className="flex items-center gap-4 mb-4">
                     <Zap size={20} className="text-brand-gold" />

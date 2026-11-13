@@ -1,3 +1,4 @@
+import SEO from '../components/seo/SEO';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Send, MessageSquare, Clock } from 'lucide-react';
@@ -67,23 +68,36 @@ export default function ContactUs() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-page flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0E14] flex items-center justify-center">
+      <SEO 
+        title="Contact Security Desk & Support | Transfer Legacy"
+        description="Reach out to our security engineering team and support desk for institutional inquiries, vault assistance, and partnership opportunities."
+        canonicalUrl="https://transferlegacy.com/contact"
+        schema={{
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact Transfer Legacy",
+    "url": "https://transferlegacy.com/contact",
+    "description": "Contact Transfer Legacy security and customer support team."
+  }}
+      />
+
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-page text-primary selection:bg-brand-primary/30">
+    <div className="min-h-screen bg-[#0B0E14] text-white selection:bg-indigo-500/30">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full" />
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -92,10 +106,10 @@ export default function ContactUs() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-5xl md:text-5xl font-display font-light mb-6 text-primary tracking-tight leading-tight">
+            <h1 className="text-5xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
               Let's Start a Conversation
             </h1>
-            <p className="text-xl text-secondary leading-relaxed">
+            <p className="text-xl text-slate-400 leading-relaxed">
               Have questions about securing your digital legacy? Our team is here to help you navigate the future of inheritance.
             </p>
           </motion.div>
@@ -113,53 +127,53 @@ export default function ContactUs() {
               className="grid grid-cols-1 gap-6"
             >
               {/* Info Cards */}
-              <div className="p-6 rounded-2xl bg-surface/50 border border-base backdrop-blur-sm group hover:border-brand-primary/50 transition-colors">
+              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-sm group hover:border-indigo-500/50 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                     <MapPin size={24} />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Our Office</h3>
-                    <p className="text-secondary leading-relaxed">
+                    <p className="text-slate-400 leading-relaxed">
                       {config?.office_address || '123 Legacy Way, Digital District, CA 94105'}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-surface/50 border border-base backdrop-blur-sm group hover:border-brand-primary/50 transition-colors">
+              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-sm group hover:border-indigo-500/50 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
                     <Mail size={24} />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-2">Email Us</h3>
                     <div className="space-y-2">
                       {config?.emails.map((e, i) => (
-                        <div key={i} className="flex justify-between items-center text-secondary">
+                        <div key={i} className="flex justify-between items-center text-slate-400">
                           <span>{e.label}</span>
-                          <a href={`mailto:${e.email}`} className="text-brand-primary hover:underline">{e.email}</a>
+                          <a href={`mailto:${e.email}`} className="text-indigo-400 hover:underline">{e.email}</a>
                         </div>
-                      )) || <p className="text-secondary">support@transferlegacy.com</p>}
+                      )) || <p className="text-slate-400">support@transferlegacy.com</p>}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-surface/50 border border-base backdrop-blur-sm group hover:border-brand-primary/50 transition-colors">
+              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-sm group hover:border-indigo-500/50 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                     <Clock size={24} />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-2">Working Hours</h3>
                     <div className="space-y-2">
                       {config?.working_hours.map((w, i) => (
-                        <div key={i} className="flex justify-between items-center text-secondary">
+                        <div key={i} className="flex justify-between items-center text-slate-400">
                           <span>{w.days}</span>
                           <span>{w.hours}</span>
                         </div>
-                      )) || <p className="text-secondary">Mon - Fri: 9am - 6pm PST</p>}
+                      )) || <p className="text-slate-400">Mon - Fri: 9am - 6pm PST</p>}
                     </div>
                   </div>
                 </div>
@@ -170,7 +184,7 @@ export default function ContactUs() {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="h-[300px] rounded-2xl overflow-hidden border border-base bg-surface"
+              className="h-[300px] rounded-2xl overflow-hidden border border-white/5 bg-slate-900 grayscale brightness-75 contrast-125"
             >
               <iframe 
                 src={config?.map_embed_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.123456789!2d-122.3999!3d37.789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085806e!2sSan%20Francisco!5e0!3m2!1sen!2sus!4v1234567890"}
@@ -188,65 +202,65 @@ export default function ContactUs() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-8 md:p-12 rounded-3xl bg-surface/30 border border-base backdrop-blur-xl relative overflow-hidden"
+              className="p-8 md:p-12 rounded-3xl bg-slate-900/30 border border-white/5 backdrop-blur-xl relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <MessageSquare size={120} className="text-brand-primary" />
+                <MessageSquare size={120} className="text-indigo-500" />
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-secondary ml-1">Your Name</label>
+                    <label className="text-sm font-medium text-slate-400 ml-1">Your Name</label>
                     <input 
                       required
                       type="text" 
                       value={formData.name}
                       onChange={e => setFormData({...formData, name: e.target.value})}
                       placeholder="John Doe"
-                      className="w-full px-5 py-4 rounded-xl bg-page border border-base focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-muted/40 text-primary"
+                      className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-secondary ml-1">Email Address</label>
+                    <label className="text-sm font-medium text-slate-400 ml-1">Email Address</label>
                     <input 
                       required
                       type="email" 
                       value={formData.email}
                       onChange={e => setFormData({...formData, email: e.target.value})}
                       placeholder="john@example.com"
-                      className="w-full px-5 py-4 rounded-xl bg-page border border-base focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-muted/40 text-primary"
+                      className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-secondary ml-1">Subject</label>
+                  <label className="text-sm font-medium text-slate-400 ml-1">Subject</label>
                   <input 
-                      required
-                      type="text" 
-                      value={formData.subject}
-                      onChange={e => setFormData({...formData, subject: e.target.value})}
-                      placeholder="How can we help?"
-                      className="w-full px-5 py-4 rounded-xl bg-page border border-base focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-muted/40 text-primary"
+                    required
+                    type="text" 
+                    value={formData.subject}
+                    onChange={e => setFormData({...formData, subject: e.target.value})}
+                    placeholder="How can we help?"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-secondary ml-1">Message</label>
+                  <label className="text-sm font-medium text-slate-400 ml-1">Message</label>
                   <textarea 
                     required
                     rows={6}
                     value={formData.message}
                     onChange={e => setFormData({...formData, message: e.target.value})}
                     placeholder="Write your message here..."
-                    className="w-full px-5 py-4 rounded-xl bg-page border border-base focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-muted/40 text-primary resize-none"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600 resize-none"
                   />
                 </div>
 
                 <button 
                   disabled={submitting}
-                  className="w-full py-5 rounded-xl bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white font-bold flex items-center justify-center gap-3 transition-all transform active:scale-[0.98]"
+                  className="w-full py-5 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold flex items-center justify-center gap-3 transition-all transform active:scale-[0.98]"
                 >
                   {submitting ? (
                     <motion.div 

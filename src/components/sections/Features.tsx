@@ -45,7 +45,7 @@ export default function Features() {
               Add your accounts. Encrypted before they leave your device.
             </h3>
             <p className="text-secondary text-[1rem] leading-relaxed font-light">
-              Everything your family might need, sealed in a vault only you can open. We store scrambled text — reading it ourselves is mathematically impossible.
+              Everything your family might need, sealed in a vault only you can open. We store scrambled text - reading it ourselves is mathematically impossible.
             </p>
             <ul className="space-y-3 text-[0.92rem] text-secondary">
               <li className="flex items-start gap-2.5">
@@ -124,7 +124,7 @@ export default function Features() {
               </div>
             ))}
             <div className="mt-[13px] p-[11px_13px] bg-brand-primary/10 rounded-[9px] text-[0.76rem] text-brand-primary font-medium">
-              🔐 Any 2 of 3 can unlock — no one holds full access alone.
+              🔐 Any 2 of 3 can unlock - no one holds full access alone.
             </div>
           </motion.div>
 
@@ -134,7 +134,7 @@ export default function Features() {
               Choose guardians. No single one can open it alone.
             </h3>
             <p className="text-secondary text-[1rem] leading-relaxed font-light">
-              Your trusted people each hold one fragment of the key. It takes two of them together to unlock — the same maths that guards the world's most sensitive systems.
+              Your trusted people each hold one fragment of the key. It takes two of them together to unlock - the same maths that guards the world's most sensitive systems.
             </p>
             <ul className="space-y-3 text-[0.92rem] text-secondary">
               <li className="flex items-start gap-2.5">
@@ -159,7 +159,7 @@ export default function Features() {
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
                 </span>
-                <span>Change guardians anytime — vault stays sealed</span>
+                <span>Change guardians anytime - vault stays sealed</span>
               </li>
             </ul>
           </motion.div>
@@ -176,10 +176,10 @@ export default function Features() {
           <motion.div variants={itemVariants} className="space-y-6">
             <div className="font-display text-[0.95rem] text-brand-primary italic">Step three</div>
             <h3 className="font-display font-light text-primary text-[clamp(1.6rem,2.6vw,2.3rem)] tracking-tight leading-tight">
-              Your family inherits — guided, gentle, automatic.
+              Your family inherits - guided, gentle, automatic.
             </h3>
             <p className="text-secondary text-[1rem] leading-relaxed font-light">
-              If you stop checking in, we reach out first — quietly, several times. Only then do guardians receive plain-language steps for every account. No jargon in a hard moment.
+              If you stop checking in, we reach out first - quietly, several times. Only then do guardians receive plain-language steps for every account. No jargon in a hard moment.
             </p>
             <ul className="space-y-3 text-[0.92rem] text-secondary">
               <li className="flex items-start gap-2.5">
@@ -188,7 +188,7 @@ export default function Features() {
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
                 </span>
-                <span>Smart check-ins — knows travel from emergency</span>
+                <span>Smart check-ins - knows travel from emergency</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-[19px] h-[19px] rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 mt-1">

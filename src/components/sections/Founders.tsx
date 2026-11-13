@@ -50,7 +50,7 @@ export default function Founders() {
             Built by people who've felt this problem.
           </h2>
           <p className="text-white/40 text-lg max-w-2xl font-light">
-            Not a team of generalists chasing a trend — two founders who got tired of waiting for someone else to solve this.
+            Not a team of generalists chasing a trend - two founders who got tired of waiting for someone else to solve this.
           </p>
         </motion.div>
 

@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Shield, Key, Heart } from 'lucide-react';
@@ -14,6 +15,12 @@ const fadeUp = (delay = 0) => ({
 export default function GuardianNetwork() {
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Decentralized Guardian Network | Transfer Legacy"
+        description="Eliminate single points of failure. Distribute cryptographic shards among trusted guardians with customizable quorum recovery."
+        canonicalUrl="https://transferlegacy.com/features/guardian-network"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-6 mb-24">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-2 mb-4">

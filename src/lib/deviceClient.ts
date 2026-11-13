@@ -1,22 +1,23 @@
 import sodium from 'libsodium-wrappers-sumo';
 import { api } from './api';
 import { toBase64Url, fromBase64Url, getDeviceId } from './aeadClient';
+import { getSecureItem, setSecureItem } from './secureKeyStore';
 
 export async function registerDevice(userId: string): Promise<void> {
   await sodium.ready;
   const deviceId = getDeviceId();
   
-  // Check if we have local device keys, if not generate them
-  let pubKeyStr = localStorage.getItem('tl_device_public_key');
-  let privKeyStr = localStorage.getItem('tl_device_private_key');
+  // Check if we have local device keys, if not generate them securely
+  let pubKeyStr = await getSecureItem('tl_device_public_key');
+  let privKeyStr = await getSecureItem('tl_device_private_key');
   
   let keypair;
   if (!pubKeyStr || !privKeyStr) {
     keypair = sodium.crypto_sign_keypair();
     pubKeyStr = toBase64Url(keypair.publicKey);
     privKeyStr = toBase64Url(keypair.privateKey);
-    localStorage.setItem('tl_device_public_key', pubKeyStr);
-    localStorage.setItem('tl_device_private_key', privKeyStr);
+    await setSecureItem('tl_device_public_key', pubKeyStr);
+    await setSecureItem('tl_device_private_key', privKeyStr);
   } else {
     keypair = {
       publicKey: fromBase64Url(pubKeyStr),

@@ -5,6 +5,32 @@ import { ArrowRight, Shield, BookOpen, CheckCircle2, Wallet, RefreshCw } from 'l
 import Button from '../../components/ui/Button';
 
 const TransferCryptoWallet = () => {
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://transferlegacy.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://transferlegacy.com/resources"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Transfer Crypto Wallets",
+        "item": "https://transferlegacy.com/transfer-crypto-wallet-to-family"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-aurora opacity-30 pointer-events-none" />
@@ -14,6 +40,7 @@ const TransferCryptoWallet = () => {
         title="How to Transfer Crypto Wallets After Death: Step-by-Step Guide"
         description="A comprehensive guide on transferring Bitcoin, Ethereum, and DeFi wallets to your heirs. Learn the secure protocol for digital asset handovers."
         canonical="https://transferlegacy.com/transfer-crypto-wallet-to-family"
+        schema={breadcrumbSchema}
       />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">

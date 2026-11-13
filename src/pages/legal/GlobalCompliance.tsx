@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Globe, Shield, Scale, FileCheck, CheckCircle2, MapPin, Landmark } from 'lucide-react';
@@ -21,6 +22,12 @@ export default function GlobalCompliance() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Global Legal & Regulatory Compliance | Transfer Legacy"
+        description="Succession compliance across international jurisdictions including US RUFADAA, EU GDPR, Indian Succession Act, and UAE VARA."
+        canonicalUrl="https://transferlegacy.com/legal/compliance"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}
@@ -106,7 +113,7 @@ export default function GlobalCompliance() {
                  <h3 className="text-3xl font-display font-bold">Privacy by <span className="italic text-brand-gold">Design</span></h3>
                  <p className="text-muted font-medium leading-relaxed">Our protocol is fundamentally built on the principle of data minimization. We do not process what we do not need, and we do not store what we cannot see.</p>
                  <ul className="space-y-4">
-                    {["No persistent PII storage", "Automatic right-to-be-forgotten nodes", "Biometric data remains on-device", "Cryptographic proof of non-access"].map((point, i) => (
+                    {["Zero-knowledge vault payload encryption", "Instant cryptographic Right-to-Erasure (GDPR Art. 17)", "Biometric credentials stay on-device (WebAuthn)", "Append-only Merkle audit trail"].map((point, i) => (
                       <li key={i} className="flex items-center gap-3 text-sm font-bold text-primary0">
                          <CheckCircle2 size={18} className="text-brand-gold" /> {point}
                       </li>

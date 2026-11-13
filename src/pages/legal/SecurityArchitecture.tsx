@@ -1,3 +1,4 @@
+import SEO from '../../components/seo/SEO';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Lock, Cpu, Network, Zap, CheckCircle2, Server, Terminal } from 'lucide-react';
@@ -31,6 +32,12 @@ export default function SecurityArchitecture() {
 
   return (
     <div className="min-h-screen bg-page text-primary pt-24 pb-20">
+      <SEO 
+        title="Security Architecture Specification | Transfer Legacy"
+        description="Detailed cryptographic specifications: AES-256 GCM, Libsodium Sumo, Shamir Secret Sharing, and Argon2id key derivation."
+        canonicalUrl="https://transferlegacy.com/legal/security-architecture"
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Header Section */}
@@ -116,7 +123,7 @@ export default function SecurityArchitecture() {
            <h3 className="text-2xl font-display font-bold mb-10">Institutional Certifications</h3>
            <div className="flex flex-wrap justify-center gap-12 opacity-60">
               {/* Simplified logos/labels for compliance */}
-              {["SOC2 TYPE II", "GDPR READY", "ISO 27001", "HIPAA COMPLIANT", "FINRA COMPLIANT"].map((badge, i) => (
+              {["SOC2 TYPE II READY", "GDPR COMPLIANT", "ISO 27001 ALIGNED", "NIST SP 800-63B", "FINRA ALIGNED"].map((badge, i) => (
                 <div key={i} className="text-[10px] font-bold uppercase tracking-[0.3em] text-obsidian-700">
                    {badge}
                 </div>

@@ -12,7 +12,7 @@ const cards = [
     tag: "SHARDING::SSS_M_OF_N",
     icon: Key,
     title: "Distributed Key Shards",
-    desc: "Shards are generated using polynomial cryptography. No single guardian has access — they must reach threshold consensus.",
+    desc: "Shards are generated using polynomial cryptography. No single guardian has access - they must reach threshold consensus.",
   },
   {
     tag: "ARCHITECTURE::ZERO_KNOWLEDGE",

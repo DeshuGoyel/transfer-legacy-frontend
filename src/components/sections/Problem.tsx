@@ -9,7 +9,7 @@ const cards = [
   {
     icon: "✉️",
     title: "Gmail is the master key",
-    desc: "Every reset and statement runs through email. Google deletes inactive accounts — and everything linked locks with it."
+    desc: "Every reset and statement runs through email. Google deletes inactive accounts - and everything linked locks with it."
   },
   {
     icon: "📈",
@@ -37,7 +37,7 @@ export default function Problem() {
 
         {/* Big Claim */}
         <p className="font-display font-light text-primary leading-[1.14] tracking-tight text-[clamp(1.9rem,3.4vw,2.9rem)] max-w-[900px] mb-14">
-          When someone passes, families don't lose the money. They lose <span className="relative z-10 font-medium inline-block text-brand-primary after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-[0.02em] after:h-[0.15em] after:bg-brand-primary/10 after:-z-10">access to it</span> — accounts freeze, passwords vanish, and $140 billion disappears every year.
+          When someone passes, families don't lose the money. They lose <span className="relative z-10 font-medium inline-block text-brand-primary after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-[0.02em] after:h-[0.15em] after:bg-brand-primary/10 after:-z-10">access to it</span> - accounts freeze, passwords vanish, and $140 billion disappears every year.
         </p>
 
         {/* Grid cards */}

@@ -33,21 +33,16 @@ export default function ForgotPassword() {
       toast.success('Reset link sent to your email!');
     } catch (err: unknown) {
       console.error('Password reset request error:', err);
-      if (import.meta.env.DEV) {
-        setIsSent(true);
-        toast.success('DEV MODE: Reset link sent to your email!');
-      } else {
-        const errorMessage = err instanceof Error ? err.message : 'Connection error occurred';
-        setError(errorMessage);
-        toast.error('Failed to request reset link');
-      }
+      const errorMessage = err instanceof Error ? err.message : 'Connection error occurred';
+      setError(errorMessage);
+      toast.error(errorMessage || 'Failed to request reset link');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-page flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#020409] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] animate-pulse" />
@@ -67,14 +62,14 @@ export default function ForgotPassword() {
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
             </div>
-            <span className="font-display text-2xl font-bold text-primary tracking-wide">
+            <span className="font-display text-2xl font-bold text-white tracking-wide">
               Transfer Legacy
             </span>
           </Link>
-          <p className="text-secondary text-sm">Recover your zero-knowledge succession vault</p>
+          <p className="text-slate-400 text-sm">Recover your zero-knowledge succession vault</p>
         </div>
 
-        <div className="bg-surface/50 backdrop-blur-2xl border border-base/80 rounded-[32px] p-8 shadow-2xl">
+        <div className="bg-slate-900/30 backdrop-blur-2xl border border-slate-800/80 rounded-[32px] p-8 shadow-2xl">
           <AnimatePresence mode="wait">
             {!isSent ? (
               <motion.div
@@ -83,8 +78,8 @@ export default function ForgotPassword() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <h2 className="text-xl font-bold text-primary mb-2">Forgot Password</h2>
-                <p className="text-secondary text-xs mb-6 leading-relaxed">
+                <h2 className="text-xl font-bold text-white mb-2">Forgot Password</h2>
+                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
                   Enter the email address registered with your account. We will email you a secure link to reset your master password and re-initialize your vault.
                 </p>
 
@@ -97,9 +92,9 @@ export default function ForgotPassword() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-page/50 border-base/80 focus:border-brand-primary/50 pl-10 text-primary"
+                      className="bg-slate-950/50 border-slate-800/80 focus:border-brand-primary/50 pl-10 text-white"
                     />
-                    <Mail className="absolute left-3.5 bottom-3.5 w-4 h-4 text-muted" />
+                    <Mail className="absolute left-3.5 bottom-3.5 w-4 h-4 text-slate-500" />
                   </div>
 
                   {error && (
@@ -129,7 +124,7 @@ export default function ForgotPassword() {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full h-10 text-xs font-semibold text-muted hover:text-primary transition-all flex items-center justify-center gap-2"
+                      className="w-full h-10 text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2"
                       onClick={() => navigate('/login')}
                     >
                       <ArrowLeft className="w-4 h-4" />
@@ -149,15 +144,15 @@ export default function ForgotPassword() {
                   <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                 </div>
                 
-                <h2 className="text-xl font-bold text-primary mb-2">Check your inbox</h2>
-                <p className="text-secondary text-xs mb-8 leading-relaxed px-4">
-                  We've sent a secure password recovery email to <strong className="text-primary">{email}</strong>. 
+                <h2 className="text-xl font-bold text-white mb-2">Check your inbox</h2>
+                <p className="text-slate-400 text-xs mb-8 leading-relaxed px-4">
+                  We've sent a secure password recovery email to <strong className="text-slate-200">{email}</strong>. 
                   Click the link in the email to set your new password.
                 </p>
 
                 <Button
                   variant="secondary"
-                  className="w-full h-12 rounded-xl text-sm font-semibold border border-base hover:bg-surface text-primary transition-all"
+                  className="w-full h-12 rounded-xl text-sm font-semibold border border-slate-800 hover:bg-slate-800/50 text-white transition-all"
                   onClick={() => navigate('/login')}
                 >
                   Return to Login
