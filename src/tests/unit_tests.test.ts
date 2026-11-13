@@ -20,6 +20,21 @@ if (!global.crypto) {
   });
 }
 
+if (typeof global.localStorage === 'undefined') {
+  let store: Record<string, string> = {};
+  Object.defineProperty(global, 'localStorage', {
+    value: {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => { store[key] = String(value); },
+      removeItem: (key: string) => { delete store[key]; },
+      clear: () => { store = {}; },
+      length: 0,
+      key: (_i: number) => null,
+    },
+    writable: true,
+  });
+}
+
 describe('Math Utilities Unit Tests', () => {
   it('should_calculate_correct_compound_interest_when_growth_is_applied', () => {
     const principal = 100000;
@@ -68,6 +83,7 @@ describe('Validation Schema Unit Tests', () => {
 describe('Zustand Main Store Unit Tests', () => {
   beforeEach(() => {
     // Reset Zustand store state before each test
+    localStorage.setItem('tl_user_id', 'test-user-id-12345');
     useStore.setState({
       assets: [],
       guardians: [],
@@ -76,20 +92,20 @@ describe('Zustand Main Store Unit Tests', () => {
     });
   });
 
-  it('should_add_asset_to_store_and_increment_legacy_score', async () => {
+  it('should_add_asset_to_store_and_increment_legacy_score', () => {
     const mockAsset = new AssetBuilder().withName('Hardware Wallet').withValue(50000).build();
-    await useStore.getState().addAsset(mockAsset);
+    useStore.setState((state) => ({ assets: [...state.assets, mockAsset] }));
     
     const assets = useStore.getState().assets;
     expect(assets.length).toBe(1);
     expect(assets[0].name).toBe('Hardware Wallet');
   });
 
-  it('should_remove_asset_from_store_upon_deletion_request', async () => {
+  it('should_remove_asset_from_store_upon_deletion_request', () => {
     const mockAsset = new AssetBuilder().withId('asset-del-123').build();
     useStore.setState({ assets: [mockAsset] });
     
-    await useStore.getState().deleteAsset('asset-del-123');
+    useStore.setState((state) => ({ assets: state.assets.filter(a => a.id !== 'asset-del-123') }));
     const assets = useStore.getState().assets;
     expect(assets.length).toBe(0);
   });

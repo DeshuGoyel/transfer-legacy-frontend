@@ -1011,7 +1011,8 @@ export const useStore = create<AppState>((set) => ({
 
       const ts = Math.floor(Date.now() / 1000);
       const deviceId = localStorage.getItem('tl_device_id') || '00000000-0000-0000-0000-000000000000';
-      const devicePrivateKeyStr = localStorage.getItem('tl_device_private_key');
+      const { getSecureItem } = await import('../lib/secureKeyStore');
+      const devicePrivateKeyStr = await getSecureItem('tl_device_private_key');
 
       let deviceSigStr = 'device-signature-placeholder';
 

@@ -1,6 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { api } from '../lib/api';
 
+if (typeof global.localStorage === 'undefined') {
+  let store: Record<string, string> = {};
+  Object.defineProperty(global, 'localStorage', {
+    value: {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => { store[key] = String(value); },
+      removeItem: (key: string) => { delete store[key]; },
+      clear: () => { store = {}; },
+      length: 0,
+      key: (_i: number) => null,
+    },
+    writable: true,
+  });
+}
+
 describe('API Client Integration Tests', () => {
   beforeEach(() => {
     vi.spyOn(global, 'fetch');
@@ -14,6 +29,7 @@ describe('API Client Integration Tests', () => {
     // Mock the global fetch to return a JSON response
     mockFetch.mockResolvedValueOnce({
       ok: true,
+      headers: new Headers(),
       json: async () => mockResponseData
     });
 
@@ -36,6 +52,7 @@ describe('API Client Integration Tests', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 400,
+      headers: new Headers(),
       json: async () => ({ message: 'Invalid payload signature' })
     });
 
@@ -49,7 +66,8 @@ describe('API Client Integration Tests', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 401,
-      json: async () => ({ error: { message: 'Unauthorized session' } })
+      headers: new Headers(),
+      json: async () => ({ message: 'Unauthorized session' })
     });
 
     await expect(
