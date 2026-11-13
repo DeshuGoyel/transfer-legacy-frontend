@@ -71,7 +71,7 @@ export default function ROICalculator() {
                 </div>
 
                 <div className="space-y-4 pt-8 border-t border-base/40">
-                   <div className="flex items-start gap-4 p-4 rounded-2xl bg-obsidian-950/50 border border-base/40">
+                   <div className="flex items-start gap-4 p-4 rounded-2xl bg-page/60 border border-base/40">
                       <Clock size={18} className="text-muted shrink-0 mt-1" />
                       <div>
                         <p className="text-[11px] font-bold uppercase tracking-widest text-muted mb-1">Recovery Delta</p>
@@ -80,7 +80,7 @@ export default function ROICalculator() {
                         </p>
                       </div>
                    </div>
-                   <div className="flex items-start gap-4 p-4 rounded-2xl bg-obsidian-950/50 border border-base/40">
+                   <div className="flex items-start gap-4 p-4 rounded-2xl bg-page/60 border border-base/40">
                       <ShieldCheck size={18} className="text-muted shrink-0 mt-1" />
                       <div>
                         <p className="text-[11px] font-bold uppercase tracking-widest text-muted mb-1">Access Guarantee</p>
@@ -118,7 +118,7 @@ export default function ROICalculator() {
               </Card>
             </div>
 
-            <Card className="p-12 bg-obsidian-950/50 backdrop-blur-3xl border-base/60 rounded-[48px] relative overflow-hidden">
+            <Card className="p-12 bg-surface/50 backdrop-blur-3xl border border-base/60 rounded-[48px] relative overflow-hidden">
                <div className="absolute top-0 right-0 w-full h-full bg-aurora opacity-10 pointer-events-none" />
                <div className="relative z-10 space-y-8">
                   <div className="flex items-center gap-3 mb-4">

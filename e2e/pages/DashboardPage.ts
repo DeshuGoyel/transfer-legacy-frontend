@@ -25,11 +25,11 @@ export class DashboardPage extends BasePage {
   }
 
   async clickNavItem(itemName: string) {
-    await this.clickElement(`nav a:has-text("${itemName}"), .sidebar a:has-text("${itemName}")`);
+    await this.clickElement(`a[href*="${itemName.toLowerCase()}"], nav a:has-text("${itemName}"), .sidebar a:has-text("${itemName}"), a:has-text("${itemName}")`);
   }
 
   async clickLogout() {
-    await this.clickElement(this.logoutButton);
+    await this.clickElement('button[title*="log" i], button:has-text("Logout"), button:has-text("Sign Out"), a:has-text("Logout"), button:has-text("Log out")');
   }
 
   async getCurrentUrl(): Promise<string> {

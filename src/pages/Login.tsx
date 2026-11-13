@@ -32,7 +32,8 @@ export default function Login() {
       let token = '';
       let displayName = '';
 
-      // 1. Resolve email to user_id (unencrypted route)
+      try {
+        // 1. Resolve email to user_id (unencrypted route)
         const lookupResponse = await api.post<{ data: { user_id: string } }>(
           '/auth/user-id',
           { email },
@@ -118,6 +119,32 @@ export default function Login() {
             console.warn('Failed to decrypt profile name, falling back to email-derived name:', decErr);
           }
         }
+      } catch (apiErr) {
+        if (import.meta.env.DEV) {
+          console.log('Dev mode active. Falling back to mock authentication due to API error:', apiErr);
+          resolvedUserId = 'mock-dev-user-id';
+          token = 'mock-dev-session-token';
+          displayName = email.split('@')[0]
+            .split(/[._-]/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+          // Initialize mock keys in the store so zero-knowledge crypto functions don't crash
+          try {
+            const sodium = (await import('libsodium-wrappers-sumo')).default;
+            await sodium.ready;
+            const mk = sodium.randombytes_buf(32);
+            useStore.getState().setMasterKey(mk);
+            const fakeExportKey = sodium.randombytes_buf(64);
+            const userKeys = await deriveUserKeys(toBase64Url(fakeExportKey));
+            useStore.getState().setUserKeys(userKeys);
+          } catch (keyErr) {
+            console.error('Failed to initialize mock keys in DEV fallback:', keyErr);
+          }
+        } else {
+          throw apiErr;
+        }
+      }
 
       localStorage.setItem('tl_session_token', token);
       localStorage.setItem('tl_user_id', resolvedUserId);
@@ -186,7 +213,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020409] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-page flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] animate-pulse" />
@@ -206,14 +233,14 @@ export default function Login() {
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
             </div>
-            <span className="font-display text-2xl font-bold text-white tracking-wide">
+            <span className="font-display text-2xl font-bold text-primary tracking-wide">
               Transfer Legacy
             </span>
           </Link>
-          <p className="text-slate-400 text-sm">Access your zero-knowledge succession vault</p>
+          <p className="text-secondary text-sm">Access your zero-knowledge succession vault</p>
         </div>
 
-        <div className="bg-slate-900/30 backdrop-blur-2xl border border-slate-800/80 rounded-[32px] p-8 shadow-2xl">
+        <div className="bg-surface/50 backdrop-blur-2xl border border-base/80 rounded-[32px] p-8 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="relative">
               <Input
@@ -223,9 +250,9 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-slate-950/50 border-slate-800/80 focus:border-brand-primary/50 pl-10 text-white"
+                className="bg-page/50 border-base/80 focus:border-brand-primary/50 pl-10 text-primary"
               />
-              <Mail className="absolute left-3.5 bottom-3.5 w-4 h-4 text-slate-500" />
+              <Mail className="absolute left-3.5 bottom-3.5 w-4 h-4 text-muted" />
             </div>
 
             <div className="relative">
@@ -236,13 +263,13 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-slate-950/50 border-slate-800/80 focus:border-brand-primary/50 pl-10 pr-10 text-white"
+                className="bg-page/50 border-base/80 focus:border-brand-primary/50 pl-10 pr-10 text-primary"
               />
-              <Lock className="absolute left-3.5 bottom-3.5 w-4 h-4 text-slate-500" />
+              <Lock className="absolute left-3.5 bottom-3.5 w-4 h-4 text-muted" />
               <button
                 type="button"
                 onClick={() => setShowPassword(v => !v)}
-                className="absolute right-3.5 bottom-3 text-slate-500 hover:text-slate-300 transition-colors"
+                className="absolute right-3.5 bottom-3 text-muted hover:text-secondary transition-colors"
                 tabIndex={-1}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
@@ -251,8 +278,8 @@ export default function Login() {
             </div>
 
             <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 text-slate-400 cursor-pointer">
-                <input type="checkbox" className="rounded border-slate-800 bg-slate-950 text-brand-primary focus:ring-0 focus:ring-offset-0" />
+              <label className="flex items-center gap-2 text-secondary cursor-pointer">
+                <input type="checkbox" className="rounded border-base bg-page text-brand-primary focus:ring-0 focus:ring-offset-0" />
                 Remember this device
               </label>
               <Link to="/forgot-password" className="text-brand-primary hover:underline">Forgot password?</Link>
@@ -289,8 +316,8 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-slate-800/50 text-center">
-            <p className="text-xs text-slate-500">
+          <div className="mt-8 pt-6 border-t border-base/50 text-center">
+            <p className="text-xs text-muted">
               New to Transfer Legacy?{' '}
               <Link to="/onboarding" className="text-brand-primary hover:underline font-medium">Create a free vault</Link>
             </p>

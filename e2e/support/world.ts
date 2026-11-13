@@ -32,6 +32,7 @@ export class CustomWorld extends World implements ICustomWorld {
   async init() {
     this.browser = await chromium.launch({
       headless: process.env.HEADLESS !== 'false',
+      channel: process.env.BROWSER === 'chrome' ? 'chrome' : undefined,
     });
 
     this.context = await this.browser.newContext({

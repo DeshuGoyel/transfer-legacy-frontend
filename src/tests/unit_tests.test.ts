@@ -90,6 +90,7 @@ describe('Zustand Main Store Unit Tests', () => {
       heirs: [],
       isAuthenticated: true
     });
+    localStorage.setItem('tl_user_id', 'mock-user-id');
   });
 
   it('should_add_asset_to_store_and_increment_legacy_score', () => {

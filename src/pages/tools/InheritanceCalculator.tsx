@@ -110,7 +110,7 @@ export default function InheritanceCalculator() {
                         className={`p-4 rounded-2xl border text-sm font-bold transition-all ${
                           jurisdiction === j 
                           ? 'bg-brand-primary border-brand-primary text-obsidian-950 shadow-lg shadow-brand-primary/20' 
-                          : 'bg-obsidian-950/50 border-base/40 text-secondary hover:border-brand-primary/40'
+                          : 'bg-page/60 border-base/40 text-secondary hover:border-brand-primary/40'
                         }`}
                       >
                         {j}
@@ -170,7 +170,7 @@ export default function InheritanceCalculator() {
 
           {/* Results */}
           <div className="lg:col-span-7 space-y-8">
-            <Card className="p-12 bg-obsidian-950/80 backdrop-blur-2xl border-brand-primary/30 rounded-[48px] relative overflow-hidden">
+            <Card className="p-12 bg-surface/50 border border-base/60 backdrop-blur-2xl rounded-[48px] relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-10">
                 <TrendingUp size={160} className="text-brand-primary" />
               </div>

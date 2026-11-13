@@ -31,6 +31,10 @@ const IdentityPassport = lazy(() => import('../pages/IdentityPassport'));
 const DeveloperPortal = lazy(() => import('../pages/DeveloperPortal'));
 const LegacyAnalytics = lazy(() => import('../pages/LegacyAnalytics'));
 const ContactUs = lazy(() => import('../pages/ContactUs'));
+const SecurityCenter = lazy(() => import('../pages/SecurityCenter'));
+const InstructionsCenter = lazy(() => import('../pages/InstructionsCenter'));
+const Careers = lazy(() => import('../pages/Careers'));
+const Activity = lazy(() => import('../pages/Activity'));
 const ForgotPassword = lazy(() => import('./ForgotPassword'));
 const ResetPassword = lazy(() => import('./ResetPassword'));
 const NotFound = lazy(() => import('./NotFound'));
@@ -111,10 +115,10 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 // Routes that are public/pre-login - no sidebar, navbar, or footer
-const PUBLIC_ROUTES = new Set(['/', '/login', '/onboarding', '/contact', '/contact-us', '/forgot-password', '/reset-password']);
+const PUBLIC_ROUTES = new Set(['/', '/login', '/onboarding', '/contact', '/contact-us', '/forgot-password', '/reset-password', '/careers']);
 
 // Dashboard/app routes - use normal system cursor
-const APP_ROUTE_PREFIXES = ['/dashboard', '/assets', '/allocations', '/guardians', '/heirs', '/ai-planner', '/trust', '/settings', '/checkin', '/check-in', '/capsules', '/obituary', '/passport', '/identity', '/developer', '/activity', '/analytics', '/reports'];
+const APP_ROUTE_PREFIXES = ['/dashboard', '/assets', '/allocations', '/guardians', '/heirs', '/ai-planner', '/trust', '/instructions', '/settings', '/checkin', '/check-in', '/capsules', '/obituary', '/passport', '/identity', '/developer', '/activity', '/analytics', '/reports', '/security-center'];
 
 function RouteFallback() {
   return (
@@ -168,7 +172,10 @@ function AppLayout() {
             <Route path="/passport"    element={<ProtectedRoute><IdentityPassport /></ProtectedRoute>} />
             <Route path="/identity"    element={<ProtectedRoute><IdentityPassport /></ProtectedRoute>} />
             <Route path="/developer"   element={<ProtectedRoute><DeveloperPortal /></ProtectedRoute>} />
-            <Route path="/activity"    element={<ProtectedRoute><LegacyAnalytics /></ProtectedRoute>} />
+            <Route path="/activity"    element={<ProtectedRoute><Activity /></ProtectedRoute>} />
+            <Route path="/security-center" element={<ProtectedRoute><SecurityCenter /></ProtectedRoute>} />
+            <Route path="/instructions"    element={<ProtectedRoute><InstructionsCenter /></ProtectedRoute>} />
+            <Route path="/careers"         element={<Careers />} />
 
             {/* New Functional Feature Routes */}
             <Route path="/features/vault-security"          element={<VaultSecurity />} />

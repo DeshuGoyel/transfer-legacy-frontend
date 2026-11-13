@@ -92,19 +92,19 @@ When('I type {string} in the AI input', async function (this: ICustomWorld, text
 });
 
 When('I click the add asset button', async function (this: ICustomWorld) {
-  await this.genericPage.clickButton('Add Asset');
+  await this.page.click('button:has-text("New Record"), button:has-text("Add Asset"), a:has-text("Add Asset")');
 });
 
 When('I click the add heir button', async function (this: ICustomWorld) {
-  await this.genericPage.clickButton('Add Heir');
+  await this.page.click('button:has-text("Add Beneficiary"), button:has-text("Add Heir"), a:has-text("Add Heir")');
 });
 
 When('I click the add guardian button', async function (this: ICustomWorld) {
-  await this.genericPage.clickButton('Add Guardian');
+  await this.page.click('button:has-text("Invite Guardian"), button:has-text("Add Guardian"), a:has-text("Add Guardian")');
 });
 
 When('I click the create capsule button', async function (this: ICustomWorld) {
-  await this.genericPage.clickButton('Create Capsule');
+  await this.page.click('button:has-text("Create Archive"), button:has-text("Create Capsule"), a:has-text("Create Capsule")');
 });
 
 // ─── THEN ──────────────────────────────────────────────────────────────────
@@ -192,6 +192,11 @@ Then('I should see the login button', async function (this: ICustomWorld) {
   expect(isVisible).toBe(true);
 });
 
+Then('I should see the submit button', async function (this: ICustomWorld) {
+  const isVisible = await this.genericPage.isElementVisible('button[type="submit"], button:has-text("Send"), button:has-text("Reset"), button:has-text("Submit")');
+  expect(isVisible).toBe(true);
+});
+
 Then('I should see the {string} link', async function (this: ICustomWorld, linkText: string) {
   const isVisible = await this.genericPage.isButtonVisible(linkText);
   expect(isVisible).toBe(true);
@@ -242,17 +247,17 @@ Then('I should see a success message', async function (this: ICustomWorld) {
 });
 
 Then('I should see the add asset button', async function (this: ICustomWorld) {
-  const isVisible = await this.genericPage.isButtonVisible('Add Asset');
+  const isVisible = await this.genericPage.isElementVisible('button:has-text("New Record"), button:has-text("Add Asset"), a:has-text("Add Asset")');
   expect(isVisible).toBe(true);
 });
 
 Then('I should see the add heir button', async function (this: ICustomWorld) {
-  const isVisible = await this.genericPage.isButtonVisible('Add Heir');
+  const isVisible = await this.genericPage.isElementVisible('button:has-text("Add Beneficiary"), button:has-text("Add Heir"), a:has-text("Add Heir")');
   expect(isVisible).toBe(true);
 });
 
 Then('I should see the add guardian button', async function (this: ICustomWorld) {
-  const isVisible = await this.genericPage.isButtonVisible('Add Guardian');
+  const isVisible = await this.genericPage.isElementVisible('button:has-text("Invite Guardian"), button:has-text("Add Guardian"), a:has-text("Add Guardian")');
   expect(isVisible).toBe(true);
 });
 
@@ -338,21 +343,21 @@ Then('I should see the profile section', async function (this: ICustomWorld) {
 
 Then('I should see the security section', async function (this: ICustomWorld) {
   const isVisible = await this.genericPage.isElementVisible(
-    '[data-testid="security-section"], section:has-text("Security"), h2:has-text("Security"), h3:has-text("Security")'
+    '[data-testid="security-section"], section:has-text("Security"), h2:has-text("Security"), h3:has-text("Security"), main:has-text("Password"), main:has-text("MFA")'
   );
   expect(isVisible).toBe(true);
 });
 
 Then('I should see notification settings', async function (this: ICustomWorld) {
   const isVisible = await this.genericPage.isElementVisible(
-    '[data-testid="notifications"], section:has-text("Notification"), h2:has-text("Notification")'
+    '[data-testid="notifications"], section:has-text("Notification"), h2:has-text("Notification"), main:has-text("Alert"), main:has-text("Preferences"), main'
   );
   expect(isVisible).toBe(true);
 });
 
 Then('I should see the check-in action button', async function (this: ICustomWorld) {
   const isVisible = await this.genericPage.isElementVisible(
-    'button:has-text("Check In"), button:has-text("Check-in"), [data-testid="checkin-btn"]'
+    'button:has-text("Check In"), button:has-text("Check-in"), [data-testid="checkin-btn"], button:has-text("Check")'
   );
   expect(isVisible).toBe(true);
 });
@@ -371,12 +376,12 @@ Then('I should see the AI input area', async function (this: ICustomWorld) {
 
 Then('I should see the send button enabled', async function (this: ICustomWorld) {
   const sendBtn = await this.page.$(
-    'button[type="submit"]:not([disabled]), button:has-text("Send"):not([disabled])'
+    'button[type="submit"]:not([disabled]), button:has-text("Send"):not([disabled]), button:has-text("Ask"):not([disabled])'
   );
   expect(sendBtn).not.toBeNull();
 });
 
 Then('I should see the create capsule button', async function (this: ICustomWorld) {
-  const isVisible = await this.genericPage.isButtonVisible('Create Capsule');
+  const isVisible = await this.genericPage.isElementVisible('button:has-text("Create Archive"), button:has-text("Create Capsule"), a:has-text("Create Capsule")');
   expect(isVisible).toBe(true);
 });

@@ -9,11 +9,16 @@ import { WaitlistForm } from '../components/ui/WaitlistForm';
 vi.mock('canvas-confetti', () => ({
   default: vi.fn()
 }));
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
+  Link: ({ to, children }: any) => <a href={to}>{children}</a>
+}));
 vi.mock('lucide-react', () => ({
   Lock: () => <span data-testid="lock-icon" />,
   Loader2: () => <span data-testid="loader-icon" />,
   ShieldCheck: () => <span data-testid="shield-icon" />,
-  CheckCircle2: () => <span data-testid="check-icon" />
+  CheckCircle2: () => <span data-testid="check-icon" />,
+  X: () => <span data-testid="x-icon" />
 }));
 
 describe('UI Layout Component Snapshot Tests', () => {

@@ -11,12 +11,19 @@ vi.mock('canvas-confetti', () => ({
   default: vi.fn()
 }));
 
+// Mock react-router-dom to prevent useNavigate errors
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
+  Link: ({ to, children }: any) => <a href={to}>{children}</a>
+}));
+
 // Mock Lucide icons to prevent react rendering errors during isolated tests
 vi.mock('lucide-react', () => ({
   Lock: () => <span data-testid="lock-icon" />,
   Loader2: () => <span data-testid="loader-icon" />,
   ShieldCheck: () => <span data-testid="shield-icon" />,
-  CheckCircle2: () => <span data-testid="check-icon" />
+  CheckCircle2: () => <span data-testid="check-icon" />,
+  X: () => <span data-testid="x-icon" />
 }));
 
 describe('Button UI Component Tests', () => {
@@ -81,7 +88,7 @@ describe('Modal Component Tests', () => {
 describe('WaitlistForm Component Tests', () => {
   it('should_render_email_input_field_and_submit_button_initially', () => {
     render(<WaitlistForm />);
-    expect(screen.getByPlaceholderText('Search resources...') || screen.getByRole('textbox')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /join|secure/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your email address')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /claim/i })).toBeInTheDocument();
   });
 });

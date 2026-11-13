@@ -77,15 +77,15 @@ export default function CryptoCalculator() {
                   />
                </div>
 
-               <div className="flex items-start gap-4 p-4 rounded-2xl bg-obsidian-950/50 border border-base/40">
+               <div className="flex items-start gap-4 p-4 rounded-2xl bg-page/60 border border-base/40">
                   <AlertTriangle size={20} className="text-brand-gold shrink-0 mt-1" />
                   <p className="text-[11px] font-medium text-secondary leading-relaxed">
-                    Based on Chainalysis 2024 data, roughly <span className="text-white font-bold">3.7M BTC</span> is already permanently lost due to abandoned private keys.
+                    Based on Chainalysis 2024 data, roughly <span className="text-brand-primary font-bold">3.7M BTC</span> is already permanently lost due to abandoned private keys.
                   </p>
                </div>
             </div>
 
-            <Card className="p-10 bg-obsidian-950/80 border-red-400/30 rounded-[32px] text-center shadow-inner">
+            <Card className="p-10 bg-surface/50 border border-base/60 rounded-[32px] text-center shadow-inner">
                <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-400/10 rounded-full border border-red-400/20 mb-8">
                   <Zap size={14} className="text-red-400" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-red-400">Exposure Alert</span>

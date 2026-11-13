@@ -107,7 +107,7 @@ export default function SuccessionPlanner() {
                     <button
                       key={i}
                       onClick={() => handleAnswer(option)}
-                      className="group flex items-center justify-between p-6 rounded-[24px] bg-obsidian-950/50 border border-base/40 hover:border-brand-primary transition-all text-left"
+                      className="group flex items-center justify-between p-6 rounded-[24px] bg-page/60 border border-base/40 hover:border-brand-primary transition-all text-left"
                     >
                       <span className="text-lg font-bold text-secondary group-hover:text-primary transition-colors">{option}</span>
                       <div className="w-8 h-8 rounded-full border border-base/40 group-hover:bg-brand-primary group-hover:border-brand-primary flex items-center justify-center transition-all">
@@ -137,7 +137,7 @@ export default function SuccessionPlanner() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
-                <div className="p-6 rounded-[32px] bg-obsidian-950/50 border border-base/40">
+                <div className="p-6 rounded-[32px] bg-page/60 border border-base/40">
                   <h4 className="flex items-center gap-2 text-brand-gold font-bold uppercase tracking-widest text-[10px] mb-4">
                     <AlertTriangle size={14} /> Immediate Risks
                   </h4>
@@ -200,7 +200,7 @@ export default function SuccessionPlanner() {
                    { label: "Tax Optimization", status: "Missing" },
                    { label: "Legal Alignment", status: "Manual" }
                  ].map((item, i) => (
-                   <div key={i} className="flex items-center justify-between p-4 bg-obsidian-950/50 rounded-2xl border border-base/40">
+                   <div key={i} className="flex items-center justify-between p-4 bg-page/60 rounded-2xl border border-base/40">
                       <span className="text-sm font-bold text-secondary">{item.label}</span>
                       <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md ${
                         item.status === 'Critical' ? 'bg-red-400/10 text-red-400' : 

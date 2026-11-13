@@ -154,13 +154,6 @@ export default function Hero() {
         {/* ── LEFT COLUMN: Text + CTA ── */}
         <div className="flex flex-col items-start text-left max-w-xl">
           
-          {/* Eyebrow Pill */}
-          <div
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-semibold border border-border-base bg-surface/50 text-secondary mb-6"
-          >
-            <span className="w-3.5 h-3.5 rounded bg-[#FF6B35] text-white text-[9px] font-extrabold flex items-center justify-center font-sans">Y</span>
-            <span>Backed by <b className="text-primary font-semibold">founding members in 14 countries</b></span>
-          </div>
 
           {/* H1 in Fraunces display font */}
           <h1

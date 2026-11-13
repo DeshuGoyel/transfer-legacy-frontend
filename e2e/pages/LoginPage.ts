@@ -7,7 +7,7 @@ export class LoginPage extends BasePage {
   private passwordInput = 'input[type="password"], input[name="password"], #password';
   private loginButton = 'button[type="submit"], button:has-text("Login"), button:has-text("Sign In")';
   private forgotPasswordLink = 'a:has-text("Forgot"), a:has-text("forgot")';
-  private errorMessage = '[role="alert"], .error-message, .toast-error, [data-testid="error"]';
+  private errorMessage = '[role="alert"], .error-message, .toast-error, [data-testid="error"], .text-red-400, .bg-red-500\\/10, div:has-text("User not found"), div:has-text("invalid"), div:has-text("Failed"), div:has-text("Error")';
 
   constructor(page: Page) {
     super(page);

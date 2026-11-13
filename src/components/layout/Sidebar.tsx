@@ -10,6 +10,7 @@ import {
   GitBranch,
   Cpu,
   ChevronRight,
+  History,
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../utils/cn';
@@ -22,6 +23,8 @@ const sections = [
     items: [
       { icon: LayoutDashboard, label: 'Overview',     path: '/dashboard' },
       { icon: Package,         label: 'Accounts',     path: '/assets' },
+      { icon: Shield,          label: 'Security Center', path: '/security-center' },
+      { icon: History,         label: 'Activity',     path: '/activity' },
     ],
   },
   {
