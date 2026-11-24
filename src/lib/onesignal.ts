@@ -53,9 +53,20 @@ export const initOneSignal = (): Promise<any> => {
           await OneSignal.init({
             appId: ONESIGNAL_APP_ID || "1ed98a30-a4ac-4ba2-a993-b956fe268581",
             allowLocalhostAsSecureOrigin: true,
+            autoResubscribe: false,
             notifyButton: {
               enable: false, // We use our own customized UI in settings and drawer
             },
+            promptOptions: {
+              slidedown: {
+                prompts: [
+                  {
+                    type: "push",
+                    autoPrompt: false
+                  }
+                ]
+              }
+            }
           });
         }
         resolve(OneSignal);

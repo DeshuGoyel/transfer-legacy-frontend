@@ -993,3 +993,47 @@
     transform: translate(30px, -35px) scale(1.1);
   }
 }
+
+/* ── OneSignal Theme Consistency Overrides ── */
+#onesignal-slidedown-dialog,
+.onesignal-slidedown-dialog {
+  background: #0E100C !important;
+  color: #F3F2EA !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(75, 174, 130, 0.1) !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+#onesignal-slidedown-container .onesignal-slidedown-body-message,
+#onesignal-slidedown-body {
+  color: #D2D3C6 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+button#onesignal-slidedown-allow-button {
+  background: #4BAE82 !important;
+  color: #0E100C !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  border: none !important;
+  padding: 8px 18px !important;
+  box-shadow: 0 4px 15px rgba(75, 174, 130, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+button#onesignal-slidedown-allow-button:hover {
+  background: #6FC79E !important;
+}
+
+button#onesignal-slidedown-cancel-button {
+  background: transparent !important;
+  color: #9EA090 !important;
+  font-weight: 500 !important;
+  border: none !important;
+}
+
+button#onesignal-slidedown-cancel-button:hover {
+  color: #F3F2EA !important;
+}
