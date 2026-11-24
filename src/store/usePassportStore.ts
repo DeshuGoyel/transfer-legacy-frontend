@@ -23,13 +23,13 @@ interface PassportState {
 }
 
 const defaultPassport: IdentityPassport = {
-  fullName: localStorage.getItem('tl_user_name') || "Secured User",
-  dateOfBirth: "1985-06-15",
-  country: "United States",
-  emergencyContact: { name: "Sarah Asha", phone: "+1 555-0198", relation: "Spouse" },
-  bloodGroup: "O+",
-  vaultSummary: "This user has 4 protected digital assets worth approximately $120,000, 2 confirmed guardians, and 3 designated heirs.",
-  qrCodeData: "lk.id/u_12345_mock",
+  fullName: typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_name') || "") : "",
+  dateOfBirth: "",
+  country: "",
+  emergencyContact: { name: "", phone: "", relation: "" },
+  bloodGroup: "",
+  vaultSummary: "",
+  qrCodeData: "",
   lastUpdated: new Date().toISOString(),
   shareableWithAttorney: false,
   shareableWithAdvisor: false,
@@ -46,13 +46,17 @@ export const usePassportStore = create<PassportState>()(
       })),
       
       generateQRData: () => set((state) => {
+        const userId = typeof localStorage !== 'undefined' ? (localStorage.getItem('tl_user_id') || 'unregistered') : 'unregistered';
         const publicData = {
-          name: state.passport.fullName,
-          dob: state.passport.dateOfBirth,
-          blood: state.passport.bloodGroup,
-          emergency: state.passport.emergencyContact
+          uid: userId,
+          name: state.passport.fullName || undefined,
+          dob: state.passport.dateOfBirth || undefined,
+          blood: state.passport.bloodGroup || undefined,
+          emergency: state.passport.emergencyContact?.name ? state.passport.emergencyContact : undefined,
+          ts: Date.now()
         };
-        const qrString = `transfer_legacy:passport:${btoa(JSON.stringify(publicData))}`;
+        const payload = btoa(unescape(encodeURIComponent(JSON.stringify(publicData))));
+        const qrString = `https://transferlegacy.com/trust?passport=${payload}`;
         return { passport: { ...state.passport, qrCodeData: qrString, lastUpdated: new Date().toISOString() } };
       }),
       

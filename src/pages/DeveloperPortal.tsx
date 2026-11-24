@@ -1,4 +1,5 @@
 import { useState, Suspense } from 'react';
+import { toast } from 'react-hot-toast';
 import { 
   Terminal, 
   Shield, 
@@ -35,12 +36,15 @@ export default function DeveloperPortal() {
 
 
   const handleConnectBank = () => {
+    const instName = window.prompt("Enter Institution or Custodian Name:", "Private Wealth Partners");
+    if (!instName || !instName.trim()) return;
     registerNode({
-      name: 'Chase Wealth Management',
-      type: 'bank',
+      name: instName.trim(),
+      type: 'custodian',
       status: 'active',
       permissions: ['read_assets', 'verify_death']
     });
+    toast.success(`Node registered for ${instName.trim()}`);
   };
 
   const tabs = [
@@ -151,7 +155,10 @@ export default function DeveloperPortal() {
                                   <p className="text-xs font-mono text-primary mt-0.5">{lastPing[node.id] ? new Date(lastPing[node.id]).toLocaleTimeString() : 'Never'}</p>
                                 </div>
                                 <button 
-                                  onClick={() => pingNode(node.id)}
+                                  onClick={() => {
+                                    pingNode(node.id);
+                                    toast.success(`Node ${node.name} pinged`);
+                                  }}
                                   className="p-3 rounded-xl bg-surface hover:bg-brand-primary/10 text-muted hover:text-brand-primary transition-all border border-base group-hover:border-brand-primary/30"
                                 >
                                   <Activity size={18} />

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { mockActivity } from '../data/mockData';
 import { api, notificationApi } from '../lib/api';
 import { DerivedUserKeys } from '../lib/opaqueClient';
 
@@ -344,15 +343,15 @@ const getInitialState = () => {
 
   let activity: Activity[] = [];
   try {
-    const savedActivity = localStorage.getItem('tl_activity');
-    if (savedActivity) {
-      activity = JSON.parse(savedActivity);
-    } else {
-      activity = [...mockActivity];
+    if (typeof localStorage !== 'undefined') {
+      const savedActivity = localStorage.getItem('tl_activity');
+      if (savedActivity) {
+        activity = JSON.parse(savedActivity);
+      }
     }
   } catch (e) {
     console.error('Failed to parse tl_activity from localStorage', e);
-    activity = [...mockActivity];
+    activity = [];
   }
 
   return {
@@ -396,8 +395,8 @@ export const useStore = create<AppState>((set, get) => ({
     { id: 'c4', name: 'Red Cross', description: 'Emergency assistance and disaster relief.', category: 'Humanitarian' }
   ],
   allocations: [],
-  activity: loadedState.activity || [...mockActivity],
-  notifications: [...mockNotifications],
+  activity: loadedState.activity || [],
+  notifications: [],
   theme: typeof window !== 'undefined' ? localStorage.getItem('theme') || "dark" : "dark",
   accentColor: "#4F5CFF",
   isNotificationOpen: false,
@@ -781,7 +780,7 @@ export const useStore = create<AppState>((set, get) => ({
         userKeys: null,
         activePolicyId: null,
         recoveredAssets: [],
-        activity: [...mockActivity],
+        activity: [],
         user: {
           name: "Secured User",
           email: "",

@@ -32,26 +32,17 @@ interface B2BState {
   lastPing: Record<string, string>;
   createKey: (name: string, tier: B2BApiKey["tier"]) => string;
   revokeKey: (id: string) => void;
-  simulateCall: () => void;
+  recordApiCall: (keyId?: string) => void;
   addWebhook: (url: string, events: string[]) => void;
   registerNode: (node: Omit<B2BNode, 'id'>) => void;
   pingNode: (id: string) => void;
 }
 
-const mockInitialUsage = Array.from({ length: 30 }, (_, i) => {
-  const d = new Date();
-  d.setDate(d.getDate() - (29 - i));
-  return {
-    date: d.toISOString().split('T')[0],
-    calls: Math.floor(Math.random() * 50) + (i * 10) // simulated growth
-  };
-});
-
 export const useB2BStore = create<B2BState>()(
   persist(
     (set) => ({
       apiKeys: [],
-      usageData: mockInitialUsage,
+      usageData: [],
       webhooks: [],
       connectedNodes: [],
       lastPing: {},
@@ -80,21 +71,23 @@ export const useB2BStore = create<B2BState>()(
         apiKeys: state.apiKeys.map(k => k.id === id ? { ...k, status: "revoked" } : k)
       })),
       
-      simulateCall: () => set((state) => {
+      recordApiCall: (keyId) => set((state) => {
         const today = new Date().toISOString().split('T')[0];
-        const lastData = state.usageData[state.usageData.length - 1];
-        
-        const newUsage = [...state.usageData];
-        if (lastData.date === today) {
-          lastData.calls += 1;
+        const existingIdx = state.usageData.findIndex(u => u.date === today);
+        let newUsage = [...state.usageData];
+        if (existingIdx >= 0) {
+          newUsage[existingIdx] = { ...newUsage[existingIdx], calls: newUsage[existingIdx].calls + 1 };
         } else {
           newUsage.push({ date: today, calls: 1 });
-          if (newUsage.length > 30) newUsage.shift();
+          if (newUsage.length > 30) newUsage = newUsage.slice(-30);
         }
         
         return {
           usageData: newUsage,
-          apiKeys: state.apiKeys.map(k => k.status === 'active' ? { ...k, lastUsedAt: new Date().toISOString() } : k)
+          apiKeys: state.apiKeys.map(k => (keyId && k.id === keyId) || (!keyId && k.status === 'active')
+            ? { ...k, lastUsedAt: new Date().toISOString() }
+            : k
+          )
         };
       }),
       
