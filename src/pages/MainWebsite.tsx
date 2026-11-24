@@ -12,6 +12,7 @@ import { useLocation } from 'react-router-dom';
 import { cn } from '../utils/cn';
 import { useVaultAutoLock } from '../hooks/useVaultAutoLock';
 import CookieConsentBanner from '../components/common/CookieConsentBanner';
+import NotificationPrompt from '../components/common/NotificationPrompt';
 
 // Eager or lazy app routes
 const Dashboard = lazy(() => import('../pages/Dashboard'));
@@ -286,6 +287,8 @@ export default function MainWebsite() {
     <>
       <AppCursor />
       <AppLayout />
+      <CookieConsentBanner />
+      <NotificationPrompt />
       <Toaster position="top-right" />
     </>
   );

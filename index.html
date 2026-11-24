@@ -17,9 +17,20 @@
         await OneSignal.init({
           appId: "1ed98a30-a4ac-4ba2-a993-b956fe268581",
           allowLocalhostAsSecureOrigin: true,
+          autoResubscribe: false,
           notifyButton: {
             enable: false,
           },
+          promptOptions: {
+            slidedown: {
+              prompts: [
+                {
+                  type: "push",
+                  autoPrompt: false
+                }
+              ]
+            }
+          }
         });
       });
     </script>
