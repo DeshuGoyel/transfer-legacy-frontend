@@ -73,16 +73,20 @@ export default function IdentityPassportPage() {
     setIsEditModalOpen(false);
   };
 
-  const simulateAiSummary = () => {
+  const generateVaultSummary = () => {
     setIsGenerating(true);
     const totalValue = assets.reduce((acc, a) => acc + (a.value || 0), 0);
-    const newSummary = `This sovereign user has ${assets.length} protected digital assets worth approximately $${totalValue.toLocaleString()}, ${guardians.filter(g=>g.status==='confirmed').length} confirmed institutional guardians, and ${heirs.length} designated beneficiaries. The protocol is fully synchronized.`;
-    
-    setTimeout(() => {
-      generateSummary(newSummary);
-      setEditForm(prev => ({ ...prev, vaultSummary: newSummary }));
-      setIsGenerating(false);
-    }, 1500);
+    const confirmedGuardians = guardians.filter(g => (g.status || '').toLowerCase() === 'confirmed').length;
+    let newSummary = '';
+    if (assets.length === 0 && guardians.length === 0 && heirs.length === 0) {
+      newSummary = 'Vault initialized. Add protected digital assets, guardians, and beneficiaries to establish estate succession credentials.';
+    } else {
+      newSummary = `This sovereign user has ${assets.length} protected digital asset(s) worth approximately $${totalValue.toLocaleString()}, ${confirmedGuardians} confirmed guardian(s), and ${heirs.length} designated beneficiary(ies). The estate protocol is synchronized.`;
+    }
+    generateSummary(newSummary);
+    setEditForm(prev => ({ ...prev, vaultSummary: newSummary }));
+    setIsGenerating(false);
+    toast.success('Passport summary generated from live vault data.');
   };
 
   const calculateAge = (dob: string) => {
@@ -209,7 +213,7 @@ export default function IdentityPassportPage() {
                   "{passport.vaultSummary}"
                 </p>
                 <button 
-                  onClick={simulateAiSummary} 
+                  onClick={generateVaultSummary} 
                   disabled={isGenerating} 
                   className="text-[10px] font-bold text-primary0 uppercase tracking-widest flex items-center gap-2 hover:text-brand-primary transition-colors disabled:opacity-50"
                 >

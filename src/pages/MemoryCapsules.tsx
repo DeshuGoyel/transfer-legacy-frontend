@@ -27,9 +27,10 @@ export default function MemoryCapsules() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const simulateAiGeneration = () => {
+  const generateDraftTemplate = () => {
     setIsGenerating(true);
-    const text = "To those I hold dear, \n\nI am establishing this institutional memory capsule to ensure my intentions and legacy are preserved with absolute clarity. Beyond the assets allocated, I want to impart the values that built this foundation. Please manage what has been entrusted to you with the same integrity and long-term vision. \n\nWith enduring trust.";
+    const userName = (typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_name') : null) || 'With enduring trust';
+    const text = `To those I hold dear, \n\nI am establishing this memory capsule to ensure my intentions and legacy are preserved with absolute clarity. Beyond the assets allocated, I want to impart the values that built this foundation. Please manage what has been entrusted to you with integrity and long-term vision. \n\nWith enduring trust,\n${userName}`;
     
     let currentText = "";
     let i = 0;
@@ -313,7 +314,7 @@ export default function MemoryCapsules() {
                           {getIcon(newCapsule.type || 'letter')} Content Manifest
                         </h3>
                         <button 
-                          onClick={simulateAiGeneration}
+                          onClick={generateDraftTemplate}
                           disabled={isGenerating}
                           className="text-[10px] font-bold px-4 py-2 rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/30 flex items-center gap-2 hover:bg-brand-gold/20 transition-all uppercase tracking-widest"
                         >

@@ -25,9 +25,10 @@ export default function DigitalObituary() {
   const [newEntry, setNewEntry] = useState<Partial<ObituaryEntry>>({ type: 'letter' });
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const simulateAiGeneration = () => {
+  const generateDraftTemplate = () => {
     setIsGenerating(true);
-    const text = "My dearest family, \n\nIf you are reading this, it means I have passed on. Please know that my final thoughts were full of love and gratitude for the time we shared. I've left instructions to ensure you are taken care of through the Transfer Legacy protocols. Do not mourn for too long, but celebrate the joyful moments we had. I am at peace.\n\nAlways with you,\n[Name]";
+    const userName = (typeof localStorage !== 'undefined' ? localStorage.getItem('tl_user_name') : null) || 'Always with you';
+    const text = `My dearest family, \n\nIf you are reading this, it means I have passed on. Please know that my final thoughts were full of love and gratitude for the time we shared. I've left instructions to ensure you are taken care of through the Transfer Legacy protocols. Do not mourn for too long, but celebrate the joyful moments we had. I am at peace.\n\nAlways with you,\n${userName}`;
     
     let currentText = "";
     let i = 0;
@@ -250,7 +251,7 @@ export default function DigitalObituary() {
                           {getIcon(newEntry.type || 'letter')} Transcribe Content
                         </h3>
                         <button 
-                          onClick={simulateAiGeneration}
+                          onClick={generateDraftTemplate}
                           disabled={isGenerating}
                           className="px-5 py-2.5 rounded-xl bg-brand-gold/10 text-brand-gold border border-brand-gold/20 flex items-center gap-2 hover:bg-brand-gold/20 transition-all text-[10px] font-bold uppercase tracking-widest"
                         >
